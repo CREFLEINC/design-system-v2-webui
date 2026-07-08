@@ -49,6 +49,9 @@
 .dismiss {
   flex: 0 0 auto;
   margin-top: calc(var(--space-1) * -1);
+}
+
+.root .dismiss {
   color: inherit;
 }
 

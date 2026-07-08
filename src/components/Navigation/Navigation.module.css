@@ -116,6 +116,10 @@
   box-shadow: inset 2px 0 0 var(--primary-text);
 }
 
+.item.active:focus-visible {
+  box-shadow: var(--focus-ring), inset 2px 0 0 var(--primary-text);
+}
+
 .item.active .label {
   color: var(--on-primary-container);
 }

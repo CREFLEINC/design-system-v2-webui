@@ -73,7 +73,13 @@ export const StatCard = forwardRef<HTMLElement, StatCardProps>(function StatCard
       <div className={styles.header}>
         <span className={styles.label}>{label}</span>
         {status && (
-          <span className={styles.dot} data-status={status} role="img" aria-label={statusLabel} />
+          <span
+            className={styles.dot}
+            data-status={status}
+            role={statusLabel ? 'img' : undefined}
+            aria-label={statusLabel}
+            aria-hidden={statusLabel ? undefined : true}
+          />
         )}
       </div>
       <div className={styles.valueRow}>

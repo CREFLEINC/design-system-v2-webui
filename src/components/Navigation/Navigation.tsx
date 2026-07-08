@@ -108,8 +108,8 @@ export const Sidebar = forwardRef<HTMLElement, SidebarProps>(function Sidebar(
     <nav
       ref={ref}
       className={cx(styles.sidebar, className)}
-      data-collapsed={isCollapsed}
       {...rest}
+      data-collapsed={isCollapsed}
     >
       {(header || collapsible) && (
         <div className={styles.header}>
@@ -237,7 +237,7 @@ export const SidebarSection = forwardRef<HTMLDivElement, SidebarSectionProps>(fu
 ) {
   const { collapsed } = useContext(SidebarContext)
   return (
-    <div ref={ref} role="group" aria-label={label} className={cx(styles.section, className)} {...rest}>
+    <div ref={ref} className={cx(styles.section, className)} {...rest} role="group" aria-label={label}>
       <div className={cx(styles.sectionLabel, collapsed && styles.sectionLabelHidden)} aria-hidden="true">
         {label}
       </div>

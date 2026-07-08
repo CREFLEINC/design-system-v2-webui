@@ -131,7 +131,11 @@
 
 @media (prefers-reduced-motion: reduce) {
   .toast,
-  .leaving {
+  .leaving,
+  .region[data-position$='right'] .toast,
+  .region[data-position$='right'] .leaving,
+  .region[data-position$='left'] .toast,
+  .region[data-position$='left'] .leaving {
     animation: none;
   }
 }

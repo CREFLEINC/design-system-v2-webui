@@ -28,6 +28,13 @@
   text-align: left;
 }
 
+.table thead th[data-align='end'] {
+  text-align: right;
+}
+.table thead th[data-align='center'] {
+  text-align: center;
+}
+
 /* -------- density -------- */
 .comfortable td,
 .comfortable th {

@@ -155,10 +155,10 @@ export const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(functi
           onKeyDown={handleKeyDown}
           disabled={disabled}
           required={required}
-          aria-invalid={invalid || undefined}
           aria-describedby={describedBy}
-          aria-required={required || undefined}
           {...rest}
+          aria-invalid={invalid || undefined}
+          aria-required={required || undefined}
         />
         {hasText && !disabled && (
           <IconButton

@@ -158,7 +158,7 @@ function MatrixDemo() {
 
 export const Matrix: Story = {
   render: () => (
-    <ToastProvider position="bottom-right">
+    <ToastProvider position="bottom-right" max={VARIANTS.length}>
       <MatrixDemo />
     </ToastProvider>
   )

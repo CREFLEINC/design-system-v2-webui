@@ -1,4 +1,12 @@
-import { forwardRef, useState, type HTMLAttributes, type ReactNode } from 'react'
+import {
+  forwardRef,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type HTMLAttributes,
+  type ReactNode
+} from 'react'
 import { cx } from '../../utils/cx'
 import { Icon } from '../Icon/Icon'
 import styles from './Breadcrumb.module.css'
@@ -49,6 +57,28 @@ export const Breadcrumb = forwardRef<HTMLElement, BreadcrumbProps>(function Brea
 ) {
   const [expanded, setExpanded] = useState(false)
 
+  // 생략(…) 트리거는 확장 시 unmount되어 포커스가 body로 떨어진다.
+  // 확장 직후 첫 번째로 새로 드러난 링크(또는 링크가 없으면 nav 자체)로 포커스를 옮긴다.
+  const navRef = useRef<HTMLElement>(null)
+  const setNavRefs = useCallback(
+    (node: HTMLElement | null) => {
+      navRef.current = node
+      if (typeof ref === 'function') ref(node)
+      else if (ref) ref.current = node
+    },
+    [ref]
+  )
+  const firstRevealedRef = useRef<HTMLAnchorElement>(null)
+
+  useEffect(() => {
+    if (!expanded) return
+    if (firstRevealedRef.current) {
+      firstRevealedRef.current.focus()
+    } else {
+      navRef.current?.focus()
+    }
+  }, [expanded])
+
   const shouldCollapse =
     !expanded && maxItems != null && items.length > maxItems && items.length > 3
 
@@ -72,7 +102,13 @@ export const Breadcrumb = forwardRef<HTMLElement, BreadcrumbProps>(function Brea
   }
 
   return (
-    <nav ref={ref} aria-label={ariaLabel} className={cx(styles.root, className)} {...rest}>
+    <nav
+      ref={setNavRefs}
+      tabIndex={-1}
+      aria-label={ariaLabel}
+      className={cx(styles.root, className)}
+      {...rest}
+    >
       <ol className={styles.list}>
         {entries.map((entry, idx) => (
           <li className={styles.item} key={entry.key}>
@@ -96,7 +132,11 @@ export const Breadcrumb = forwardRef<HTMLElement, BreadcrumbProps>(function Brea
                 {entry.item.label}
               </span>
             ) : entry.item.href ? (
-              <a className={styles.link} href={entry.item.href}>
+              <a
+                ref={idx === 1 ? firstRevealedRef : undefined}
+                className={styles.link}
+                href={entry.item.href}
+              >
                 {entry.item.label}
               </a>
             ) : (
