@@ -31,7 +31,7 @@ export const TextField = forwardRef<HTMLInputElement, TextFieldProps>(function T
   const id = idProp ?? reactId
   const helperId = `${id}-helper`
   const errorId = `${id}-error`
-  const invalid = error != null && error !== false
+  const invalid = Boolean(error)
   const describedBy =
     cx(describedByProp, invalid ? errorId : helperText ? helperId : undefined) || undefined
 

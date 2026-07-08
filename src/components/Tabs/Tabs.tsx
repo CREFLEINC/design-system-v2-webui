@@ -77,11 +77,9 @@ export const Tabs = forwardRef<HTMLDivElement, TabsProps>(function Tabs(
     let nextIndex: number | undefined
     switch (e.key) {
       case 'ArrowRight':
-      case 'ArrowDown':
         nextIndex = enabled[(pos + 1 + enabled.length) % enabled.length]
         break
       case 'ArrowLeft':
-      case 'ArrowUp':
         nextIndex = enabled[(pos - 1 + enabled.length) % enabled.length]
         break
       case 'Home':

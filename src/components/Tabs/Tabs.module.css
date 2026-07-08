@@ -9,7 +9,10 @@
   position: relative;
   gap: var(--space-2);
   overflow-x: auto;
-  /* 베이스라인 트랙 — 폼 컨트롤 경계(>=3:1) */
+  /* 세로 패딩 — overflow-x:auto가 강제하는 overflow-y:auto에 포커스 링이 잘리지 않도록 여유 확보 */
+  padding: var(--space-1) 0;
+  /* 베이스라인 트랙 — 폼 컨트롤 경계(>=3:1). box-shadow는 스크롤 컨텐츠가 아닌 뷰포트 기준으로 그려져
+     가로 스크롤 중에도 항상 보인다 (pseudo-element로 바꾸면 스크롤에 딸려가 사라짐) */
   box-shadow: inset 0 -1px 0 0 var(--outline);
 }
 
@@ -55,7 +58,8 @@
   position: absolute;
   left: var(--space-3);
   right: var(--space-3);
-  bottom: 0;
+  /* .tablist의 세로 패딩만큼 아래로 밀어 베이스라인 트랙과 다시 맞춘다 */
+  bottom: calc(-1 * var(--space-1));
   height: 2px;
   border-radius: var(--radius-full);
   background: var(--primary);

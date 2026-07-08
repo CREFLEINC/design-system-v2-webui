@@ -63,7 +63,6 @@ function isGroup(item: SelectOption | SelectOptionGroup): item is SelectOptionGr
 interface FlatEntry {
   opt: SelectOption
   id: string
-  groupIndex: number
 }
 
 export const Select = forwardRef<HTMLButtonElement, SelectProps>(function Select(
@@ -110,11 +109,11 @@ export const Select = forwardRef<HTMLButtonElement, SelectProps>(function Select
 
   const flat = useMemo<FlatEntry[]>(() => {
     const arr: FlatEntry[] = []
-    options.forEach((item, gi) => {
+    options.forEach((item) => {
       if (isGroup(item)) {
-        item.options.forEach((opt) => arr.push({ opt, id: '', groupIndex: gi }))
+        item.options.forEach((opt) => arr.push({ opt, id: '' }))
       } else {
-        arr.push({ opt: item, id: '', groupIndex: -1 })
+        arr.push({ opt: item, id: '' })
       }
     })
     return arr.map((e, i) => ({ ...e, id: `${baseId}-opt-${i}` }))
@@ -308,8 +307,14 @@ export const Select = forwardRef<HTMLButtonElement, SelectProps>(function Select
         aria-invalid={invalid || undefined}
         aria-label={ariaLabel}
         aria-labelledby={ariaLabelledby}
-        onClick={handleTriggerClick}
-        onKeyDown={handleKeyDown}
+        onClick={(e) => {
+          rest.onClick?.(e)
+          handleTriggerClick()
+        }}
+        onKeyDown={(e) => {
+          rest.onKeyDown?.(e)
+          handleKeyDown(e)
+        }}
       >
         {leadingIcon}
         <span className={cx(styles.value, !selectedEntry && styles.placeholder)}>

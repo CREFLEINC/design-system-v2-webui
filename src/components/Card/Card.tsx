@@ -1,6 +1,7 @@
 import {
   forwardRef,
   type HTMLAttributes,
+  type KeyboardEvent as ReactKeyboardEvent,
   type Ref,
   type ReactNode
 } from 'react'
@@ -72,16 +73,33 @@ const CardRoot = forwardRef<HTMLElement, CardProps>(function Card(
   )
 
   if (interactive) {
+    // 네이티브 <button>은 phrasing content만 허용해 CardHeader/Body/Footer의 <div>를
+    // 담을 수 없다(유효하지 않은 HTML). role="button" + 수동 키보드 처리로 대체한다.
+    const handleKeyDown = (e: ReactKeyboardEvent<HTMLDivElement>) => {
+      rest.onKeyDown?.(e)
+      if (disabled) return
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault()
+        e.currentTarget.click()
+      }
+    }
+
     return (
-      <button
-        ref={ref as Ref<HTMLButtonElement>}
-        type="button"
+      <div
+        ref={ref as Ref<HTMLDivElement>}
+        role="button"
+        tabIndex={disabled ? -1 : 0}
+        aria-disabled={disabled || undefined}
         className={rootClass}
-        disabled={disabled}
         {...rest}
+        onClick={(e) => {
+          if (disabled) return
+          rest.onClick?.(e)
+        }}
+        onKeyDown={handleKeyDown}
       >
         {children}
-      </button>
+      </div>
     )
   }
 

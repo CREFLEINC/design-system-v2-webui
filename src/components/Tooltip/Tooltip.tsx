@@ -47,6 +47,9 @@ export const Tooltip = forwardRef<HTMLSpanElement, TooltipProps>(function Toolti
 ) {
   const [open, setOpen] = useState(false)
   const timerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
+  // 트리거가 현재 포커스를 갖고 있는지 추적 — hover로 지나가며 mouseleave가
+  // 키보드 포커스로 열린 툴팁을 닫아버리지 않도록 한다
+  const isFocusedRef = useRef(false)
   const tooltipId = useId()
 
   const clearTimer = () => {
@@ -94,13 +97,17 @@ export const Tooltip = forwardRef<HTMLSpanElement, TooltipProps>(function Toolti
       }}
       onMouseLeave={(e) => {
         onMouseLeave?.(e)
+        // 포커스가 유지된 상태라면(키보드로 연 경우) 마우스가 지나가도 닫지 않는다
+        if (isFocusedRef.current) return
         hide()
       }}
       onFocus={(e) => {
+        isFocusedRef.current = true
         onFocus?.(e)
         show()
       }}
       onBlur={(e) => {
+        isFocusedRef.current = false
         onBlur?.(e)
         hide()
       }}

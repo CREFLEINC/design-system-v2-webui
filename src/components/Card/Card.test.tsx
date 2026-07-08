@@ -18,11 +18,11 @@ test('surface/elevation/bordered 클래스가 적용된다', () => {
   expect(el.className).toContain(styles.bordered)
 })
 
-test('interactive면 button으로 렌더되고 클릭을 전달한다', async () => {
+test('interactive면 role=button으로 렌더되고 클릭을 전달한다', async () => {
   const onClick = vi.fn()
   render(<Card interactive onClick={onClick}>클릭</Card>)
   const el = screen.getByRole('button', { name: '클릭' })
-  expect(el).toHaveAttribute('type', 'button')
+  expect(el.tagName).toBe('DIV')
   await userEvent.click(el)
   expect(onClick).toHaveBeenCalledOnce()
 })
@@ -41,7 +41,9 @@ test('interactive + disabled면 클릭이 차단된다', async () => {
   const onClick = vi.fn()
   render(<Card interactive disabled onClick={onClick}>비활성</Card>)
   const el = screen.getByRole('button')
-  expect(el).toBeDisabled()
+  // role="button" div이므로 네이티브 disabled 대신 aria-disabled로 상태를 표현한다
+  expect(el).toHaveAttribute('aria-disabled', 'true')
+  expect(el).toHaveAttribute('tabindex', '-1')
   await userEvent.click(el)
   expect(onClick).not.toHaveBeenCalled()
 })

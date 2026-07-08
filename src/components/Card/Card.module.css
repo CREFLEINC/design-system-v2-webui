@@ -48,12 +48,14 @@
 }
 .interactive:hover::before { background: var(--state-hover-neutral) }
 .interactive:active::before { background: var(--state-press-neutral) }
-.interactive:hover { --_elev: var(--elevation-2) }
+.interactive:hover:not([aria-disabled='true']) { --_elev: var(--elevation-2) }
 .interactive:focus-visible { box-shadow: var(--focus-ring), var(--_elev) }
 
-.interactive:disabled { cursor: default }
-.interactive:disabled::before { background: transparent }
-.interactive:disabled:hover { --_elev: var(--elevation-0) }
+/* button이 아닌 role="button" div이므로 :disabled 대신 aria-disabled로 상태를 표현한다.
+   hover 시에도 --_elev를 강제로 elevation-0으로 덮지 않고, 위의 :hover 규칙 매칭을
+   차단해 elevN 클래스가 지정한 원래 resting elevation을 그대로 유지한다. */
+.interactive[aria-disabled='true'] { cursor: default }
+.interactive[aria-disabled='true']::before { background: transparent }
 
 /* -------- subcomponents (spacing/typography/layout only) -------- */
 .header {

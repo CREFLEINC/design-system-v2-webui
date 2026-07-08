@@ -41,7 +41,7 @@
 }
 
 /* -------- border state machine (token-only box-shadow) -------- */
-.inputWrap:hover:not(.disabled):not(:focus-within) {
+.inputWrap:hover:not(.disabled):not(.invalid):not(:focus-within) {
   box-shadow: inset 0 0 0 1px var(--on-surface);
 }
 .inputWrap:focus-within {

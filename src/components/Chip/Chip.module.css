@@ -84,5 +84,5 @@
 .remove:focus-visible { box-shadow: var(--focus-ring) }
 
 @media (prefers-reduced-motion: reduce) {
-  .chip, .filter::before, .remove::before { transition: none }
+  .filter, .filter::before, .remove::before { transition: none }
 }
