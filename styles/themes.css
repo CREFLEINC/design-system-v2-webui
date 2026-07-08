@@ -50,4 +50,17 @@
   --chart-3: #B9BBC1;
   --chart-4: #8A8D94;
   --chart-5: #5C6067;
+
+  /* Outline — 다크 surface #1B1D21 대비 ≥3:1 */
+  --outline: #8E9099;                            /* 5.30:1 on #1B1D21 (Step 4 검증 완료) */
+  /* Semantic 텍스트 — 다크에서 밝은 톤 */
+  --semantic-error-text: #F2B8B5;                /* 9.88:1 on #1B1D21 */
+  /* Semantic 컨테이너 — 다크 surface-relative 틴트 */
+  --semantic-success-container: #17311F;  --on-semantic-success-container: #A6D9B6;
+  --semantic-error-container:   #3A1512;  --on-semantic-error-container:   #F2B8B5;
+  --semantic-warning-container: #362B04;  --on-semantic-warning-container: #F2D48F;
+  --semantic-info-container:    #14243F;  --on-semantic-info-container:    #AEC9F5;
+  --semantic-idle-container:    #2A2D33;  --on-semantic-idle-container:    #C4C6CC;
+  /* Scrim — 다크는 더 짙게 */
+  --scrim: rgba(0, 0, 0, 0.60);
 }
