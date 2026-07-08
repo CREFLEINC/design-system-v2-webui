@@ -1,0 +1,56 @@
+.root {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  width: 100%;
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  font: var(--type-body-sm);
+  letter-spacing: var(--type-body-sm-tracking);
+}
+
+/* -------- variants: bg + on-container 텍스트만 지정 -------- */
+.success { background: var(--semantic-success-container); color: var(--on-semantic-success-container); }
+.error   { background: var(--semantic-error-container);   color: var(--on-semantic-error-container); }
+.warning { background: var(--semantic-warning-container); color: var(--on-semantic-warning-container); }
+.info    { background: var(--semantic-info-container);    color: var(--on-semantic-info-container); }
+
+.icon {
+  flex: 0 0 auto;
+  margin-top: var(--space-1);
+  /* on-container 색 상속 (currentColor) */
+}
+
+.content {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.title {
+  font: var(--type-title-sm);
+  letter-spacing: var(--type-title-sm-tracking);
+}
+
+.description {
+  font: var(--type-body-sm);
+  letter-spacing: var(--type-body-sm-tracking);
+}
+
+.action {
+  margin-top: var(--space-2);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.dismiss {
+  flex: 0 0 auto;
+  margin-top: calc(var(--space-1) * -1);
+  color: inherit;
+}
+
+/* REDUCED-MOTION: root는 마운트/언마운트로 표시/숨김을 제어하며 자체 transition/animation을 두지 않는다.
+   중첩된 IconButton/Button은 각자 reduced-motion 가드를 갖는다. */

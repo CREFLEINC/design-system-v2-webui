@@ -1,0 +1,137 @@
+.region {
+  position: fixed;
+  z-index: var(--z-toast);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  margin: 0;
+  border: 0;
+  background: transparent;
+  pointer-events: none;
+  max-height: 100vh;
+  overflow: visible;
+}
+
+/* popover="manual" 미지원/닫힘 상태에서도 계속 보이게(top-layer 없이도 fixed로 동작) */
+.region:popover-open,
+.region {
+  inset: auto;
+}
+
+.region[data-position^='top'] {
+  top: 0;
+  flex-direction: column-reverse;
+}
+.region[data-position^='bottom'] {
+  bottom: 0;
+}
+.region[data-position$='right'] {
+  right: 0;
+  align-items: flex-end;
+}
+.region[data-position$='left'] {
+  left: 0;
+  align-items: flex-start;
+}
+.region[data-position$='center'] {
+  left: 0;
+  right: 0;
+  align-items: center;
+}
+
+.toast {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  width: 100%;
+  max-width: var(--dialog-max-sm);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  box-shadow: var(--elevation-3);
+  font: var(--type-body-sm);
+  pointer-events: auto;
+  animation: toast-in var(--motion-base) var(--ease-emphasized);
+}
+
+.leaving {
+  animation: toast-out var(--motion-fast) var(--ease-standard) forwards;
+}
+
+.icon,
+.title,
+.description,
+.close,
+.action {
+  color: currentColor;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  flex: 1;
+  min-width: 0;
+}
+
+.title {
+  font: var(--type-label-lg);
+  letter-spacing: var(--type-label-lg-tracking);
+}
+
+.action {
+  align-self: flex-start;
+  margin-inline-start: calc(var(--space-3) * -1);
+}
+
+.close {
+  flex-shrink: 0;
+}
+
+/* -------- variant → container/on-container -------- */
+.success { background: var(--semantic-success-container); color: var(--on-semantic-success-container); }
+.error   { background: var(--semantic-error-container);   color: var(--on-semantic-error-container); }
+.warning { background: var(--semantic-warning-container); color: var(--on-semantic-warning-container); }
+.info    { background: var(--semantic-info-container);    color: var(--on-semantic-info-container); }
+.idle    { background: var(--semantic-idle-container);    color: var(--on-semantic-idle-container); }
+
+@keyframes toast-in {
+  from { opacity: 0; transform: translateY(var(--space-4)); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes toast-out {
+  from { opacity: 1; transform: translateY(0); }
+  to { opacity: 0; transform: translateY(var(--space-4)); }
+}
+
+.region[data-position$='right'] .toast { animation-name: toast-in-x; }
+.region[data-position$='right'] .leaving { animation-name: toast-out-x; }
+.region[data-position$='left'] .toast { animation-name: toast-in-x-rev; }
+.region[data-position$='left'] .leaving { animation-name: toast-out-x-rev; }
+
+@keyframes toast-in-x {
+  from { opacity: 0; transform: translateX(var(--space-4)); }
+  to { opacity: 1; transform: translateX(0); }
+}
+@keyframes toast-out-x {
+  from { opacity: 1; transform: translateX(0); }
+  to { opacity: 0; transform: translateX(var(--space-4)); }
+}
+@keyframes toast-in-x-rev {
+  from { opacity: 0; transform: translateX(calc(var(--space-4) * -1)); }
+  to { opacity: 1; transform: translateX(0); }
+}
+@keyframes toast-out-x-rev {
+  from { opacity: 1; transform: translateX(0); }
+  to { opacity: 0; transform: translateX(calc(var(--space-4) * -1)); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toast,
+  .leaving {
+    animation: none;
+  }
+}

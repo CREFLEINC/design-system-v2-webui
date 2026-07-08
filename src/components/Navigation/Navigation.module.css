@@ -1,0 +1,256 @@
+/* ------------------------------------------------------------------ */
+/* Sidebar                                                              */
+/* ------------------------------------------------------------------ */
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  width: var(--sidebar-width);
+  height: 100%;
+  background: var(--surface-container-low);
+  box-shadow: inset -1px 0 0 var(--outline-variant);
+  transition: width var(--motion-base) var(--ease-standard);
+  overflow: hidden;
+}
+
+.sidebar[data-collapsed='true'] {
+  width: var(--sidebar-width-collapsed);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding: var(--space-3);
+}
+
+.headerSlot {
+  min-width: 0;
+  overflow: hidden;
+}
+
+.toggle {
+  flex-shrink: 0;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-2);
+  overflow-y: auto;
+  flex: 1;
+}
+
+.footer {
+  padding: var(--space-3);
+  box-shadow: inset 0 1px 0 var(--outline-variant);
+}
+
+/* ------------------------------------------------------------------ */
+/* SidebarItem                                                          */
+/* ------------------------------------------------------------------ */
+
+.item {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  height: var(--control-height-lg);
+  padding: 0 var(--space-3);
+  border: 0;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--on-surface-variant);
+  font: var(--type-label-lg);
+  text-decoration: none;
+  cursor: pointer;
+  outline: none;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.item::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: transparent;
+  transition: background var(--motion-fast) var(--ease-standard);
+  pointer-events: none;
+}
+
+.item:hover::before {
+  background: var(--state-hover-neutral);
+}
+
+.item:active::before {
+  background: var(--state-press-neutral);
+}
+
+.item:focus-visible {
+  box-shadow: var(--focus-ring);
+}
+
+.item .icon {
+  color: var(--on-surface-variant);
+  flex-shrink: 0;
+}
+
+.item .label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.item .badge {
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+/* active — primary-container tonal 표면. 라벨은 on-primary-container(AA), 아이콘/인디케이터는 primary-text */
+.item.active {
+  background: var(--primary-container);
+  box-shadow: inset 2px 0 0 var(--primary-text);
+}
+
+.item.active .label {
+  color: var(--on-primary-container);
+}
+
+.item.active .icon {
+  color: var(--primary-text);
+}
+
+.item.active:hover::before {
+  background: var(--state-hover);
+}
+
+.item.active:active::before {
+  background: var(--state-press);
+}
+
+/* disabled */
+.item.disabled {
+  color: var(--state-disabled-text);
+  cursor: default;
+  pointer-events: none;
+}
+
+.item.disabled .icon,
+.item.disabled .label {
+  color: var(--state-disabled-text);
+}
+
+/* collapsed layout */
+.sidebar[data-collapsed='true'] .item {
+  justify-content: center;
+  padding: 0;
+}
+
+.sidebar[data-collapsed='true'] .label,
+.labelHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.sidebar[data-collapsed='true'] .badge {
+  margin-left: 0;
+}
+
+.badgeDot {
+  position: absolute;
+  top: var(--space-2);
+  right: var(--space-2);
+  width: var(--space-2);
+  height: var(--space-2);
+  border-radius: var(--radius-full);
+  background: var(--primary);
+}
+
+/* ------------------------------------------------------------------ */
+/* SidebarSection                                                       */
+/* ------------------------------------------------------------------ */
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.sectionLabel {
+  font: var(--type-label-sm);
+  letter-spacing: var(--type-label-sm-tracking);
+  color: var(--on-surface-muted);
+  padding: var(--space-2) var(--space-3);
+}
+
+.sectionLabelHidden {
+  opacity: 0;
+  height: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  overflow: hidden;
+}
+
+/* ------------------------------------------------------------------ */
+/* Topbar                                                                */
+/* ------------------------------------------------------------------ */
+
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  height: var(--space-10);
+  padding: 0 var(--space-4);
+  background: var(--surface-container);
+  box-shadow: inset 0 -1px 0 var(--outline-variant);
+  box-sizing: border-box;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-shrink: 0;
+  color: var(--on-surface);
+  font: var(--type-title-sm);
+}
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.spacer {
+  flex: 1;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-shrink: 0;
+}
+
+/* ------------------------------------------------------------------ */
+/* reduced-motion                                                        */
+/* ------------------------------------------------------------------ */
+
+@media (prefers-reduced-motion: reduce) {
+  .sidebar {
+    transition: none;
+  }
+  .item,
+  .item::before {
+    transition: none;
+  }
+}

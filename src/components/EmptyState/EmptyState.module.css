@@ -1,0 +1,82 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+/* -------- sizes: padding / gap -------- */
+.sm {
+  gap: var(--space-2);
+  padding: var(--space-4);
+}
+.md {
+  gap: var(--space-4);
+  padding: var(--space-8);
+}
+.lg {
+  gap: var(--space-5);
+  padding: var(--space-11) var(--space-6);
+}
+
+/* -------- icon slot wrapper (decorative, muted, font-size fallback) -------- */
+.icon {
+  display: flex;
+  line-height: 1;
+  color: var(--on-surface-muted);
+}
+.sm .icon {
+  font-size: var(--space-6); /* 24 */
+}
+.md .icon {
+  font-size: var(--space-8); /* 40 */
+}
+.lg .icon {
+  font-size: var(--space-9); /* 48 */
+}
+
+/* -------- title -------- */
+.title {
+  margin: 0;
+  color: var(--on-surface);
+}
+.sm .title {
+  font: var(--type-title-sm);
+  letter-spacing: var(--type-title-sm-tracking);
+}
+.md .title {
+  font: var(--type-title-lg);
+  letter-spacing: var(--type-title-lg-tracking);
+}
+.lg .title {
+  font: var(--type-headline-sm);
+  letter-spacing: var(--type-headline-sm-tracking);
+}
+
+/* -------- description -------- */
+.description {
+  margin: 0;
+  max-width: 42ch;
+  color: var(--on-surface-muted);
+}
+.sm .description {
+  font: var(--type-body-sm);
+  letter-spacing: var(--type-body-sm-tracking);
+}
+.md .description,
+.lg .description {
+  font: var(--type-body-lg);
+  letter-spacing: var(--type-body-lg-tracking);
+}
+
+/* -------- actions -------- */
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-2);
+}
+.sm .actions {
+  margin-top: var(--space-2);
+}

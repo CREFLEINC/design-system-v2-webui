@@ -1,0 +1,115 @@
+/* 가로 스크롤 래퍼 — 넓은 표가 페이지 바디를 밀지 않게 */
+.scroll {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font: var(--type-body-sm);
+  color: var(--on-surface);
+  background: var(--surface);
+}
+
+.table td,
+.table th {
+  border-bottom: 1px solid var(--outline-variant);
+}
+
+/* -------- sticky header -------- */
+.table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--surface-container);
+  color: var(--on-surface-variant);
+  font: var(--type-label-lg);
+  text-align: left;
+}
+
+/* -------- density -------- */
+.comfortable td,
+.comfortable th {
+  padding: var(--space-3) var(--space-4);
+}
+.compact td,
+.compact th {
+  padding: var(--space-2) var(--space-3);
+}
+
+/* -------- align -------- */
+[data-align='end'] {
+  text-align: right;
+}
+[data-align='center'] {
+  text-align: center;
+}
+
+/* -------- sort button -------- */
+.sortButton {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  background: transparent;
+  border: 0;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  outline: none;
+}
+.sortButton:focus-visible {
+  box-shadow: var(--focus-ring);
+}
+
+.sortIcon {
+  width: var(--space-4);
+  height: var(--space-4);
+  fill: currentColor;
+  opacity: 1;
+  transition:
+    transform var(--motion-fast) var(--ease-standard),
+    opacity var(--motion-fast) var(--ease-standard);
+}
+.sortIconIdle {
+  opacity: 0.4;
+}
+.sortIconDesc {
+  transform: rotate(180deg);
+}
+
+/* -------- select column -------- */
+.selectCell {
+  width: var(--space-9);
+  text-align: center;
+}
+
+/* -------- zebra / hover / selected — 셀(td) 배경, source order로 우선순위 제어 -------- */
+.table td {
+  background: transparent;
+  transition: background var(--motion-fast) var(--ease-standard);
+}
+.zebra tbody tr:nth-child(even) td {
+  background: var(--surface-container-low);
+}
+.table tbody tr:hover td {
+  background: var(--surface-container-high);
+}
+.table tbody tr[data-selected='true'] td {
+  background: var(--primary-container);
+  color: var(--on-surface);
+}
+
+/* -------- empty -------- */
+.emptyCell td {
+  padding: var(--space-8);
+  color: var(--on-surface-muted);
+  text-align: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .table td,
+  .sortIcon {
+    transition: none;
+  }
+}

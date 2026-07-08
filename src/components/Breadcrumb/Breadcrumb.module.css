@@ -1,0 +1,98 @@
+.root {
+  font: var(--type-body-sm);
+  color: var(--on-surface-muted);
+}
+
+.list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.separator {
+  display: inline-flex;
+  color: var(--on-surface-muted);
+}
+
+.link {
+  color: var(--on-surface-variant);
+  text-decoration: none;
+  border-radius: var(--radius-sm);
+  outline: none;
+  transition: color var(--motion-fast) var(--ease-standard);
+}
+
+a.link {
+  cursor: pointer;
+}
+
+a.link:hover {
+  color: var(--primary-text);
+  text-decoration: underline;
+}
+
+.link:focus-visible {
+  box-shadow: var(--focus-ring);
+}
+
+.current {
+  color: var(--on-surface);
+}
+
+.ellipsis {
+  position: relative;
+  isolation: isolate;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  background: transparent;
+  color: var(--on-surface-variant);
+  cursor: pointer;
+  outline: none;
+  border-radius: var(--radius-sm);
+  padding: 0;
+  height: 1em;
+}
+
+.ellipsis::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: transparent;
+  transition: background var(--motion-fast) var(--ease-standard);
+  pointer-events: none;
+}
+
+.ellipsis:hover::before {
+  background: var(--state-hover-neutral);
+}
+
+.ellipsis:active::before {
+  background: var(--state-press-neutral);
+}
+
+.ellipsis:hover {
+  color: var(--primary-text);
+}
+
+.ellipsis:focus-visible {
+  box-shadow: var(--focus-ring);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .link, .ellipsis, .ellipsis::before {
+    transition: none;
+  }
+}
