@@ -41,6 +41,11 @@
   --space-11: 80px;
   --space-12: 96px;
 
+  /* -------- Control heights — 폼 컨트롤 공통 높이 (Button/TextField/Select…) -------- */
+  --control-height-sm: 32px;
+  --control-height-md: 40px;
+  --control-height-lg: 48px;
+
   /* -------- Radius -------- */
   --radius-sm: 8px;
   --radius-md: 12px;
