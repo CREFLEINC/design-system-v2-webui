@@ -63,4 +63,10 @@
   --semantic-idle-container:    #2A2D33;  --on-semantic-idle-container:    #C4C6CC;
   /* Scrim — 다크는 더 짙게 */
   --scrim: rgba(0, 0, 0, 0.60);
+
+  /* Semantic 성공 텍스트 — 다크에서 밝은 톤 */
+  --semantic-success-text: #A6D9B6;  /* 10.63:1 on #1B1D21 */
+  /* Skeleton 시머 — 다크 표면 사다리 */
+  --skeleton-base: #2E3137;
+  --skeleton-shine: #3B3E45;
 }

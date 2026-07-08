@@ -106,4 +106,15 @@
   --chart-4: #8A8D94;
   --chart-5: #B4B6BC;
   --chart-grid: var(--outline-variant);
+
+  /* -------- Semantic 성공 텍스트 (--semantic-error-text 형제) -------- */
+  --semantic-success-text: #0E5223;  /* light #FBF8FD 대비 8.87:1 */
+  /* -------- Z-index -------- */
+  --z-toast: 1100;
+  /* -------- Layout -------- */
+  --sidebar-width: 256px;
+  --sidebar-width-collapsed: 72px;
+  /* -------- Skeleton 시머 (비-텍스트 장식) -------- */
+  --skeleton-base: #E6E4EA;
+  --skeleton-shine: #F3F1F7;
 }
