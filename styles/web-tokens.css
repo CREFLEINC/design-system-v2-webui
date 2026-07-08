@@ -1,0 +1,80 @@
+/* ============================================================================
+   CREFLE Web DS — 형태 토큰 (Stage 2 승격 후보)
+   파운데이션 tokens.css 위에 얹는 웹 전용 레이어.
+   여러 분야에서 공통임이 입증되면 파운데이션으로 승격한다.
+   ============================================================================ */
+:root {
+  /* -------- Type scale — M3 구조, Spoqa Han Sans Neo --------
+     사용: font: var(--type-…); letter-spacing: var(--type-…-tracking); */
+  --type-display-lg: 700 45px/52px var(--font-sans);
+  --type-display-lg-tracking: -0.02em;
+  --type-display-sm: 700 36px/44px var(--font-sans);
+  --type-display-sm-tracking: -0.02em;
+  --type-headline-lg: 700 28px/36px var(--font-sans);
+  --type-headline-lg-tracking: -0.02em;
+  --type-headline-sm: 700 24px/32px var(--font-sans);
+  --type-headline-sm-tracking: -0.02em;
+  --type-title-lg: 500 20px/28px var(--font-sans);
+  --type-title-lg-tracking: -0.02em;
+  --type-title-sm: 500 16px/24px var(--font-sans);
+  --type-title-sm-tracking: -0.01em;
+  --type-body-lg: 400 16px/24px var(--font-sans);
+  --type-body-lg-tracking: 0;
+  --type-body-sm: 400 14px/20px var(--font-sans);
+  --type-body-sm-tracking: 0;
+  --type-label-lg: 500 14px/20px var(--font-sans);
+  --type-label-lg-tracking: 0;
+  --type-label-sm: 500 12px/16px var(--font-sans);
+  --type-label-sm-tracking: 0.01em;
+
+  /* -------- Spacing — 4px 기반 -------- */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-7: 32px;
+  --space-8: 40px;
+  --space-9: 48px;
+  --space-10: 64px;
+  --space-11: 80px;
+  --space-12: 96px;
+
+  /* -------- Radius -------- */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-full: 999px;
+
+  /* -------- Elevation — 절제된 최대 2레이어 (라이트 기준) -------- */
+  --elevation-0: none;
+  --elevation-1: 0 1px 2px rgba(31, 33, 37, 0.06), 0 1px 3px rgba(31, 33, 37, 0.10);
+  --elevation-2: 0 2px 6px rgba(31, 33, 37, 0.10), 0 1px 2px rgba(31, 33, 37, 0.06);
+  --elevation-3: 0 6px 16px rgba(31, 33, 37, 0.12);
+  --elevation-4: 0 10px 24px rgba(31, 33, 37, 0.14);
+  --elevation-5: 0 16px 32px rgba(31, 33, 37, 0.16);
+
+  /* -------- Motion -------- */
+  --motion-fast: 100ms;
+  --motion-base: 200ms;
+  --motion-slow: 300ms;
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ease-emphasized: cubic-bezier(0.3, 0, 0, 1);
+
+  /* -------- State layers 보강 (파운데이션 --state-*는 레드 기준) -------- */
+  --state-hover-neutral: rgba(27, 27, 31, 0.08);
+  --state-press-neutral: rgba(27, 27, 31, 0.12);
+  --state-hover-on-primary: rgba(255, 255, 255, 0.08);
+  --state-press-on-primary: rgba(255, 255, 255, 0.12);
+  --focus-ring: 0 0 0 2px var(--surface), 0 0 0 4px var(--primary);
+
+  /* -------- Chart — 레드 1번 + 차콜 명도 변주 (무지개 금지) -------- */
+  --chart-1: var(--primary);
+  --chart-2: #3E4146;
+  --chart-3: #63666D;
+  --chart-4: #8A8D94;
+  --chart-5: #B4B6BC;
+  --chart-grid: var(--outline-variant);
+}
