@@ -1,0 +1,14 @@
+/* @crefle/web-ui 스타일 진입점 — 이 한 파일만 import하면 된다 */
+@import './foundation/tokens.css';
+@import './fonts.css';
+@import './web-tokens.css';
+@import './themes.css';
+
+body {
+  margin: 0;
+  background: var(--surface);
+  color: var(--on-surface);
+  font: var(--type-body-lg);
+  letter-spacing: var(--type-body-lg-tracking);
+  -webkit-font-smoothing: antialiased;
+}

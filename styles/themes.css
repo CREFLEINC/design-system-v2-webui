@@ -1,0 +1,51 @@
+/* ============================================================================
+   CREFLE Web DS — 테마
+   :root(파운데이션) = 라이트 기본값. 여기는 다크 오버라이드만 정의한다.
+   [data-theme='dark']는 요소 스코프 — <html>뿐 아니라 임의 컨테이너에도 적용 가능.
+   시맨틱 컬러(--semantic-*)는 라이트/다크 고정(파운데이션 규칙).
+   ============================================================================ */
+:root {
+  color-scheme: light;
+}
+
+[data-theme='dark'] {
+  color-scheme: dark;
+
+  /* Surfaces — OnMyFactory 다크 검증 값 계열. 순수 검정 금지 */
+  --surface: #1B1D21;
+  --surface-container-low: #22252A;
+  --surface-container: #2A2D33;
+  --surface-container-high: #33363B;
+
+  --on-surface: #F4F3F7;
+  --on-surface-variant: #C4C6CC;
+  --on-surface-muted: #8A8D94;
+  --outline-variant: #43464D;
+
+  /* Primary — 레드 단일 액센트 유지. hover는 다크에서 밝게 */
+  --primary-hover: #D8434A;
+  --primary-press: #A81E24;
+  --primary-container: #46262A;
+
+  /* State layers — 뉴트럴을 밝은 색 기준으로 반전 */
+  --state-hover: rgba(216, 67, 74, 0.10);
+  --state-focus: rgba(216, 67, 74, 0.14);
+  --state-press: rgba(216, 67, 74, 0.14);
+  --state-disabled-fill: rgba(244, 243, 247, 0.12);
+  --state-disabled-text: rgba(244, 243, 247, 0.38);
+  --state-hover-neutral: rgba(244, 243, 247, 0.08);
+  --state-press-neutral: rgba(244, 243, 247, 0.12);
+
+  /* Elevation — 다크는 그림자 약화 + 표면 사다리로 위계 표현 */
+  --elevation-1: 0 1px 2px rgba(0, 0, 0, 0.35);
+  --elevation-2: 0 2px 6px rgba(0, 0, 0, 0.40);
+  --elevation-3: 0 6px 16px rgba(0, 0, 0, 0.45);
+  --elevation-4: 0 10px 24px rgba(0, 0, 0, 0.50);
+  --elevation-5: 0 16px 32px rgba(0, 0, 0, 0.55);
+
+  /* Chart — 명도 반전 사다리 */
+  --chart-2: #E2E3E7;
+  --chart-3: #B9BBC1;
+  --chart-4: #8A8D94;
+  --chart-5: #5C6067;
+}
