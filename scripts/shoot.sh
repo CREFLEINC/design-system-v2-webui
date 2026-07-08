@@ -11,10 +11,12 @@ OUT="$ROOT/shots/${STORY//\//-}-$THEME.png"
 mkdir -p "$ROOT/shots"
 [ -d "$ROOT/storybook-static" ] || { echo "run npm run build-storybook first" >&2; exit 1; }
 URL="file://$ROOT/storybook-static/iframe.html?id=$STORY&globals=theme:$THEME"
-# 참고: Storybook 정적 빌드는 ES 모듈(<script type="module">)로 번들되며, Chromium은
-# file:// 출처에서 모듈 스크립트 로드를 CORS 정책으로 항상 차단한다(virtual-time-budget과 무관).
-# --disable-web-security --allow-file-access-from-files로 로컬 정적 파일 렌더링에 한해 우회한다.
-"$CHROME" --headless=new --disable-web-security --allow-file-access-from-files \
+# 참고: file:// 모듈 로드는 --allow-file-access-from-files로 허용한다
+# (드롭: --disable-web-security, A/B 테스트로 불필요 확인).
+# --run-all-compositor-stages-before-draw: virtual-time-budget 만료 시 컴포지터가
+# 마지막 페인트를 반영하기 전에 스크린샷이 찍히는 레이스가 관찰되어(스피너만 캡처됨) 추가.
+"$CHROME" --headless=new --allow-file-access-from-files \
   --force-device-scale-factor=2 --window-size="${SIZE/x/,}" \
-  --virtual-time-budget=4000 --screenshot="$OUT" "$URL" 2>/dev/null
+  --virtual-time-budget=4000 --run-all-compositor-stages-before-draw \
+  --screenshot="$OUT" "$URL" 2>/dev/null
 echo "$OUT"

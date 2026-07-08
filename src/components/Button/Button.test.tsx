@@ -32,3 +32,8 @@ test('loading이면 aria-busy + 비활성 + 스피너', () => {
   expect(el).toBeDisabled()
   expect(el.querySelector(`.${styles.spinner}`)).not.toBeNull()
 })
+
+test('기본 type은 button (form 우발 제출 방지)', () => {
+  render(<Button>버튼</Button>)
+  expect(screen.getByRole('button')).toHaveAttribute('type', 'button')
+})

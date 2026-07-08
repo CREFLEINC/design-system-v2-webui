@@ -70,6 +70,7 @@
 
   /* -------- Color 보강 — 파운데이션 Stage 2 승격 후보 -------- */
   --on-primary-container: #7D161B; /* = --brand-red-deep. tonal 표면 위 텍스트 (light 8.1:1) */
+  --primary-text: var(--primary); /* 표면 위 레드 텍스트/링크 역할. 다크에서 밝은 톤으로 스왑 */
 
   /* -------- State layers 보강 (파운데이션 --state-*는 레드 기준) -------- */
   --state-hover-neutral: rgba(27, 27, 31, 0.08);

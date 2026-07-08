@@ -27,6 +27,7 @@
   --primary-press: #A81E24;
   --primary-container: #46262A;
   --on-primary-container: #F4DDDE; /* = --brand-red-soft. 다크 tonal 텍스트 (10.3:1, WCAG AAA) */
+  --primary-text: #E8878B; /* 레드 tone-80. #1B1D21 위 6.8:1, container-high 위 4.8:1 */
 
   /* State layers — 뉴트럴을 밝은 색 기준으로 반전 */
   --state-hover: rgba(216, 67, 74, 0.10);

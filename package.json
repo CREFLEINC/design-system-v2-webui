@@ -22,13 +22,15 @@
   },
   "scripts": {
     "build": "vite build",
+    "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
     "lint:tokens": "node scripts/check-tokens.mjs",
     "sync-foundation": "bash scripts/sync-foundation.sh",
     "shoot": "bash scripts/shoot.sh",
     "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
+    "build-storybook": "storybook build",
+    "check": "npm run typecheck && npm test && npm run lint:tokens && npm run build && npm run build-storybook"
   },
   "peerDependencies": {
     "react": "^18.0.0 || ^19.0.0",
