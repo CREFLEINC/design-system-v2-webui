@@ -73,5 +73,5 @@
 
 @media (prefers-reduced-motion: reduce) {
   .spinner { animation-duration: 1.6s; }  /* 회전은 유지하되 느리게 — 로딩 의미 보존 */
-  .button { transition: none; }
+  .button, .button::before { transition: none; }
 }

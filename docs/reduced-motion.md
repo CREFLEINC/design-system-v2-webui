@@ -7,7 +7,10 @@
 
 ## 규칙
 
-1. 상태 레이어·색상·그림자 등 순수 장식용 `transition`은 `transition: none`으로 끈다.
+1. 상태 레이어·색상·그림자 등 순수 장식용 `transition`은 `transition: none`으로 끈다. 
+   **주의:** `::before`/`::after` 같은 의사요소가 자신의 `transition`을 정의한 경우, 
+   그 의사요소는 부모 선택자에 포함되지 않으므로 `transition: none` 규칙에 명시적으로 나열해야 한다 
+   (예: `.button, .button::before { transition: none; }`)
 2. "진행 중"처럼 의미를 담은 `animation`(스피너, 프로그레스 바 등)은 완전히 멈추지 않는다 —
    `animation-duration`을 늘려 감속하는 정도로 그친다(예: 0.8s → 1.6s).
 3. 컴포넌트별 `*.module.css` 파일 맨 아래에, 해당 컴포넌트가 정의한 애니메이션/트랜지션
