@@ -1,0 +1,95 @@
+/* OnMyFactory 대시보드 데모 — 얇은 레이아웃 래퍼만. 토큰만 사용, px는 0/1/2만.
+   색/타이포/컴포넌트 스타일은 전부 DS 컴포넌트가 담당한다. */
+
+.page {
+  display: grid;
+  gap: var(--space-6);
+  padding: var(--space-6);
+}
+
+/* 4개 StatCard — 넓은 화면 4열, 좁아지면 자동 접힘 */
+.statGrid {
+  display: grid;
+  gap: var(--space-4);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+/* 차트 3종 — 추이(넓게) + 처리량 + 구성비 */
+.chartsGrid {
+  display: grid;
+  gap: var(--space-4);
+  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr) minmax(0, 1.1fr);
+  align-items: stretch;
+}
+
+/* 카드 내부 — 제목/차트 세로 스택 */
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  height: 100%;
+}
+
+.panelTitle {
+  font: var(--type-title-sm);
+  letter-spacing: var(--type-title-sm-tracking);
+  color: var(--on-surface);
+  margin: 0;
+}
+
+/* 전체 가동률 카드의 게이지 정렬 */
+.gaugeSpark {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+/* 이벤트 로그 카드의 헤더(제목 + 액션) */
+.tableHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+
+.brandMark {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.brandName {
+  font: var(--type-title-sm);
+  letter-spacing: var(--type-title-sm-tracking);
+  color: var(--on-surface);
+}
+
+.brandSub {
+  font: var(--type-label-sm);
+  letter-spacing: var(--type-label-sm-tracking);
+  color: var(--on-surface-muted);
+}
+
+/* 사이드바 브랜드 락업 — 세로 스택 */
+.sideBrand {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+/* 좁은 폭 대응 — 태블릿에서 2열, 모바일에서 1열 */
+@media (max-width: 1200px) {
+  .statGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .chartsGrid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .statGrid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
