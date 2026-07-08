@@ -1,0 +1,44 @@
+/* Spoqa Han Sans Neo — 파운데이션 번들 폰트 */
+@font-face {
+  font-family: 'Spoqa Han Sans Neo';
+  font-weight: 100;
+  font-style: normal;
+  font-display: swap;
+  src: url('./foundation/fonts/SpoqaHanSansNeo-Thin.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Spoqa Han Sans Neo';
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+  src: url('./foundation/fonts/SpoqaHanSansNeo-Light.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Spoqa Han Sans Neo';
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+  src: url('./foundation/fonts/SpoqaHanSansNeo-Regular.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Spoqa Han Sans Neo';
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+  src: url('./foundation/fonts/SpoqaHanSansNeo-Medium.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Spoqa Han Sans Neo';
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+  src: url('./foundation/fonts/SpoqaHanSansNeo-Bold.woff2') format('woff2');
+}
+/* Material Symbols Rounded — opsz24/wght400/FILL0 정적 인스턴스 */
+@font-face {
+  font-family: 'Material Symbols Rounded';
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
+  src: url('./foundation/fonts/MaterialSymbolsRounded.woff2') format('woff2');
+}
