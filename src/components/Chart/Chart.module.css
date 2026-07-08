@@ -1,0 +1,196 @@
+/* LineChart / BarChart / PieChart 공유 스타일시트. 토큰만 사용 — 숫자 기하(좌표·반지름·stroke-width·viewBox)는
+   Gauge와 동일하게 TSX 속성으로만 존재하며 여기엔 두지 않는다. */
+
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin: 0;
+  background: transparent;
+}
+
+.figcaption {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.title {
+  font: var(--type-title-sm);
+  letter-spacing: var(--type-title-sm-tracking);
+  color: var(--on-surface);
+}
+
+.caption {
+  font: var(--type-body-sm);
+  letter-spacing: var(--type-body-sm-tracking);
+  color: var(--on-surface-muted);
+}
+
+.svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* -------- 축 / 그리드 -------- */
+.gridLine {
+  stroke: var(--chart-grid);
+}
+
+.axisLine {
+  stroke: var(--outline-variant);
+}
+
+.tickText {
+  font: var(--type-label-sm);
+  letter-spacing: var(--type-label-sm-tracking);
+  fill: var(--on-surface-muted);
+  text-anchor: end;
+}
+
+.axisText {
+  font: var(--type-label-sm);
+  letter-spacing: var(--type-label-sm-tracking);
+  fill: var(--on-surface-muted);
+  text-anchor: middle;
+}
+
+/* -------- 도넛 센터 라벨 -------- */
+.centerLabel {
+  font: var(--type-label-sm);
+  letter-spacing: var(--type-label-sm-tracking);
+  fill: var(--on-surface-muted);
+  text-anchor: middle;
+}
+
+.centerValue {
+  font: var(--type-title-sm);
+  letter-spacing: var(--type-title-sm-tracking);
+  fill: var(--on-surface);
+  text-anchor: middle;
+}
+
+/* -------- 범례 -------- */
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.swatch {
+  width: var(--space-2);
+  height: var(--space-2);
+  border-radius: var(--radius-full);
+  background: var(--series-color);
+  flex: none;
+}
+
+.legendText {
+  font: var(--type-label-sm);
+  letter-spacing: var(--type-label-sm-tracking);
+  color: var(--on-surface);
+}
+
+/* -------- 시각적 숨김 데이터 테이블 -------- */
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* -------- 시리즈 색 순환: 마크는 --series-color만 참조 -------- */
+.s1 { --series-color: var(--chart-1); }
+.s2 { --series-color: var(--chart-2); }
+.s3 { --series-color: var(--chart-3); }
+.s4 { --series-color: var(--chart-4); }
+.s5 { --series-color: var(--chart-5); }
+
+/* -------- 마크 -------- */
+.line {
+  stroke: var(--series-color);
+  fill: none;
+  stroke-dashoffset: 0;
+  animation: chart-draw var(--motion-slow) var(--ease-standard) both;
+}
+
+.area {
+  fill: var(--series-color);
+  opacity: .14;
+  animation: chart-fade-area var(--motion-slow) var(--ease-standard) both;
+}
+
+.bar {
+  fill: var(--series-color);
+  transform-box: fill-box;
+  transform-origin: center bottom;
+  animation: chart-rise var(--motion-slow) var(--ease-standard) both;
+}
+
+.point {
+  fill: var(--series-color);
+  opacity: 1;
+  animation: chart-fade var(--motion-slow) var(--ease-standard) both;
+}
+
+/* 도넛 슬라이스 — Gauge와 동일한 stroke-dasharray 링 방식 */
+.slice {
+  fill: none;
+  stroke: var(--series-color);
+  opacity: 1;
+  animation: chart-fade var(--motion-slow) var(--ease-standard) both;
+}
+
+/* 채워진 파이 웨지 — path 방식 */
+.wedge {
+  fill: var(--series-color);
+  opacity: 1;
+  animation: chart-fade var(--motion-slow) var(--ease-standard) both;
+}
+
+.bar:hover,
+.slice:hover,
+.wedge:hover {
+  opacity: .85;
+  transition: opacity var(--motion-fast) var(--ease-standard);
+}
+
+@keyframes chart-draw {
+  from { stroke-dashoffset: 100; }
+  to { stroke-dashoffset: 0; }
+}
+
+@keyframes chart-rise {
+  from { transform: scaleY(0); }
+  to { transform: scaleY(1); }
+}
+
+@keyframes chart-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes chart-fade-area {
+  from { opacity: 0; }
+  to { opacity: .14; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .line, .bar, .area, .slice, .point, .wedge { animation: none; }
+  .bar:hover, .slice:hover, .wedge:hover { transition: none; }
+}
