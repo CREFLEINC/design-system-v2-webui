@@ -39,7 +39,7 @@
 .filled:hover::before { background: var(--state-hover-on-primary) }
 .filled:active::before { background: var(--state-press-on-primary) }
 
-.tonal { background: var(--primary-container); color: var(--primary-press) }
+.tonal { background: var(--primary-container); color: var(--on-primary-container) }
 .tonal:hover::before { background: var(--state-hover) }
 .tonal:active::before { background: var(--state-press) }
 
