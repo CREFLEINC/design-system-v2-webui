@@ -87,11 +87,11 @@ const CardRoot = forwardRef<HTMLElement, CardProps>(function Card(
     return (
       <div
         ref={ref as Ref<HTMLDivElement>}
+        className={rootClass}
+        {...rest}
         role="button"
         tabIndex={disabled ? -1 : 0}
         aria-disabled={disabled || undefined}
-        className={rootClass}
-        {...rest}
         onClick={(e) => {
           if (disabled) return
           rest.onClick?.(e)

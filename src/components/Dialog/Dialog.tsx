@@ -38,6 +38,7 @@ export const Dialog = forwardRef<HTMLDialogElement, DialogProps>(function Dialog
     footer,
     children,
     className,
+    onClick: onClickProp,
     ...rest
   },
   ref
@@ -73,7 +74,9 @@ export const Dialog = forwardRef<HTMLDialogElement, DialogProps>(function Dialog
   }
 
   // 스크림 클릭: 타깃이 dialog 엘리먼트 자체일 때만 백드롭 클릭이다.
+  // 소비자가 넘긴 onClick도 함께 실행한다(핸들러 스왈로 방지 — 라이브러리 표준).
   function handleBackdrop(e: MouseEvent<HTMLDialogElement>) {
+    onClickProp?.(e)
     if (closeOnBackdropClick && e.target === innerRef.current) onClose()
   }
 

@@ -48,7 +48,7 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(function Che
           </svg>
         </span>
       </span>
-      {children != null && <span className={styles.label}>{children}</span>}
+      {children != null && <span>{children}</span>}
     </label>
   )
 })

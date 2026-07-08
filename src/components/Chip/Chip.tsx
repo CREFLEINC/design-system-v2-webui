@@ -50,7 +50,7 @@ export const Chip = forwardRef<HTMLButtonElement | HTMLSpanElement, ChipProps>(f
         {...rest}
       >
         {leadingIcon}
-        <span className={styles.label}>{children}</span>
+        <span>{children}</span>
       </button>
     )
   }
@@ -63,7 +63,7 @@ export const Chip = forwardRef<HTMLButtonElement | HTMLSpanElement, ChipProps>(f
       {...rest}
     >
       {leadingIcon}
-      <span className={styles.label}>{children}</span>
+      <span>{children}</span>
       {onRemove && (
         <button type="button" className={styles.remove} aria-label={removeLabel} onClick={() => onRemove()}>
           <Icon name="close" size={size === 'sm' ? 16 : 18} />
