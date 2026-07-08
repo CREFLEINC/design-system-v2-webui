@@ -177,7 +177,8 @@ export const SidebarItem = forwardRef<HTMLAnchorElement, SidebarItemProps>(funct
     'data-sidebar-item': true,
     'aria-current': active ? ('page' as const) : undefined,
     'aria-disabled': disabled || undefined,
-    tabIndex: disabled ? -1 : undefined
+    // 비활성일 때만 tabIndex=-1을 강제. 활성 항목은 키를 넣지 않아 소비자 tabIndex를 덮지 않는다.
+    ...(disabled ? { tabIndex: -1 } : {})
   }
 
   const content = (

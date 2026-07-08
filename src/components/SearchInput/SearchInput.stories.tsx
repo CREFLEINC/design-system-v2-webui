@@ -41,7 +41,7 @@ export const Controlled: Story = {
           aria-label="검색"
           value={value}
           onChange={(e) => setValue(e.target.value)}
-          onSearch={(v) => console.log('검색 실행:', v)}
+          onSearch={() => {}}
         />
       )
     }
