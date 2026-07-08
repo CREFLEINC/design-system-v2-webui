@@ -1,0 +1,94 @@
+/* ============================================================================
+   CREFLE Design System — Stage 1 Foundation Tokens
+   Brand + Colors only (1단계 공통 기반)
+
+   회사: 크레플 주식회사 / CREFLE Inc.
+   출처: CREFLE Presentation Design System (viskit_killer / Material Design 3 파생)
+   기본 강조(primary) = 브랜드 레드 #C9252C  ← RangKim 확정 (2026-06-25)
+
+   사용법: 빌드하는 모든 HTML/CSS에서 이 파일을 import 하고,
+   하드코딩된 hex 대신 var(--token) 만 사용한다. (raw hex 금지)
+   ============================================================================ */
+
+:root {
+
+  /* ==========================================================================
+     1. BRAND IDENTITY  — CREFLE 로고에서 샘플링
+     ========================================================================== */
+
+  /* 브랜드 레드 — 회사 공통 기본 강조색 */
+  --brand-red:        #C9252C;   /* 기본 / primary           */
+  --brand-red-dark:   #A81E24;   /* hover                    */
+  --brand-red-deep:   #7D161B;   /* on-dark accent / press   */
+  --brand-red-soft:   #F4DDDE;   /* container, subtle bg     */
+
+  /* 차콜 */
+  --brand-charcoal:      #3E4146; /* 기본 차콜               */
+  --brand-charcoal-deep: #1F2125; /* full-bleed dark        */
+
+  /* 다크 배경 그라디언트 (섹션 구분 / 타이틀 슬라이드)
+     차콜 → 레드 램프. 정확한 stop은 큐레이션 카드 기준으로 추후 조정 가능. */
+  --brand-gradient-dark: linear-gradient(135deg,
+                           #1F2125 0%,
+                           #7D161B 60%,
+                           #C9252C 100%);
+
+  /* ==========================================================================
+     2. PRIMARY  — 공통 주색 별칭 (= 브랜드 레드)
+     모든 UI/슬라이드 강조는 --brand-* 가 아니라 이 별칭을 통해 참조하면
+     향후 주색 변경 시 한 곳만 고치면 된다.
+     ========================================================================== */
+
+  --primary:            var(--brand-red);
+  --primary-hover:      var(--brand-red-dark);
+  --primary-press:      var(--brand-red-deep);
+  --primary-container:  var(--brand-red-soft);
+  --on-primary:         #FFFFFF;
+
+  /* ==========================================================================
+     3. PRODUCT UI PRIMARY  — viskit_killer 제품 전용
+     M3 파생 인디고. 제품 목업 안에서만 사용하고,
+     슬라이드·발표·공통 자료의 강조색으로는 쓰지 않는다.
+     ========================================================================== */
+
+  --product-primary: #4758A9;
+
+  /* ==========================================================================
+     4. NEUTRAL SURFACES  — surface ladder + foreground + outline
+     순수 #FFFFFF 금지. 약한 마젠타 기 도는 warm-cool white 사용.
+     ========================================================================== */
+
+  --surface:                 #FBF8FD;  /* 기본 표면              */
+  --surface-container-low:   #F5F2F7;
+  --surface-container:       #EFEDF1;
+  --surface-container-high:  #E9E7EB;
+
+  --on-surface:          #1B1B1F;  /* 본문 텍스트            */
+  --on-surface-variant:  #2D2C33;  /* 보조 텍스트            */
+  --on-surface-muted:    #77767F;  /* 약한 텍스트 / 라벨     */
+  --outline-variant:     #C6C5D0;  /* 카드 1px 보더          */
+
+  /* ==========================================================================
+     5. SEMANTIC  — 개념 동등 = 색 동등 (라이트/다크 고정)
+     "양품"은 어디서나 success, "불량"은 어디서나 error.
+     장식용으로 새 hex 만들지 말 것.
+     ========================================================================== */
+
+  --semantic-success:  #1F883D;  /* 양품 / Pass / OK       */
+  --semantic-error:    #B3261E;  /* 불량 / Fail / NG       */
+  --semantic-warning:  #E8A100;  /* 주의 / Attention       */
+  --semantic-info:     #0B57D0;  /* 정보 / Info            */
+  --semantic-idle:     #6E7781;  /* 대기 / Idle            */
+
+  /* ==========================================================================
+     6. STATE LAYERS  — M3 상태 레이어 알파 (overlay 용)
+     hover 8% · focus 12% + 2px ring · press 12% · disabled 38%
+     darken/lighten 이나 shrink-on-press 금지. 상태 레이어 패턴만 사용.
+     ========================================================================== */
+
+  --state-hover:    rgba(201, 37, 44, 0.08);  /* primary @ 8%   */
+  --state-focus:    rgba(201, 37, 44, 0.12);  /* primary @ 12%  */
+  --state-press:    rgba(201, 37, 44, 0.12);  /* primary @ 12%  */
+  --state-disabled-fill: rgba(27, 27, 31, 0.12);  /* on-surface @ 12% */
+  --state-disabled-text: rgba(27, 27, 31, 0.38);  /* on-surface @ 38% */
+}

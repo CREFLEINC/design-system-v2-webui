@@ -1,0 +1,158 @@
+<!-- @dsCard group="Foundation" -->
+<link rel="stylesheet" href="../styles.css" />
+<style>
+  .page { padding: var(--space-6); }
+  .head { margin-bottom: var(--space-5); }
+  .head h1 { font: var(--type-headline-sm); letter-spacing: var(--type-headline-sm-tracking); color: var(--on-surface); margin: 0 0 var(--space-2); }
+  .head p { font: var(--type-body-sm); color: var(--on-surface-variant); margin: 0; }
+  .split { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-5); }
+  .col { background: var(--surface); border: 1px solid var(--outline-variant); border-radius: var(--radius-lg); padding: var(--space-5); }
+  .col > h2 { font: var(--type-title-sm); letter-spacing: var(--type-title-sm-tracking); color: var(--on-surface-muted); text-transform: uppercase; margin: 0 0 var(--space-4); }
+  .sec { margin-bottom: var(--space-5); }
+  .sec:last-child { margin-bottom: 0; }
+  .sec h3 { font: var(--type-label-lg); color: var(--on-surface-variant); margin: 0 0 var(--space-3); }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: var(--space-3); }
+  .sw { display: flex; flex-direction: column; gap: var(--space-1); }
+  .chip { height: 48px; border-radius: var(--radius-md); box-shadow: inset 0 0 0 1px var(--outline-variant); }
+  .name { font: var(--type-label-sm); letter-spacing: var(--type-label-sm-tracking); color: var(--on-surface-variant); word-break: break-all; }
+  .val { font: var(--type-label-sm); color: var(--on-surface-muted); }
+  .conrow { display: grid; grid-template-columns: repeat(auto-fill, minmax(132px, 1fr)); gap: var(--space-3); }
+  .con { border-radius: var(--radius-md); padding: var(--space-3); font: var(--type-label-lg); }
+</style>
+
+<div class="page">
+  <div class="head">
+    <h1>색상 시스템 — 레드 단일 액센트</h1>
+    <p>강조는 오직 브랜드 레드 <code>#C9252C</code>. 위계는 표면 사다리 + 차콜 명도로. 시맨틱은 개념 동등 = 색 동등. 라이트(좌) / 다크(우) 나란히 비교.</p>
+  </div>
+
+  <div class="split">
+    <!-- ============ LIGHT ============ -->
+    <div class="col">
+      <h2>Light</h2>
+
+      <div class="sec">
+        <h3>브랜드 / Primary</h3>
+        <div class="grid">
+          <div class="sw"><div class="chip" style="background:var(--primary)"></div><span class="name">--primary</span><span class="val">#C9252C</span></div>
+          <div class="sw"><div class="chip" style="background:var(--primary-hover)"></div><span class="name">--primary-hover</span></div>
+          <div class="sw"><div class="chip" style="background:var(--primary-press)"></div><span class="name">--primary-press</span></div>
+          <div class="sw"><div class="chip" style="background:var(--primary-container)"></div><span class="name">--primary-container</span></div>
+          <div class="sw"><div class="chip" style="background:var(--brand-charcoal)"></div><span class="name">--brand-charcoal</span></div>
+          <div class="sw"><div class="chip" style="background:var(--brand-charcoal-deep)"></div><span class="name">--brand-charcoal-deep</span></div>
+        </div>
+      </div>
+
+      <div class="sec">
+        <h3>표면 사다리 + 전경</h3>
+        <div class="grid">
+          <div class="sw"><div class="chip" style="background:var(--surface)"></div><span class="name">--surface</span></div>
+          <div class="sw"><div class="chip" style="background:var(--surface-container-low)"></div><span class="name">--surface-container-low</span></div>
+          <div class="sw"><div class="chip" style="background:var(--surface-container)"></div><span class="name">--surface-container</span></div>
+          <div class="sw"><div class="chip" style="background:var(--surface-container-high)"></div><span class="name">--surface-container-high</span></div>
+          <div class="sw"><div class="chip" style="background:var(--on-surface)"></div><span class="name">--on-surface</span></div>
+          <div class="sw"><div class="chip" style="background:var(--on-surface-variant)"></div><span class="name">--on-surface-variant</span></div>
+          <div class="sw"><div class="chip" style="background:var(--on-surface-muted)"></div><span class="name">--on-surface-muted</span></div>
+          <div class="sw"><div class="chip" style="background:var(--outline)"></div><span class="name">--outline</span></div>
+        </div>
+      </div>
+
+      <div class="sec">
+        <h3>시맨틱 채움 (라이트/다크 고정)</h3>
+        <div class="grid">
+          <div class="sw"><div class="chip" style="background:var(--semantic-success)"></div><span class="name">success</span><span class="val">#1F883D</span></div>
+          <div class="sw"><div class="chip" style="background:var(--semantic-error)"></div><span class="name">error</span><span class="val">#B3261E</span></div>
+          <div class="sw"><div class="chip" style="background:var(--semantic-warning)"></div><span class="name">warning</span><span class="val">#E8A100</span></div>
+          <div class="sw"><div class="chip" style="background:var(--semantic-info)"></div><span class="name">info</span><span class="val">#0B57D0</span></div>
+          <div class="sw"><div class="chip" style="background:var(--semantic-idle)"></div><span class="name">idle</span><span class="val">#6E7781</span></div>
+        </div>
+      </div>
+
+      <div class="sec">
+        <h3>시맨틱 컨테이너 (칩/배너 소프트 배경 + on-텍스트)</h3>
+        <div class="conrow">
+          <div class="con" style="background:var(--semantic-success-container); color:var(--on-semantic-success-container)">양품 · success</div>
+          <div class="con" style="background:var(--semantic-error-container); color:var(--on-semantic-error-container)">불량 · error</div>
+          <div class="con" style="background:var(--semantic-warning-container); color:var(--on-semantic-warning-container)">주의 · warning</div>
+          <div class="con" style="background:var(--semantic-info-container); color:var(--on-semantic-info-container)">정보 · info</div>
+          <div class="con" style="background:var(--semantic-idle-container); color:var(--on-semantic-idle-container)">대기 · idle</div>
+        </div>
+      </div>
+
+      <div class="sec">
+        <h3>차트 (레드 1번 + 차콜 명도)</h3>
+        <div class="grid">
+          <div class="sw"><div class="chip" style="background:var(--chart-1)"></div><span class="name">--chart-1</span></div>
+          <div class="sw"><div class="chip" style="background:var(--chart-2)"></div><span class="name">--chart-2</span></div>
+          <div class="sw"><div class="chip" style="background:var(--chart-3)"></div><span class="name">--chart-3</span></div>
+          <div class="sw"><div class="chip" style="background:var(--chart-4)"></div><span class="name">--chart-4</span></div>
+          <div class="sw"><div class="chip" style="background:var(--chart-5)"></div><span class="name">--chart-5</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ DARK ============ -->
+    <div class="col" data-theme="dark">
+      <h2>Dark</h2>
+
+      <div class="sec">
+        <h3>브랜드 / Primary</h3>
+        <div class="grid">
+          <div class="sw"><div class="chip" style="background:var(--primary)"></div><span class="name">--primary</span><span class="val">#C9252C</span></div>
+          <div class="sw"><div class="chip" style="background:var(--primary-hover)"></div><span class="name">--primary-hover</span></div>
+          <div class="sw"><div class="chip" style="background:var(--primary-press)"></div><span class="name">--primary-press</span></div>
+          <div class="sw"><div class="chip" style="background:var(--primary-container)"></div><span class="name">--primary-container</span></div>
+          <div class="sw"><div class="chip" style="background:var(--primary-text)"></div><span class="name">--primary-text</span></div>
+          <div class="sw"><div class="chip" style="background:var(--on-primary-container)"></div><span class="name">--on-primary-container</span></div>
+        </div>
+      </div>
+
+      <div class="sec">
+        <h3>표면 사다리 + 전경</h3>
+        <div class="grid">
+          <div class="sw"><div class="chip" style="background:var(--surface)"></div><span class="name">--surface</span></div>
+          <div class="sw"><div class="chip" style="background:var(--surface-container-low)"></div><span class="name">--surface-container-low</span></div>
+          <div class="sw"><div class="chip" style="background:var(--surface-container)"></div><span class="name">--surface-container</span></div>
+          <div class="sw"><div class="chip" style="background:var(--surface-container-high)"></div><span class="name">--surface-container-high</span></div>
+          <div class="sw"><div class="chip" style="background:var(--on-surface)"></div><span class="name">--on-surface</span></div>
+          <div class="sw"><div class="chip" style="background:var(--on-surface-variant)"></div><span class="name">--on-surface-variant</span></div>
+          <div class="sw"><div class="chip" style="background:var(--on-surface-muted)"></div><span class="name">--on-surface-muted</span></div>
+          <div class="sw"><div class="chip" style="background:var(--outline)"></div><span class="name">--outline</span></div>
+        </div>
+      </div>
+
+      <div class="sec">
+        <h3>시맨틱 채움 (라이트/다크 고정)</h3>
+        <div class="grid">
+          <div class="sw"><div class="chip" style="background:var(--semantic-success)"></div><span class="name">success</span></div>
+          <div class="sw"><div class="chip" style="background:var(--semantic-error)"></div><span class="name">error</span></div>
+          <div class="sw"><div class="chip" style="background:var(--semantic-warning)"></div><span class="name">warning</span></div>
+          <div class="sw"><div class="chip" style="background:var(--semantic-info)"></div><span class="name">info</span></div>
+          <div class="sw"><div class="chip" style="background:var(--semantic-idle)"></div><span class="name">idle</span></div>
+        </div>
+      </div>
+
+      <div class="sec">
+        <h3>시맨틱 컨테이너 (칩/배너 소프트 배경 + on-텍스트)</h3>
+        <div class="conrow">
+          <div class="con" style="background:var(--semantic-success-container); color:var(--on-semantic-success-container)">양품 · success</div>
+          <div class="con" style="background:var(--semantic-error-container); color:var(--on-semantic-error-container)">불량 · error</div>
+          <div class="con" style="background:var(--semantic-warning-container); color:var(--on-semantic-warning-container)">주의 · warning</div>
+          <div class="con" style="background:var(--semantic-info-container); color:var(--on-semantic-info-container)">정보 · info</div>
+          <div class="con" style="background:var(--semantic-idle-container); color:var(--on-semantic-idle-container)">대기 · idle</div>
+        </div>
+      </div>
+
+      <div class="sec">
+        <h3>차트 (명도 사다리 반전)</h3>
+        <div class="grid">
+          <div class="sw"><div class="chip" style="background:var(--chart-1)"></div><span class="name">--chart-1</span></div>
+          <div class="sw"><div class="chip" style="background:var(--chart-2)"></div><span class="name">--chart-2</span></div>
+          <div class="sw"><div class="chip" style="background:var(--chart-3)"></div><span class="name">--chart-3</span></div>
+          <div class="sw"><div class="chip" style="background:var(--chart-4)"></div><span class="name">--chart-4</span></div>
+          <div class="sw"><div class="chip" style="background:var(--chart-5)"></div><span class="name">--chart-5</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

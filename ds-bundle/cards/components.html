@@ -1,0 +1,420 @@
+<!-- @dsCard group="Components" -->
+<link rel="stylesheet" href="../styles.css" />
+<style>
+  /* ---- layout ---- */
+  .head { padding: var(--space-6) var(--space-6) 0; }
+  .head h1 { font: var(--type-headline-sm); letter-spacing: var(--type-headline-sm-tracking); color: var(--on-surface); margin: 0 0 var(--space-2); }
+  .head p { font: var(--type-body-sm); color: var(--on-surface-variant); margin: 0; }
+  .board { background: var(--surface); color: var(--on-surface); padding: var(--space-6); }
+  .board-label { font: var(--type-label-sm); letter-spacing: var(--type-label-sm-tracking); text-transform: uppercase; color: var(--on-surface-muted); margin: 0 0 var(--space-4); }
+  .gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: var(--space-4); align-items: start; }
+  .spec { background: var(--surface); border: 1px solid var(--outline-variant); border-radius: var(--radius-lg); padding: var(--space-5); display: flex; flex-direction: column; gap: var(--space-4); }
+  .spec > h3 { font: var(--type-label-sm); letter-spacing: var(--type-label-sm-tracking); text-transform: uppercase; color: var(--on-surface-muted); margin: 0; }
+  .rw { display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: center; }
+  .rwv { display: flex; flex-direction: column; gap: var(--space-3); }
+  .span2 { grid-column: span 2; }
+
+  /* ---- Button ---- */
+  .btn { position: relative; display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2); border: 0; border-radius: var(--radius-full); font: var(--type-label-lg); letter-spacing: var(--type-label-lg-tracking); cursor: pointer; }
+  .btn .material-symbols-rounded { font-size: 20px; }
+  .btn-sm { height: var(--control-height-sm); padding: 0 var(--space-3); font: var(--type-label-sm); }
+  .btn-sm .material-symbols-rounded { font-size: 18px; }
+  .btn-md { height: var(--control-height-md); padding: 0 var(--space-4); }
+  .btn-lg { height: var(--control-height-lg); padding: 0 var(--space-5); }
+  .btn-filled { background: var(--primary); color: var(--on-primary); }
+  .btn-tonal { background: var(--primary-container); color: var(--on-primary-container); }
+  .btn-outlined { background: transparent; color: var(--primary-text); box-shadow: inset 0 0 0 1px var(--outline-variant); }
+  .btn-text { background: transparent; color: var(--primary-text); }
+  .btn-disabled { background: var(--state-disabled-fill); color: var(--state-disabled-text); cursor: default; box-shadow: none; }
+
+  /* ---- IconButton ---- */
+  .iconbtn { position: relative; display: inline-flex; align-items: center; justify-content: center; border: 0; border-radius: var(--radius-full); width: var(--control-height-md); height: var(--control-height-md); cursor: pointer; }
+  .iconbtn-standard { background: transparent; color: var(--on-surface-variant); }
+  .iconbtn-filled { background: var(--primary); color: var(--on-primary); }
+  .iconbtn-tonal { background: var(--primary-container); color: var(--on-primary-container); }
+
+  /* ---- TextField ---- */
+  .tf { display: flex; flex-direction: column; gap: var(--space-1); }
+  .tf-label { font: var(--type-label-sm); letter-spacing: var(--type-label-sm-tracking); color: var(--on-surface-variant); }
+  .tf-wrap { display: flex; align-items: center; gap: var(--space-2); height: var(--control-height-md); padding: 0 var(--space-3); border-radius: var(--radius-md); background: transparent; box-shadow: inset 0 0 0 1px var(--outline); }
+  .tf-wrap.focus { box-shadow: inset 0 0 0 2px var(--primary); }
+  .tf-wrap.invalid { box-shadow: inset 0 0 0 1px var(--semantic-error); }
+  .tf-wrap.disabled { box-shadow: inset 0 0 0 1px var(--state-disabled-fill); }
+  .tf-wrap .material-symbols-rounded { font-size: 20px; color: var(--on-surface-variant); }
+  .tf-wrap.invalid .material-symbols-rounded { color: var(--semantic-error-text); }
+  .tf-input { border: 0; background: transparent; outline: none; color: var(--on-surface); font: var(--type-body-lg); flex: 1; min-width: 0; }
+  .tf-input.ph { color: var(--on-surface-muted); }
+  .tf-input.dis { color: var(--state-disabled-text); }
+  .tf-help { font: var(--type-body-sm); color: var(--on-surface-variant); }
+  .tf-err { font: var(--type-body-sm); color: var(--semantic-error-text); display: flex; align-items: center; gap: var(--space-1); }
+  .tf-err .material-symbols-rounded { font-size: 16px; }
+
+  /* ---- Checkbox / Radio / Switch ---- */
+  .cb, .rb { display: inline-flex; align-items: center; gap: var(--space-2); font: var(--type-body-lg); color: var(--on-surface); }
+  .rb { gap: var(--space-3); }
+  .cb-box { width: var(--space-5); height: var(--space-5); border-radius: 2px; border: 2px solid var(--outline); display: grid; place-items: center; color: var(--on-primary); box-sizing: border-box; }
+  .cb-box.on { background: var(--primary); border-color: var(--primary); }
+  .cb-box svg { width: var(--space-4); height: var(--space-4); }
+  .cb.dis { color: var(--state-disabled-text); }
+  .cb.dis .cb-box { border-color: var(--state-disabled-fill); }
+  .rb-ring { width: var(--space-5); height: var(--space-5); border: 2px solid var(--outline); border-radius: var(--radius-full); display: inline-grid; place-items: center; box-sizing: border-box; }
+  .rb-ring.on { border-color: var(--primary-text); }
+  .rb-dot { width: var(--space-2); height: var(--space-2); border-radius: var(--radius-full); background: var(--primary-text); }
+  .swc { display: inline-flex; align-items: center; gap: var(--space-2); font: var(--type-label-lg); color: var(--on-surface); }
+  .sw-track { position: relative; display: inline-flex; align-items: center; box-sizing: border-box; width: var(--space-8); height: var(--space-6); padding: var(--space-1); border-radius: var(--radius-full); background: var(--surface-container-high); box-shadow: inset 0 0 0 1px var(--outline); }
+  .sw-track.on { background: var(--primary); box-shadow: none; justify-content: flex-end; }
+  .sw-thumb { width: var(--space-4); height: var(--space-4); border-radius: var(--radius-full); background: var(--on-surface-variant); }
+  .sw-track.on .sw-thumb { background: var(--on-primary); }
+
+  /* ---- Chip / Badge ---- */
+  .chip { display: inline-flex; align-items: center; gap: var(--space-1); border-radius: var(--radius-full); font: var(--type-label-lg); padding: var(--space-1) var(--space-3); }
+  .chip-sm { font: var(--type-label-sm); padding: var(--space-1) var(--space-2); }
+  .chip-success { background: var(--semantic-success-container); color: var(--on-semantic-success-container); }
+  .chip-error { background: var(--semantic-error-container); color: var(--on-semantic-error-container); }
+  .chip-warning { background: var(--semantic-warning-container); color: var(--on-semantic-warning-container); }
+  .chip-info { background: var(--semantic-info-container); color: var(--on-semantic-info-container); }
+  .chip-idle { background: var(--semantic-idle-container); color: var(--on-semantic-idle-container); }
+  .chip-filter { background: transparent; color: var(--on-surface-variant); box-shadow: inset 0 0 0 1px var(--outline); }
+  .chip-filter.sel { background: var(--primary-container); color: var(--on-primary-container); box-shadow: none; }
+  .badge { display: inline-flex; align-items: center; justify-content: center; font: var(--type-label-sm); letter-spacing: var(--type-label-sm-tracking); border-radius: var(--radius-full); min-width: var(--space-4); height: var(--space-4); padding: 0 var(--space-1); box-sizing: border-box; }
+  .badge-primary { background: var(--primary); color: var(--on-primary); }
+  .badge-error { background: var(--semantic-error); color: var(--on-primary); }
+  .badge-neutral { background: var(--surface-container-high); color: var(--on-surface-variant); }
+  .badge-dot { width: var(--space-2); height: var(--space-2); min-width: 0; padding: 0; }
+
+  /* ---- Alert ---- */
+  .alert { display: flex; align-items: flex-start; gap: var(--space-3); padding: var(--space-3) var(--space-4); border-radius: var(--radius-md); font: var(--type-body-sm); }
+  .alert .material-symbols-rounded { font-size: 20px; margin-top: var(--space-1); }
+  .alert-success { background: var(--semantic-success-container); color: var(--on-semantic-success-container); }
+  .alert-error { background: var(--semantic-error-container); color: var(--on-semantic-error-container); }
+  .alert-warning { background: var(--semantic-warning-container); color: var(--on-semantic-warning-container); }
+  .alert-info { background: var(--semantic-info-container); color: var(--on-semantic-info-container); }
+  .alert-title { font: var(--type-title-sm); letter-spacing: var(--type-title-sm-tracking); }
+  .alert-desc { font: var(--type-body-sm); }
+
+  /* ---- Tabs ---- */
+  .tabs { display: flex; gap: var(--space-2); box-shadow: inset 0 -1px 0 0 var(--outline); padding: var(--space-1) 0; }
+  .tab { position: relative; display: inline-flex; align-items: center; height: var(--control-height-md); padding: 0 var(--space-3); border: 0; background: transparent; color: var(--on-surface-variant); font: var(--type-label-lg); border-radius: var(--radius-sm); cursor: pointer; }
+  .tab.active { color: var(--primary-text); }
+  .tab.active::after { content: ''; position: absolute; left: var(--space-3); right: var(--space-3); bottom: calc(-1 * var(--space-1)); height: 2px; border-radius: var(--radius-full); background: var(--primary); }
+
+  /* ---- Breadcrumb ---- */
+  .crumbs { display: flex; align-items: center; gap: var(--space-1); font: var(--type-body-sm); color: var(--on-surface-muted); }
+  .crumb-link { color: var(--on-surface-variant); text-decoration: none; }
+  .crumb-current { color: var(--on-surface); }
+  .crumbs .material-symbols-rounded { font-size: 18px; color: var(--on-surface-muted); }
+
+  /* ---- StatCard ---- */
+  .stat { background: var(--surface-container-low); border: 1px solid var(--outline-variant); border-radius: var(--radius-lg); padding: var(--space-5); display: flex; flex-direction: column; gap: var(--space-2); }
+  .stat-hd { display: flex; align-items: center; justify-content: space-between; }
+  .stat-label { font: var(--type-label-lg); color: var(--on-surface-muted); }
+  .stat-dot { width: var(--space-2); height: var(--space-2); border-radius: var(--radius-full); }
+  .stat-valrow { display: flex; align-items: baseline; gap: var(--space-2); }
+  .stat-val { font: var(--type-headline-lg); letter-spacing: var(--type-headline-lg-tracking); color: var(--on-surface); }
+  .stat-unit { font: var(--type-title-sm); color: var(--on-surface-variant); }
+  .stat-delta { display: inline-flex; align-items: center; gap: var(--space-1); font: var(--type-label-lg); }
+  .stat-delta .material-symbols-rounded { font-size: 16px; }
+  .delta-up { color: var(--semantic-success-text); }
+  .delta-down { color: var(--semantic-error-text); }
+  .gaugewrap { display: flex; align-items: center; gap: var(--space-3); margin-top: var(--space-1); }
+  .gauge-cap { font: var(--type-label-sm); color: var(--on-surface-muted); }
+
+  /* ---- Progress ---- */
+  .prog { position: relative; flex: 1; height: var(--space-2); border-radius: var(--radius-full); background: var(--surface-container-high); overflow: hidden; }
+  .prog-fill { position: absolute; top: 0; bottom: 0; left: 0; border-radius: inherit; background: var(--primary); }
+  .prog-pct { font: var(--type-label-sm); color: var(--on-surface); }
+
+  /* ---- Card ---- */
+  .dcard { background: var(--surface-container-low); border: 1px solid var(--outline-variant); border-radius: var(--radius-lg); box-shadow: var(--elevation-1); display: flex; flex-direction: column; }
+  .dcard-h { padding: var(--space-5) var(--space-5) var(--space-4); font: var(--type-title-lg); letter-spacing: var(--type-title-lg-tracking); color: var(--on-surface); }
+  .dcard-b { padding: 0 var(--space-5) var(--space-5); font: var(--type-body-lg); color: var(--on-surface-variant); }
+  .dcard-f { display: flex; justify-content: flex-end; gap: var(--space-2); padding: var(--space-4) var(--space-5); }
+
+  /* ---- Table ---- */
+  .tbl { width: 100%; border-collapse: separate; border-spacing: 0; font: var(--type-body-sm); color: var(--on-surface); background: var(--surface); border-radius: var(--radius-md); overflow: hidden; }
+  .tbl th { background: var(--surface-container); color: var(--on-surface-variant); font: var(--type-label-lg); text-align: left; padding: var(--space-3) var(--space-4); border-bottom: 1px solid var(--outline-variant); }
+  .tbl td { padding: var(--space-3) var(--space-4); border-bottom: 1px solid var(--outline-variant); }
+  .tbl tbody tr:nth-child(even) td { background: var(--surface-container-low); }
+  .tbl tbody tr:last-child td { border-bottom: 0; }
+</style>
+
+<div class="head">
+  <h1>컴포넌트 갤러리 — @crefle/web-ui</h1>
+  <p>토큰 기반 정적 재현. 실제 앱은 동일 룩의 React 컴포넌트를 사용한다. 라이트/다크 두 보드로 표시.</p>
+</div>
+
+<!-- ================= LIGHT BOARD ================= -->
+<div class="board">
+  <p class="board-label">Light</p>
+  <div class="gallery">
+
+    <div class="spec span2">
+      <h3>Button — variant × size</h3>
+      <div class="rw">
+        <button class="btn btn-filled btn-lg">설정</button>
+        <button class="btn btn-tonal btn-md">점검 예약</button>
+        <button class="btn btn-outlined btn-md"><span class="material-symbols-rounded">download</span>내보내기</button>
+        <button class="btn btn-text btn-md">전체 보기</button>
+        <button class="btn btn-filled btn-sm">저장</button>
+        <button class="btn btn-disabled btn-md">비활성</button>
+      </div>
+      <div class="rw">
+        <button class="btn btn-filled btn-sm">sm</button>
+        <button class="btn btn-filled btn-md">md</button>
+        <button class="btn btn-filled btn-lg">lg</button>
+        <span class="iconbtn iconbtn-standard"><span class="material-symbols-rounded">notifications</span></span>
+        <span class="iconbtn iconbtn-tonal"><span class="material-symbols-rounded">settings</span></span>
+        <span class="iconbtn iconbtn-filled"><span class="material-symbols-rounded">add</span></span>
+      </div>
+    </div>
+
+    <div class="spec">
+      <h3>TextField</h3>
+      <div class="rwv">
+        <label class="tf"><span class="tf-label">설비 이름</span>
+          <span class="tf-wrap"><span class="material-symbols-rounded">search</span><input class="tf-input" value="압축기 D" readonly></span>
+          <span class="tf-help">라인에 배치된 설비 식별자</span></label>
+        <label class="tf"><span class="tf-label">임계 온도</span>
+          <span class="tf-wrap invalid"><input class="tf-input" value="820" readonly><span class="material-symbols-rounded">error</span></span>
+          <span class="tf-err"><span class="material-symbols-rounded">error</span>허용 범위를 초과했습니다</span></label>
+        <label class="tf"><span class="tf-label">비활성</span>
+          <span class="tf-wrap disabled"><input class="tf-input dis" value="수정 불가" disabled></span></label>
+      </div>
+    </div>
+
+    <div class="spec">
+      <h3>Selection</h3>
+      <div class="rw">
+        <span class="cb"><span class="cb-box on"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9.5 L7.5 13 L14 5.5"/></svg></span>실시간 감시</span>
+        <span class="cb"><span class="cb-box"></span>야간 알림</span>
+        <span class="cb dis"><span class="cb-box"></span>잠금</span>
+      </div>
+      <div class="rw">
+        <span class="rb"><span class="rb-ring on"><span class="rb-dot"></span></span>자동</span>
+        <span class="rb"><span class="rb-ring"></span>수동</span>
+      </div>
+      <div class="rw">
+        <span class="swc"><span class="sw-track on"><span class="sw-thumb"></span></span>가동</span>
+        <span class="swc"><span class="sw-track"><span class="sw-thumb"></span></span>정지</span>
+      </div>
+    </div>
+
+    <div class="spec">
+      <h3>Chip · Badge</h3>
+      <div class="rw">
+        <span class="chip chip-success">양품</span>
+        <span class="chip chip-error">불량</span>
+        <span class="chip chip-warning">경고</span>
+        <span class="chip chip-info">정보</span>
+        <span class="chip chip-idle">대기</span>
+      </div>
+      <div class="rw">
+        <button class="chip chip-filter sel">A 라인</button>
+        <button class="chip chip-filter">B 라인</button>
+        <button class="chip chip-filter">C 라인</button>
+        <span class="badge badge-primary">3</span>
+        <span class="badge badge-error">9+</span>
+        <span class="badge badge-neutral">24</span>
+        <span class="badge badge-primary badge-dot"></span>
+      </div>
+    </div>
+
+    <div class="spec span2">
+      <h3>AlertBanner — 4 semantics</h3>
+      <div class="rwv">
+        <div class="alert alert-warning"><span class="material-symbols-rounded">warning</span><div><div class="alert-title">압축기 D 온도 임계값 초과</div><div class="alert-desc">점검이 필요합니다. AI 에이전트가 대응 시나리오를 준비했습니다.</div></div></div>
+        <div class="alert alert-error"><span class="material-symbols-rounded">error</span><div><div class="alert-title">라인 3 정지</div><div class="alert-desc">비상 정지 신호 감지 — 안전 점검 후 재가동하세요.</div></div></div>
+        <div class="alert alert-success"><span class="material-symbols-rounded">check_circle</span><div><div class="alert-title">보정 완료</div><div class="alert-desc">사이클 타임이 정상 범위로 회복되었습니다.</div></div></div>
+        <div class="alert alert-info"><span class="material-symbols-rounded">info</span><div><div class="alert-title">펌웨어 업데이트 예약</div><div class="alert-desc">오늘 02:00에 자동 적용됩니다.</div></div></div>
+      </div>
+    </div>
+
+    <div class="spec">
+      <h3>Tabs · Breadcrumb</h3>
+      <div class="tabs">
+        <button class="tab active">실시간</button>
+        <button class="tab">이력</button>
+        <button class="tab">알림</button>
+      </div>
+      <nav class="crumbs"><a class="crumb-link">홈</a><span class="material-symbols-rounded">chevron_right</span><a class="crumb-link">설비</a><span class="material-symbols-rounded">chevron_right</span><span class="crumb-current">설비 모니터링</span></nav>
+    </div>
+
+    <div class="spec">
+      <h3>StatCard · Progress · Gauge</h3>
+      <div class="stat">
+        <div class="stat-hd"><span class="stat-label">전체 가동률</span></div>
+        <div class="stat-valrow"><span class="stat-val">87.4</span><span class="stat-unit">%</span></div>
+        <span class="stat-delta delta-up"><span class="material-symbols-rounded">arrow_upward</span>+2.1%</span>
+        <div class="gaugewrap">
+          <div style="position:relative; width:48px; height:48px;">
+            <svg width="48" height="48" viewBox="0 0 48 48"><circle cx="24" cy="24" r="22" fill="none" stroke="var(--surface-container-high)" stroke-width="4"/><circle cx="24" cy="24" r="22" fill="none" stroke="var(--primary)" stroke-width="4" stroke-linecap="round" stroke-dasharray="138.23" stroke-dashoffset="17.97" transform="rotate(-90 24 24)"/></svg>
+            <span style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font:var(--type-label-sm); color:var(--on-surface)">87</span>
+          </div>
+          <span class="gauge-cap">목표 90%</span>
+        </div>
+      </div>
+      <div class="rw"><div class="prog"><span class="prog-fill" style="width:70%"></span></div><span class="prog-pct">70%</span></div>
+    </div>
+
+    <div class="spec span2">
+      <h3>Table — 상태 Chip 셀</h3>
+      <table class="tbl">
+        <thead><tr><th style="width:88px">시각</th><th style="width:128px">설비</th><th style="width:96px">상태</th><th>메시지</th></tr></thead>
+        <tbody>
+          <tr><td>14:32</td><td>압축기 D</td><td><span class="chip chip-sm chip-error">불량</span></td><td>온도 임계값 초과 — 즉시 점검 필요</td></tr>
+          <tr><td>14:18</td><td>컨베이어 2</td><td><span class="chip chip-sm chip-warning">경고</span></td><td>벨트 진동 상승 감지</td></tr>
+          <tr><td>13:57</td><td>로봇암 A-3</td><td><span class="chip chip-sm chip-success">정상</span></td><td>사이클 타임 회복 완료</td></tr>
+          <tr><td>13:12</td><td>포장기 P2</td><td><span class="chip chip-sm chip-idle">대기</span></td><td>자재 보충 대기 중</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="spec">
+      <h3>Card</h3>
+      <div class="dcard">
+        <div class="dcard-h">점검 예약</div>
+        <div class="dcard-b">압축기 D의 점검을 예약합니다. 담당 엔지니어에게 알림이 전송됩니다.</div>
+        <div class="dcard-f"><button class="btn btn-text btn-sm">취소</button><button class="btn btn-filled btn-sm">예약</button></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ================= DARK BOARD ================= -->
+<div class="board" data-theme="dark">
+  <p class="board-label">Dark</p>
+  <div class="gallery">
+
+    <div class="spec span2">
+      <h3>Button — variant × size</h3>
+      <div class="rw">
+        <button class="btn btn-filled btn-lg">설정</button>
+        <button class="btn btn-tonal btn-md">점검 예약</button>
+        <button class="btn btn-outlined btn-md"><span class="material-symbols-rounded">download</span>내보내기</button>
+        <button class="btn btn-text btn-md">전체 보기</button>
+        <button class="btn btn-filled btn-sm">저장</button>
+        <button class="btn btn-disabled btn-md">비활성</button>
+      </div>
+      <div class="rw">
+        <button class="btn btn-filled btn-sm">sm</button>
+        <button class="btn btn-filled btn-md">md</button>
+        <button class="btn btn-filled btn-lg">lg</button>
+        <span class="iconbtn iconbtn-standard"><span class="material-symbols-rounded">notifications</span></span>
+        <span class="iconbtn iconbtn-tonal"><span class="material-symbols-rounded">settings</span></span>
+        <span class="iconbtn iconbtn-filled"><span class="material-symbols-rounded">add</span></span>
+      </div>
+    </div>
+
+    <div class="spec">
+      <h3>TextField</h3>
+      <div class="rwv">
+        <label class="tf"><span class="tf-label">설비 이름</span>
+          <span class="tf-wrap"><span class="material-symbols-rounded">search</span><input class="tf-input" value="압축기 D" readonly></span>
+          <span class="tf-help">라인에 배치된 설비 식별자</span></label>
+        <label class="tf"><span class="tf-label">임계 온도</span>
+          <span class="tf-wrap invalid"><input class="tf-input" value="820" readonly><span class="material-symbols-rounded">error</span></span>
+          <span class="tf-err"><span class="material-symbols-rounded">error</span>허용 범위를 초과했습니다</span></label>
+        <label class="tf"><span class="tf-label">비활성</span>
+          <span class="tf-wrap disabled"><input class="tf-input dis" value="수정 불가" disabled></span></label>
+      </div>
+    </div>
+
+    <div class="spec">
+      <h3>Selection</h3>
+      <div class="rw">
+        <span class="cb"><span class="cb-box on"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9.5 L7.5 13 L14 5.5"/></svg></span>실시간 감시</span>
+        <span class="cb"><span class="cb-box"></span>야간 알림</span>
+        <span class="cb dis"><span class="cb-box"></span>잠금</span>
+      </div>
+      <div class="rw">
+        <span class="rb"><span class="rb-ring on"><span class="rb-dot"></span></span>자동</span>
+        <span class="rb"><span class="rb-ring"></span>수동</span>
+      </div>
+      <div class="rw">
+        <span class="swc"><span class="sw-track on"><span class="sw-thumb"></span></span>가동</span>
+        <span class="swc"><span class="sw-track"><span class="sw-thumb"></span></span>정지</span>
+      </div>
+    </div>
+
+    <div class="spec">
+      <h3>Chip · Badge</h3>
+      <div class="rw">
+        <span class="chip chip-success">양품</span>
+        <span class="chip chip-error">불량</span>
+        <span class="chip chip-warning">경고</span>
+        <span class="chip chip-info">정보</span>
+        <span class="chip chip-idle">대기</span>
+      </div>
+      <div class="rw">
+        <button class="chip chip-filter sel">A 라인</button>
+        <button class="chip chip-filter">B 라인</button>
+        <button class="chip chip-filter">C 라인</button>
+        <span class="badge badge-primary">3</span>
+        <span class="badge badge-error">9+</span>
+        <span class="badge badge-neutral">24</span>
+        <span class="badge badge-primary badge-dot"></span>
+      </div>
+    </div>
+
+    <div class="spec span2">
+      <h3>AlertBanner — 4 semantics</h3>
+      <div class="rwv">
+        <div class="alert alert-warning"><span class="material-symbols-rounded">warning</span><div><div class="alert-title">압축기 D 온도 임계값 초과</div><div class="alert-desc">점검이 필요합니다. AI 에이전트가 대응 시나리오를 준비했습니다.</div></div></div>
+        <div class="alert alert-error"><span class="material-symbols-rounded">error</span><div><div class="alert-title">라인 3 정지</div><div class="alert-desc">비상 정지 신호 감지 — 안전 점검 후 재가동하세요.</div></div></div>
+        <div class="alert alert-success"><span class="material-symbols-rounded">check_circle</span><div><div class="alert-title">보정 완료</div><div class="alert-desc">사이클 타임이 정상 범위로 회복되었습니다.</div></div></div>
+        <div class="alert alert-info"><span class="material-symbols-rounded">info</span><div><div class="alert-title">펌웨어 업데이트 예약</div><div class="alert-desc">오늘 02:00에 자동 적용됩니다.</div></div></div>
+      </div>
+    </div>
+
+    <div class="spec">
+      <h3>Tabs · Breadcrumb</h3>
+      <div class="tabs">
+        <button class="tab active">실시간</button>
+        <button class="tab">이력</button>
+        <button class="tab">알림</button>
+      </div>
+      <nav class="crumbs"><a class="crumb-link">홈</a><span class="material-symbols-rounded">chevron_right</span><a class="crumb-link">설비</a><span class="material-symbols-rounded">chevron_right</span><span class="crumb-current">설비 모니터링</span></nav>
+    </div>
+
+    <div class="spec">
+      <h3>StatCard · Progress · Gauge</h3>
+      <div class="stat">
+        <div class="stat-hd"><span class="stat-label">전체 가동률</span></div>
+        <div class="stat-valrow"><span class="stat-val">87.4</span><span class="stat-unit">%</span></div>
+        <span class="stat-delta delta-up"><span class="material-symbols-rounded">arrow_upward</span>+2.1%</span>
+        <div class="gaugewrap">
+          <div style="position:relative; width:48px; height:48px;">
+            <svg width="48" height="48" viewBox="0 0 48 48"><circle cx="24" cy="24" r="22" fill="none" stroke="var(--surface-container-high)" stroke-width="4"/><circle cx="24" cy="24" r="22" fill="none" stroke="var(--primary)" stroke-width="4" stroke-linecap="round" stroke-dasharray="138.23" stroke-dashoffset="17.97" transform="rotate(-90 24 24)"/></svg>
+            <span style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font:var(--type-label-sm); color:var(--on-surface)">87</span>
+          </div>
+          <span class="gauge-cap">목표 90%</span>
+        </div>
+      </div>
+      <div class="rw"><div class="prog"><span class="prog-fill" style="width:70%"></span></div><span class="prog-pct">70%</span></div>
+    </div>
+
+    <div class="spec span2">
+      <h3>Table — 상태 Chip 셀</h3>
+      <table class="tbl">
+        <thead><tr><th style="width:88px">시각</th><th style="width:128px">설비</th><th style="width:96px">상태</th><th>메시지</th></tr></thead>
+        <tbody>
+          <tr><td>14:32</td><td>압축기 D</td><td><span class="chip chip-sm chip-error">불량</span></td><td>온도 임계값 초과 — 즉시 점검 필요</td></tr>
+          <tr><td>14:18</td><td>컨베이어 2</td><td><span class="chip chip-sm chip-warning">경고</span></td><td>벨트 진동 상승 감지</td></tr>
+          <tr><td>13:57</td><td>로봇암 A-3</td><td><span class="chip chip-sm chip-success">정상</span></td><td>사이클 타임 회복 완료</td></tr>
+          <tr><td>13:12</td><td>포장기 P2</td><td><span class="chip chip-sm chip-idle">대기</span></td><td>자재 보충 대기 중</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="spec">
+      <h3>Card</h3>
+      <div class="dcard">
+        <div class="dcard-h">점검 예약</div>
+        <div class="dcard-b">압축기 D의 점검을 예약합니다. 담당 엔지니어에게 알림이 전송됩니다.</div>
+        <div class="dcard-f"><button class="btn btn-text btn-sm">취소</button><button class="btn btn-filled btn-sm">예약</button></div>
+      </div>
+    </div>
+
+  </div>
+</div>

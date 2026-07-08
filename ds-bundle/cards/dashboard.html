@@ -1,0 +1,360 @@
+<!-- @dsCard group="Showcase" -->
+<link rel="stylesheet" href="../styles.css" />
+<style>
+  .app { display: grid; grid-template-columns: var(--sidebar-width) 1fr; grid-template-rows: auto 1fr; grid-template-areas: "topbar topbar" "sidebar main"; min-height: 100vh; background: var(--surface); color: var(--on-surface); }
+
+  /* ---- Topbar ---- */
+  .topbar { grid-area: topbar; display: flex; align-items: center; gap: var(--space-4); height: var(--space-10); padding: 0 var(--space-4); background: var(--surface-container); box-shadow: inset 0 -1px 0 var(--outline-variant); box-sizing: border-box; }
+  .brand { display: inline-flex; align-items: center; gap: var(--space-2); flex-shrink: 0; }
+  .brand-name { font: var(--type-title-sm); letter-spacing: var(--type-title-sm-tracking); color: var(--on-surface); }
+  .tb-crumbs { display: flex; align-items: center; gap: var(--space-1); font: var(--type-body-sm); color: var(--on-surface-muted); }
+  .tb-crumbs a { color: var(--on-surface-variant); text-decoration: none; }
+  .tb-crumbs .cur { color: var(--on-surface); }
+  .tb-crumbs .material-symbols-rounded { font-size: 18px; }
+  .spacer { flex: 1; }
+  .tb-actions { display: inline-flex; align-items: center; gap: var(--space-2); flex-shrink: 0; }
+
+  /* ---- Sidebar ---- */
+  .sidebar { grid-area: sidebar; display: flex; flex-direction: column; background: var(--surface-container-low); box-shadow: inset -1px 0 0 var(--outline-variant); }
+  .side-head { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); padding: var(--space-3); }
+  .side-brand { display: inline-flex; align-items: center; gap: var(--space-2); }
+  .side-lock { display: flex; flex-direction: column; gap: var(--space-1); }
+  .side-sub { font: var(--type-label-sm); letter-spacing: var(--type-label-sm-tracking); color: var(--on-surface-muted); }
+  .side-list { display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-2); }
+  .side-section { display: flex; flex-direction: column; gap: var(--space-2); }
+  .side-seclabel { font: var(--type-label-sm); letter-spacing: var(--type-label-sm-tracking); color: var(--on-surface-muted); padding: var(--space-2) var(--space-3); }
+  .item { position: relative; display: flex; align-items: center; gap: var(--space-3); height: var(--control-height-lg); padding: 0 var(--space-3); border-radius: var(--radius-md); background: transparent; color: var(--on-surface-variant); font: var(--type-label-lg); text-decoration: none; box-sizing: border-box; }
+  .item .material-symbols-rounded { font-size: 22px; color: var(--on-surface-variant); }
+  .item .item-label { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .item.active { background: var(--primary-container); box-shadow: inset 2px 0 0 var(--primary-text); }
+  .item.active .item-label { color: var(--on-primary-container); }
+  .item.active .material-symbols-rounded { color: var(--primary-text); }
+  .item-badge { margin-left: auto; }
+
+  /* ---- Main ---- */
+  .main { grid-area: main; overflow: auto; }
+  .page { display: grid; gap: var(--space-6); padding: var(--space-6); }
+
+  /* ---- PageHeader ---- */
+  .ph { display: flex; flex-direction: column; gap: var(--space-4); }
+  .ph-top { display: flex; flex-wrap: wrap; align-items: flex-start; gap: var(--space-4); }
+  .ph-head { display: flex; flex-direction: column; gap: var(--space-2); flex: 1 1 20rem; min-width: 0; }
+  .ph-title { font: var(--type-headline-lg); letter-spacing: var(--type-headline-lg-tracking); color: var(--on-surface); margin: 0; }
+  .ph-desc { font: var(--type-body-lg); color: var(--on-surface-variant); margin: 0; }
+  .ph-actions { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-left: auto; }
+  .tabs { display: flex; gap: var(--space-2); box-shadow: inset 0 -1px 0 0 var(--outline); padding: var(--space-1) 0; }
+  .tab { position: relative; display: inline-flex; align-items: center; height: var(--control-height-md); padding: 0 var(--space-3); border: 0; background: transparent; color: var(--on-surface-variant); font: var(--type-label-lg); border-radius: var(--radius-sm); cursor: pointer; }
+  .tab.active { color: var(--primary-text); }
+  .tab.active::after { content: ''; position: absolute; left: var(--space-3); right: var(--space-3); bottom: calc(-1 * var(--space-1)); height: 2px; border-radius: var(--radius-full); background: var(--primary); }
+
+  /* ---- Buttons / IconButton ---- */
+  .btn { position: relative; display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2); border: 0; border-radius: var(--radius-full); font: var(--type-label-lg); cursor: pointer; }
+  .btn .material-symbols-rounded { font-size: 20px; }
+  .btn-sm { height: var(--control-height-sm); padding: 0 var(--space-3); font: var(--type-label-sm); }
+  .btn-sm .material-symbols-rounded { font-size: 18px; }
+  .btn-md { height: var(--control-height-md); padding: 0 var(--space-4); }
+  .btn-filled { background: var(--primary); color: var(--on-primary); }
+  .btn-tonal { background: var(--primary-container); color: var(--on-primary-container); }
+  .btn-outlined { background: transparent; color: var(--primary-text); box-shadow: inset 0 0 0 1px var(--outline-variant); }
+  .btn-text { background: transparent; color: var(--primary-text); }
+  .iconbtn { display: inline-flex; align-items: center; justify-content: center; border: 0; border-radius: var(--radius-full); width: var(--control-height-md); height: var(--control-height-md); background: transparent; color: var(--on-surface-variant); cursor: pointer; }
+  .badge { display: inline-flex; align-items: center; justify-content: center; font: var(--type-label-sm); letter-spacing: var(--type-label-sm-tracking); border-radius: var(--radius-full); min-width: var(--space-4); height: var(--space-4); padding: 0 var(--space-1); box-sizing: border-box; background: var(--primary); color: var(--on-primary); }
+  .badge-error { background: var(--semantic-error); }
+
+  /* ---- StatCard ---- */
+  .stat-grid { display: grid; gap: var(--space-4); grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .stat { background: var(--surface-container-low); border: 1px solid var(--outline-variant); border-radius: var(--radius-lg); padding: var(--space-5); display: flex; flex-direction: column; gap: var(--space-2); }
+  .stat-hd { display: flex; align-items: center; justify-content: space-between; }
+  .stat-label { font: var(--type-label-lg); color: var(--on-surface-muted); }
+  .dot { width: var(--space-2); height: var(--space-2); border-radius: var(--radius-full); flex: none; }
+  .dot-success { background: var(--semantic-success); }
+  .dot-warning { background: var(--semantic-warning); }
+  .dot-info { background: var(--semantic-info); }
+  .stat-valrow { display: flex; align-items: baseline; gap: var(--space-2); }
+  .stat-val { font: var(--type-headline-lg); letter-spacing: var(--type-headline-lg-tracking); color: var(--on-surface); }
+  .stat-unit { font: var(--type-title-sm); color: var(--on-surface-variant); }
+  .stat-delta { display: inline-flex; align-items: center; gap: var(--space-1); font: var(--type-label-lg); }
+  .stat-delta .material-symbols-rounded { font-size: 16px; }
+  .delta-up { color: var(--semantic-success-text); }
+  .delta-down { color: var(--semantic-error-text); }
+  .gaugewrap { display: flex; align-items: center; gap: var(--space-3); margin-top: var(--space-1); }
+  .gauge-cap { font: var(--type-label-sm); color: var(--on-surface-muted); }
+
+  /* ---- AlertBanner ---- */
+  .alert { display: flex; align-items: flex-start; gap: var(--space-3); padding: var(--space-3) var(--space-4); border-radius: var(--radius-md); background: var(--semantic-warning-container); color: var(--on-semantic-warning-container); }
+  .alert > .material-symbols-rounded { font-size: 20px; margin-top: var(--space-1); }
+  .alert-content { display: flex; flex-direction: column; gap: var(--space-1); flex: 1; }
+  .alert-title { font: var(--type-title-sm); letter-spacing: var(--type-title-sm-tracking); }
+  .alert-desc { font: var(--type-body-sm); }
+  .alert-action { margin-top: var(--space-2); }
+
+  /* ---- Chart panels ---- */
+  .charts-grid { display: grid; gap: var(--space-4); grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr) minmax(0, 1.1fr); align-items: stretch; }
+  .panel { background: var(--surface-container-low); border: 1px solid var(--outline-variant); border-radius: var(--radius-lg); padding: var(--space-5); display: flex; flex-direction: column; gap: var(--space-4); }
+  .panel-title { font: var(--type-title-sm); letter-spacing: var(--type-title-sm-tracking); color: var(--on-surface); margin: 0; }
+  .chart-svg { width: 100%; height: auto; display: block; }
+  .legend { display: flex; flex-wrap: wrap; gap: var(--space-3); list-style: none; margin: 0; padding: 0; }
+  .legend li { display: flex; align-items: center; gap: var(--space-1); font: var(--type-label-sm); color: var(--on-surface); }
+  .legend .sw { width: var(--space-2); height: var(--space-2); border-radius: var(--radius-full); flex: none; }
+  .tick { font: var(--type-label-sm); fill: var(--on-surface-muted); text-anchor: end; }
+  .axis { font: var(--type-label-sm); fill: var(--on-surface-muted); text-anchor: middle; }
+  .ctr-val { font: var(--type-title-sm); fill: var(--on-surface); text-anchor: middle; }
+  .ctr-lab { font: var(--type-label-sm); fill: var(--on-surface-muted); text-anchor: middle; }
+
+  /* ---- Table ---- */
+  .tablecard { background: var(--surface-container-low); border: 1px solid var(--outline-variant); border-radius: var(--radius-lg); padding: var(--space-5); }
+  .table-head { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); margin-bottom: var(--space-4); }
+  .tbl { width: 100%; border-collapse: separate; border-spacing: 0; font: var(--type-body-sm); color: var(--on-surface); background: var(--surface); border-radius: var(--radius-md); overflow: hidden; }
+  .tbl caption { font: var(--type-body-sm); color: var(--on-surface-muted); padding-bottom: var(--space-3); text-align: center; caption-side: top; }
+  .tbl th { background: var(--surface-container); color: var(--on-surface-variant); font: var(--type-label-lg); text-align: left; padding: var(--space-3) var(--space-4); border-bottom: 1px solid var(--outline-variant); }
+  .tbl th .sortwrap { display: inline-flex; align-items: center; gap: var(--space-1); }
+  .tbl th .material-symbols-rounded { font-size: 16px; }
+  .tbl td { padding: var(--space-3) var(--space-4); border-bottom: 1px solid var(--outline-variant); color: var(--on-surface); }
+  .tbl td.muted { color: var(--on-surface-variant); }
+  .tbl tbody tr:last-child td { border-bottom: 0; }
+  .chip { display: inline-flex; align-items: center; border-radius: var(--radius-full); font: var(--type-label-sm); letter-spacing: var(--type-label-sm-tracking); padding: var(--space-1) var(--space-2); }
+  .chip-success { background: var(--semantic-success-container); color: var(--on-semantic-success-container); }
+  .chip-error { background: var(--semantic-error-container); color: var(--on-semantic-error-container); }
+  .chip-warning { background: var(--semantic-warning-container); color: var(--on-semantic-warning-container); }
+  .chip-idle { background: var(--semantic-idle-container); color: var(--on-semantic-idle-container); }
+</style>
+
+<div class="app" data-theme="dark">
+  <!-- ============ TOPBAR ============ -->
+  <header class="topbar">
+    <span class="brand">
+      <svg width="22" height="22" viewBox="0 0 24 24" style="color:var(--primary); flex:none" role="img" aria-label="CREFLE">
+        <circle cx="5" cy="5" r="2.1" fill="currentColor"/><circle cx="12" cy="5" r="2.1" fill="currentColor"/><circle cx="19" cy="5" r="2.1" fill="currentColor"/>
+        <circle cx="5" cy="12" r="2.1" fill="currentColor"/><circle cx="12" cy="12" r="2.1" fill="currentColor"/><circle cx="19" cy="12" r="2.1" fill="currentColor"/>
+        <circle cx="5" cy="19" r="2.1" fill="currentColor"/><circle cx="12" cy="19" r="2.1" fill="currentColor"/><circle cx="19" cy="19" r="2.1" fill="currentColor"/>
+      </svg>
+      <span class="brand-name">OnMyFactory</span>
+    </span>
+    <nav class="tb-crumbs"><a>홈</a><span class="material-symbols-rounded">chevron_right</span><span class="cur">설비 모니터링</span></nav>
+    <span class="spacer"></span>
+    <span class="tb-actions">
+      <span class="iconbtn"><span class="material-symbols-rounded">notifications</span></span>
+      <span class="badge">3</span>
+      <button class="btn btn-text btn-md"><span class="material-symbols-rounded">account_circle</span>프로필</button>
+    </span>
+  </header>
+
+  <!-- ============ SIDEBAR ============ -->
+  <aside class="sidebar">
+    <div class="side-head">
+      <span class="side-brand">
+        <svg width="22" height="22" viewBox="0 0 24 24" style="color:var(--primary); flex:none" role="img" aria-label="CREFLE">
+          <circle cx="5" cy="5" r="2.1" fill="currentColor"/><circle cx="12" cy="5" r="2.1" fill="currentColor"/><circle cx="19" cy="5" r="2.1" fill="currentColor"/>
+          <circle cx="5" cy="12" r="2.1" fill="currentColor"/><circle cx="12" cy="12" r="2.1" fill="currentColor"/><circle cx="19" cy="12" r="2.1" fill="currentColor"/>
+          <circle cx="5" cy="19" r="2.1" fill="currentColor"/><circle cx="12" cy="19" r="2.1" fill="currentColor"/><circle cx="19" cy="19" r="2.1" fill="currentColor"/>
+        </svg>
+        <span class="side-lock">
+          <span class="brand-name">CREFLE</span>
+          <span class="side-sub">스마트 팩토리</span>
+        </span>
+      </span>
+      <span class="iconbtn"><span class="material-symbols-rounded">menu_open</span></span>
+    </div>
+    <nav class="side-list">
+      <div class="side-section">
+        <span class="side-seclabel">워크스페이스</span>
+        <a class="item active"><span class="material-symbols-rounded">dashboard</span><span class="item-label">대시보드</span></a>
+        <a class="item"><span class="material-symbols-rounded">precision_manufacturing</span><span class="item-label">설비</span><span class="badge badge-error item-badge">3</span></a>
+        <a class="item"><span class="material-symbols-rounded">smart_toy</span><span class="item-label">에이전트</span></a>
+        <a class="item"><span class="material-symbols-rounded">list</span><span class="item-label">이벤트 로그</span></a>
+      </div>
+      <div class="side-section">
+        <span class="side-seclabel">설정</span>
+        <a class="item"><span class="material-symbols-rounded">settings</span><span class="item-label">설정</span></a>
+      </div>
+    </nav>
+  </aside>
+
+  <!-- ============ MAIN ============ -->
+  <main class="main">
+    <div class="page">
+      <!-- PageHeader -->
+      <div class="ph">
+        <div class="ph-top">
+          <div class="ph-head">
+            <h1 class="ph-title">설비 모니터링</h1>
+            <p class="ph-desc">AI Agent가 실시간으로 설비 상태를 감시합니다.</p>
+          </div>
+          <div class="ph-actions">
+            <button class="btn btn-outlined btn-md"><span class="material-symbols-rounded">download</span>내보내기</button>
+            <button class="btn btn-filled btn-md"><span class="material-symbols-rounded">settings</span>설정</button>
+          </div>
+        </div>
+        <div class="tabs">
+          <button class="tab active">실시간</button>
+          <button class="tab">이력</button>
+          <button class="tab">알림</button>
+        </div>
+      </div>
+
+      <!-- KPI StatCards -->
+      <section class="stat-grid" aria-label="핵심 지표">
+        <div class="stat">
+          <div class="stat-hd"><span class="stat-label">전체 가동률</span></div>
+          <div class="stat-valrow"><span class="stat-val">87.4</span><span class="stat-unit">%</span></div>
+          <span class="stat-delta delta-up"><span class="material-symbols-rounded">arrow_upward</span>+2.1%</span>
+          <div class="gaugewrap">
+            <div style="position:relative; width:48px; height:48px;">
+              <svg width="48" height="48" viewBox="0 0 48 48"><circle cx="24" cy="24" r="22" fill="none" stroke="var(--surface-container-high)" stroke-width="4"/><circle cx="24" cy="24" r="22" fill="none" stroke="var(--primary)" stroke-width="4" stroke-linecap="round" stroke-dasharray="138.23" stroke-dashoffset="17.97" transform="rotate(-90 24 24)"/></svg>
+              <span style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font:var(--type-label-lg); color:var(--on-surface)">87</span>
+            </div>
+            <span class="gauge-cap">목표 90%</span>
+          </div>
+        </div>
+        <div class="stat">
+          <div class="stat-hd"><span class="stat-label">활성 에이전트</span><span class="dot dot-success"></span></div>
+          <div class="stat-valrow"><span class="stat-val">24</span><span class="stat-unit">대</span></div>
+          <span class="stat-delta delta-up"><span class="material-symbols-rounded">arrow_upward</span>+3</span>
+        </div>
+        <div class="stat">
+          <div class="stat-hd"><span class="stat-label">경고</span><span class="dot dot-warning"></span></div>
+          <div class="stat-valrow"><span class="stat-val">3</span><span class="stat-unit">건</span></div>
+          <span class="stat-delta delta-up"><span class="material-symbols-rounded">arrow_upward</span>+2</span>
+        </div>
+        <div class="stat">
+          <div class="stat-hd"><span class="stat-label">시간당 처리량</span><span class="dot dot-info"></span></div>
+          <div class="stat-valrow"><span class="stat-val">1,284</span><span class="stat-unit">ea</span></div>
+          <span class="stat-delta delta-down"><span class="material-symbols-rounded">arrow_downward</span>-4.6%</span>
+        </div>
+      </section>
+
+      <!-- Warning AlertBanner -->
+      <div class="alert">
+        <span class="material-symbols-rounded">warning</span>
+        <div class="alert-content">
+          <div class="alert-title">압축기 D 온도 임계값 초과</div>
+          <div class="alert-desc">점검이 필요합니다. AI 에이전트가 자동으로 대응 시나리오를 준비했습니다.</div>
+          <div class="alert-action"><button class="btn btn-tonal btn-sm"><span class="material-symbols-rounded">build</span>점검 예약</button></div>
+        </div>
+      </div>
+
+      <!-- Charts -->
+      <section class="charts-grid" aria-label="추이 및 구성">
+        <!-- Line chart -->
+        <div class="panel">
+          <h2 class="panel-title">시간별 가동률 추이</h2>
+          <svg class="chart-svg" viewBox="0 0 640 300" role="img" aria-label="라인별 시간대별 가동률 추이">
+            <!-- grid -->
+            <line x1="40" y1="16" x2="624" y2="16" stroke="var(--chart-grid)"/>
+            <line x1="40" y1="79" x2="624" y2="79" stroke="var(--chart-grid)"/>
+            <line x1="40" y1="142" x2="624" y2="142" stroke="var(--chart-grid)"/>
+            <line x1="40" y1="205" x2="624" y2="205" stroke="var(--chart-grid)"/>
+            <line x1="40" y1="268" x2="624" y2="268" stroke="var(--outline-variant)"/>
+            <!-- y ticks -->
+            <text class="tick" x="32" y="20">100%</text>
+            <text class="tick" x="32" y="83">90%</text>
+            <text class="tick" x="32" y="146">80%</text>
+            <text class="tick" x="32" y="209">70%</text>
+            <text class="tick" x="32" y="272">60%</text>
+            <!-- x labels -->
+            <text class="axis" x="40" y="286">00시</text>
+            <text class="axis" x="137.3" y="286">04시</text>
+            <text class="axis" x="234.7" y="286">08시</text>
+            <text class="axis" x="332" y="286">12시</text>
+            <text class="axis" x="429.3" y="286">16시</text>
+            <text class="axis" x="526.7" y="286">20시</text>
+            <text class="axis" x="624" y="286">24시</text>
+            <!-- C line (chart-3) -->
+            <polyline fill="none" stroke="var(--chart-3)" stroke-width="2" points="40,205 137.3,179.8 234.7,148.3 332,135.7 429.3,160.9 526.7,192.4 624,173.5"/>
+            <!-- B line (chart-2) -->
+            <polyline fill="none" stroke="var(--chart-2)" stroke-width="2" points="40,154.6 137.3,142 234.7,116.8 332,104.2 429.3,129.4 526.7,110.5 624,123.1"/>
+            <!-- A line (chart-1, red) -->
+            <polyline fill="none" stroke="var(--chart-1)" stroke-width="2" points="40,129.4 137.3,110.5 234.7,72.7 332,91.6 429.3,60.1 526.7,79 624,97.9"/>
+            <!-- points -->
+            <g fill="var(--chart-3)"><circle cx="40" cy="205" r="4"/><circle cx="137.3" cy="179.8" r="4"/><circle cx="234.7" cy="148.3" r="4"/><circle cx="332" cy="135.7" r="4"/><circle cx="429.3" cy="160.9" r="4"/><circle cx="526.7" cy="192.4" r="4"/><circle cx="624" cy="173.5" r="4"/></g>
+            <g fill="var(--chart-2)"><circle cx="40" cy="154.6" r="4"/><circle cx="137.3" cy="142" r="4"/><circle cx="234.7" cy="116.8" r="4"/><circle cx="332" cy="104.2" r="4"/><circle cx="429.3" cy="129.4" r="4"/><circle cx="526.7" cy="110.5" r="4"/><circle cx="624" cy="123.1" r="4"/></g>
+            <g fill="var(--chart-1)"><circle cx="40" cy="129.4" r="4"/><circle cx="137.3" cy="110.5" r="4"/><circle cx="234.7" cy="72.7" r="4"/><circle cx="332" cy="91.6" r="4"/><circle cx="429.3" cy="60.1" r="4"/><circle cx="526.7" cy="79" r="4"/><circle cx="624" cy="97.9" r="4"/></g>
+          </svg>
+          <ul class="legend">
+            <li><span class="sw" style="background:var(--chart-1)"></span>A 라인</li>
+            <li><span class="sw" style="background:var(--chart-2)"></span>B 라인</li>
+            <li><span class="sw" style="background:var(--chart-3)"></span>C 라인</li>
+          </ul>
+        </div>
+
+        <!-- Bar chart -->
+        <div class="panel">
+          <h2 class="panel-title">라인별 처리량 (개/시)</h2>
+          <svg class="chart-svg" viewBox="0 0 440 300" role="img" aria-label="라인별 시간당 처리량">
+            <line x1="40" y1="16" x2="424" y2="16" stroke="var(--chart-grid)"/>
+            <line x1="40" y1="79" x2="424" y2="79" stroke="var(--chart-grid)"/>
+            <line x1="40" y1="142" x2="424" y2="142" stroke="var(--chart-grid)"/>
+            <line x1="40" y1="205" x2="424" y2="205" stroke="var(--chart-grid)"/>
+            <line x1="40" y1="268" x2="424" y2="268" stroke="var(--outline-variant)"/>
+            <text class="tick" x="32" y="20">312</text>
+            <text class="tick" x="32" y="83">234</text>
+            <text class="tick" x="32" y="146">156</text>
+            <text class="tick" x="32" y="209">78</text>
+            <text class="tick" x="32" y="272">0</text>
+            <g fill="var(--chart-1)">
+              <rect x="58.4" y="38.6" width="40" height="229.4" rx="2"/>
+              <rect x="135.2" y="69.3" width="40" height="198.7" rx="2"/>
+              <rect x="212" y="16" width="40" height="252" rx="2"/>
+              <rect x="288.8" y="100" width="40" height="168" rx="2"/>
+              <rect x="365.6" y="51.5" width="40" height="216.5" rx="2"/>
+            </g>
+            <text class="axis" x="78.4" y="286">1라인</text>
+            <text class="axis" x="155.2" y="286">2라인</text>
+            <text class="axis" x="232" y="286">3라인</text>
+            <text class="axis" x="308.8" y="286">4라인</text>
+            <text class="axis" x="385.6" y="286">5라인</text>
+          </svg>
+        </div>
+
+        <!-- Donut chart -->
+        <div class="panel">
+          <h2 class="panel-title">설비 상태 구성비</h2>
+          <svg class="chart-svg" viewBox="0 0 360 300" role="img" aria-label="설비 상태 구성비: 정상, 경고, 점검, 정지">
+            <g fill="none" stroke-width="40.32">
+              <circle stroke="var(--chart-1)" cx="180" cy="150" r="105.84" stroke-dasharray="517.1 147.9" transform="rotate(-90 180 150)"/>
+              <circle stroke="var(--chart-2)" cx="180" cy="150" r="105.84" stroke-dasharray="73.9 591.1" transform="rotate(190 180 150)"/>
+              <circle stroke="var(--chart-3)" cx="180" cy="150" r="105.84" stroke-dasharray="49.3 615.7" transform="rotate(230 180 150)"/>
+              <circle stroke="var(--chart-4)" cx="180" cy="150" r="105.84" stroke-dasharray="24.6 640.4" transform="rotate(256.7 180 150)"/>
+            </g>
+            <text class="ctr-val" x="180" y="146">54</text>
+            <text class="ctr-lab" x="180" y="166">총 설비</text>
+          </svg>
+          <ul class="legend">
+            <li><span class="sw" style="background:var(--chart-1)"></span>정상</li>
+            <li><span class="sw" style="background:var(--chart-2)"></span>경고</li>
+            <li><span class="sw" style="background:var(--chart-3)"></span>점검</li>
+            <li><span class="sw" style="background:var(--chart-4)"></span>정지</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- Event log table -->
+      <div class="tablecard">
+        <div class="table-head">
+          <h2 class="panel-title">설비 이벤트 로그</h2>
+          <button class="btn btn-text btn-sm">전체 보기<span class="material-symbols-rounded">open_in_new</span></button>
+        </div>
+        <table class="tbl">
+          <caption>설비 이벤트 로그 — 시각 기준 정렬 가능</caption>
+          <thead>
+            <tr>
+              <th style="width:88px"><span class="sortwrap">시각<span class="material-symbols-rounded">arrow_downward</span></span></th>
+              <th style="width:128px">설비</th>
+              <th style="width:96px">상태</th>
+              <th>메시지</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td class="muted">14:32</td><td>압축기 D</td><td><span class="chip chip-error">불량</span></td><td>온도 임계값 초과 — 즉시 점검 필요</td></tr>
+            <tr><td class="muted">14:18</td><td>컨베이어 2</td><td><span class="chip chip-warning">경고</span></td><td>벨트 진동 상승 감지</td></tr>
+            <tr><td class="muted">13:57</td><td>로봇암 A-3</td><td><span class="chip chip-success">정상</span></td><td>사이클 타임 회복 완료</td></tr>
+            <tr><td class="muted">13:40</td><td>검사기 V1</td><td><span class="chip chip-success">정상</span></td><td>비전 검사 정상 재개</td></tr>
+            <tr><td class="muted">13:12</td><td>포장기 P2</td><td><span class="chip chip-idle">대기</span></td><td>자재 보충 대기 중</td></tr>
+            <tr><td class="muted">12:48</td><td>압축기 C</td><td><span class="chip chip-warning">경고</span></td><td>유압 변동 폭 확대</td></tr>
+            <tr><td class="muted">12:20</td><td>용접셀 W-1</td><td><span class="chip chip-success">정상</span></td><td>AI 에이전트 자동 보정 적용</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</div>

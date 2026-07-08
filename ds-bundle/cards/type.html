@@ -1,0 +1,61 @@
+<!-- @dsCard group="Foundation" -->
+<link rel="stylesheet" href="../styles.css" />
+<style>
+  .page { padding: var(--space-7); max-width: 920px; }
+  .head { margin-bottom: var(--space-6); }
+  .head h1 { font: var(--type-headline-sm); letter-spacing: var(--type-headline-sm-tracking); color: var(--on-surface); margin: 0 0 var(--space-2); }
+  .head p { font: var(--type-body-sm); color: var(--on-surface-variant); margin: 0; }
+  .row { display: grid; grid-template-columns: 168px 1fr; gap: var(--space-5); align-items: baseline; padding: var(--space-4) 0; border-top: 1px solid var(--outline-variant); }
+  .meta { display: flex; flex-direction: column; gap: var(--space-1); }
+  .tok { font: var(--type-label-lg); color: var(--on-surface); }
+  .spec { font: var(--type-label-sm); letter-spacing: var(--type-label-sm-tracking); color: var(--on-surface-muted); }
+  .sample { color: var(--on-surface); min-width: 0; }
+</style>
+
+<div class="page">
+  <div class="head">
+    <h1>타이포 스케일 — Spoqa Han Sans Neo</h1>
+    <p>M3 구조를 Spoqa로 재조율. <code>font: var(--type-*)</code> + <code>letter-spacing: var(--type-*-tracking)</code>를 함께 사용한다.</p>
+  </div>
+
+  <div class="row">
+    <div class="meta"><span class="tok">display-lg</span><span class="spec">700 · 45/52 · -0.02em</span></div>
+    <div class="sample" style="font:var(--type-display-lg); letter-spacing:var(--type-display-lg-tracking)">스마트 팩토리 87.4%</div>
+  </div>
+  <div class="row">
+    <div class="meta"><span class="tok">display-sm</span><span class="spec">700 · 36/44 · -0.02em</span></div>
+    <div class="sample" style="font:var(--type-display-sm); letter-spacing:var(--type-display-sm-tracking)">실시간 설비 모니터링</div>
+  </div>
+  <div class="row">
+    <div class="meta"><span class="tok">headline-lg</span><span class="spec">700 · 28/36 · -0.02em</span></div>
+    <div class="sample" style="font:var(--type-headline-lg); letter-spacing:var(--type-headline-lg-tracking)">설비 모니터링 대시보드</div>
+  </div>
+  <div class="row">
+    <div class="meta"><span class="tok">headline-sm</span><span class="spec">700 · 24/32 · -0.02em</span></div>
+    <div class="sample" style="font:var(--type-headline-sm); letter-spacing:var(--type-headline-sm-tracking)">라인별 처리량 구성비</div>
+  </div>
+  <div class="row">
+    <div class="meta"><span class="tok">title-lg</span><span class="spec">500 · 20/28 · -0.02em</span></div>
+    <div class="sample" style="font:var(--type-title-lg); letter-spacing:var(--type-title-lg-tracking)">AI 에이전트가 상태를 감시합니다</div>
+  </div>
+  <div class="row">
+    <div class="meta"><span class="tok">title-sm</span><span class="spec">500 · 16/24 · -0.01em</span></div>
+    <div class="sample" style="font:var(--type-title-sm); letter-spacing:var(--type-title-sm-tracking)">시간별 가동률 추이</div>
+  </div>
+  <div class="row">
+    <div class="meta"><span class="tok">body-lg</span><span class="spec">400 · 16/24 · 0</span></div>
+    <div class="sample" style="font:var(--type-body-lg); letter-spacing:var(--type-body-lg-tracking)">압축기 D의 온도가 임계값을 초과하여 즉시 점검이 필요합니다. 에이전트가 대응 시나리오를 준비했습니다.</div>
+  </div>
+  <div class="row">
+    <div class="meta"><span class="tok">body-sm</span><span class="spec">400 · 14/20 · 0</span></div>
+    <div class="sample" style="font:var(--type-body-sm); letter-spacing:var(--type-body-sm-tracking)">벨트 진동 상승 감지 — 유압 변동 폭이 확대되는 추세입니다.</div>
+  </div>
+  <div class="row">
+    <div class="meta"><span class="tok">label-lg</span><span class="spec">500 · 14/20 · 0</span></div>
+    <div class="sample" style="font:var(--type-label-lg); letter-spacing:var(--type-label-lg-tracking)">점검 예약 · 내보내기 · 전체 보기</div>
+  </div>
+  <div class="row">
+    <div class="meta"><span class="tok">label-sm</span><span class="spec">500 · 12/16 · 0.01em</span></div>
+    <div class="sample" style="font:var(--type-label-sm); letter-spacing:var(--type-label-sm-tracking)">목표 90% · 00시 04시 08시 12시 16시 20시 24시</div>
+  </div>
+</div>

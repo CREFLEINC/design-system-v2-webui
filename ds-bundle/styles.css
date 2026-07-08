@@ -1,0 +1,38 @@
+/* ============================================================================
+   CREFLE Web UI — styles.css  (single entry for rendered designs)
+
+   This is the file Claude Design loads for every design. Its transitive
+   @import closure IS the web design system foundation: brand + form tokens,
+   theme (light default + dark override), and bundled fonts.
+
+   Layer order (later files only add/override, never remove):
+   - Foundation brand/color/surface/semantic/state  -> ./tokens/foundation.css
+   - Web form tokens (type · space · radius · …)     -> ./tokens/web-tokens.css
+   - Theme (light default + [data-theme='dark'])     -> ./tokens/themes.css
+   - Fonts (Spoqa Han Sans Neo + Material Symbols)   -> ./fonts.css
+
+   Component markup: @crefle/web-ui React components (see README + Storybook).
+   Rule: never hardcode hex/px for color·type. Always reference var(--token).
+   ============================================================================ */
+
+@import "./tokens/foundation.css";
+@import "./tokens/web-tokens.css";
+@import "./tokens/themes.css";
+@import "./fonts.css";
+
+/* Base document surface — light by default; wrap any subtree in
+   [data-theme='dark'] to flip surfaces/semantics to the dark ladder. */
+body {
+  margin: 0;
+  background: var(--surface);
+  color: var(--on-surface);
+  font: var(--type-body-lg);
+  font-family: var(--font-sans);
+  letter-spacing: var(--type-body-lg-tracking);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code, kbd, samp, pre, .mono {
+  font-family: var(--font-mono);
+}

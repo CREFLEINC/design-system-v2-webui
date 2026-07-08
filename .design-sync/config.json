@@ -1,0 +1,8 @@
+{
+  "projectId": "ac6e3f84-2523-4445-8033-787d6bcba52c",
+  "projectName": "CREFLE Web UI",
+  "shape": "component-library",
+  "pkg": "@crefle/web-ui",
+  "bundleDir": "ds-bundle",
+  "notes": "Web layer of the CREFLE design system (26 components). Bundle = styles.css closure (foundation tokens + web-tokens + themes + fonts) + guidelines + self-contained @dsCard reference cards (colors/type/components/OnMyFactory dashboard). Separate from 'CREFLE Foundation' (foundation only) and 'CREFLE Presentation Design System' (slides). Live interactive components: Storybook (npm run storybook). Re-sync: rebuild ds-bundle, arm _ds_needs_recompile, finalize_plan(writes=ds-bundle paths) -> write_files."
+}

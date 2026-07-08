@@ -1,0 +1,71 @@
+/* 폰트 패밀리 토큰 + @font-face — 로컬 번들 woff2 (CDN 의존 없음).
+   url()은 이 파일(ds-bundle/fonts.css) 기준 상대경로 ./fonts/<file>.woff2 로 해석된다. */
+:root {
+  --font-sans: 'Spoqa Han Sans Neo', system-ui, -apple-system, 'Apple SD Gothic Neo', sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+/* Spoqa Han Sans Neo — 본문/UI 한국어 (weights 100·300·400·500·700) */
+@font-face {
+  font-family: 'Spoqa Han Sans Neo';
+  font-weight: 100;
+  font-style: normal;
+  font-display: swap;
+  src: url('./fonts/SpoqaHanSansNeo-Thin.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Spoqa Han Sans Neo';
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+  src: url('./fonts/SpoqaHanSansNeo-Light.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Spoqa Han Sans Neo';
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+  src: url('./fonts/SpoqaHanSansNeo-Regular.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Spoqa Han Sans Neo';
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+  src: url('./fonts/SpoqaHanSansNeo-Medium.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Spoqa Han Sans Neo';
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+  src: url('./fonts/SpoqaHanSansNeo-Bold.woff2') format('woff2');
+}
+
+/* Material Symbols Rounded — opsz24/wght400/FILL0 정적 인스턴스 */
+@font-face {
+  font-family: 'Material Symbols Rounded';
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
+  src: url('./fonts/MaterialSymbolsRounded.woff2') format('woff2');
+}
+
+/* 아이콘 헬퍼 — <span class="material-symbols-rounded">icon_name</span> */
+.material-symbols-rounded {
+  font-family: 'Material Symbols Rounded';
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  -webkit-font-feature-settings: 'liga';
+  -webkit-font-smoothing: antialiased;
+  vertical-align: middle;
+}
