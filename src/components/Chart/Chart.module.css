@@ -125,6 +125,7 @@
 .line {
   stroke: var(--series-color);
   fill: none;
+  stroke-dasharray: 100;
   stroke-dashoffset: 0;
   animation: chart-draw var(--motion-slow) var(--ease-standard) both;
 }

@@ -50,6 +50,26 @@ test('grouped BarChart renders series*points rects', () => {
   expect(container.querySelectorAll('[data-chart-bar]').length).toBe(4)
 })
 
+test('stacked BarChart domain fits the tallest category total (no clipped top segment)', () => {
+  const { container } = render(
+    <BarChart stacked series={[
+      { name: '양품', data: [{ label: 'A', value: 90 }] },
+      { name: '불량', data: [{ label: 'A', value: 10 }] },
+    ]} />
+  )
+  const bars = container.querySelectorAll('[data-chart-bar]')
+  expect(bars.length).toBe(2)
+  // 두 세그먼트 모두 plot 영역 안(음수 y 없음)에 있어야 한다.
+  bars.forEach((bar) => {
+    expect(parseFloat(bar.getAttribute('y') || '0')).toBeGreaterThanOrEqual(0)
+  })
+  // 스택 합(100)이 도메인을 채워야 한다 — 두 세그먼트 높이 합이 plot 전체 높이(plotBottom - plotTop)에 근접.
+  const heights = Array.from(bars).map((b) => parseFloat(b.getAttribute('height') || '0'))
+  const totalHeight = heights[0] + heights[1]
+  const plotH = 320 - 32 - 16 // DEFAULT_HEIGHT - PADDING.bottom - PADDING.top
+  expect(totalHeight).toBeCloseTo(plotH, 0)
+})
+
 test('donut slice count + dasharray proportion', () => {
   const { container } = render(
     <PieChart donut data={[

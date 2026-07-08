@@ -46,7 +46,18 @@ export const BarChart = forwardRef<HTMLElement, BarChartProps>(function BarChart
   ref
 ) {
   const resolvedShowLegend = showLegend ?? series.length > 1
-  const domain = resolveDomain(series, 'bar', min, max)
+
+  const n = Math.max(1, ...series.map((s) => s.data.length))
+  const categoryLabels = Array.from({ length: n }, (_, i) => series[0]?.data[i]?.label ?? '')
+  const seriesCount = Math.max(1, series.length)
+  const categoryIndices = Array.from({ length: n }, (_, i) => i)
+
+  // stacked 모드는 카테고리별 누적 합(세그먼트 총합)이 실제 최댓값이다 — per-value max로 도메인을
+  // 잡으면 상단 세그먼트가 plot 영역 밖으로 잘린다. min/max prop이 명시되면 그쪽이 우선(resolveDomain).
+  const stackedMax = stacked
+    ? Math.max(0, ...categoryIndices.map((i) => series.reduce((sum, s) => sum + (s.data[i]?.value ?? 0), 0)))
+    : undefined
+  const domain = resolveDomain(series, 'bar', min, max ?? stackedMax)
 
   const plotLeft = PADDING.left
   const plotRight = width - PADDING.right
@@ -54,10 +65,6 @@ export const BarChart = forwardRef<HTMLElement, BarChartProps>(function BarChart
   const plotBottom = height - PADDING.bottom
   const plotW = plotRight - plotLeft
   const plotH = plotBottom - plotTop
-
-  const n = Math.max(1, ...series.map((s) => s.data.length))
-  const categoryLabels = Array.from({ length: n }, (_, i) => series[0]?.data[i]?.label ?? '')
-  const seriesCount = Math.max(1, series.length)
 
   const gridLines = Array.from({ length: yTicks }, (_, t) => {
     const value = domain.min + ((domain.max - domain.min) * t) / Math.max(1, yTicks - 1)

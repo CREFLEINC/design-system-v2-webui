@@ -62,5 +62,5 @@
 
 .breadcrumb,
 .tabs {
-  display: flex;
+  display: block;
 }

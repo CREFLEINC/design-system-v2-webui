@@ -110,19 +110,36 @@ export const PieChart = forwardRef<HTMLElement, PieChartProps>(function PieChart
             } else {
               const startAngle = (cumulative / total) * 360
               const endAngle = ((cumulative + p.value) / total) * 360
-              const largeArc = endAngle - startAngle > 180 ? 1 : 0
-              const start = polarToCartesian(cx, cy, outerR, startAngle)
-              const end = polarToCartesian(cx, cy, outerR, endAngle)
-              const d = `M ${cx} ${cy} L ${start.x} ${start.y} A ${outerR} ${outerR} 0 ${largeArc} 1 ${end.x} ${end.y} Z`
-              node = (
-                <path
-                  className={styles.wedge}
-                  data-chart-slice
-                  data-label={p.label}
-                  data-value={p.value}
-                  d={d}
-                />
-              )
+              const span = endAngle - startAngle
+              if (span >= 360 || percent >= 1) {
+                // 단일 슬라이스가 100% — wedge path는 start===end라 zero-length arc(비가시)가 된다.
+                // 원(circle)으로 대체 렌더.
+                node = (
+                  <circle
+                    className={styles.wedge}
+                    data-chart-slice
+                    data-label={p.label}
+                    data-value={p.value}
+                    cx={cx}
+                    cy={cy}
+                    r={outerR}
+                  />
+                )
+              } else {
+                const largeArc = span > 180 ? 1 : 0
+                const start = polarToCartesian(cx, cy, outerR, startAngle)
+                const end = polarToCartesian(cx, cy, outerR, endAngle)
+                const d = `M ${cx} ${cy} L ${start.x} ${start.y} A ${outerR} ${outerR} 0 ${largeArc} 1 ${end.x} ${end.y} Z`
+                node = (
+                  <path
+                    className={styles.wedge}
+                    data-chart-slice
+                    data-label={p.label}
+                    data-value={p.value}
+                    d={d}
+                  />
+                )
+              }
             }
 
             cumulative += p.value
