@@ -1,0 +1,116 @@
+.root {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  cursor: pointer;
+}
+.end { flex-direction: row }
+.start { flex-direction: row-reverse }
+
+/* 컨트롤 래퍼 — 트랙 크기로 잡고 절대배치 input을 담는다 */
+.control {
+  position: relative;
+  display: inline-flex;
+  width: var(--space-8);   /* 40px */
+  height: var(--space-6);  /* 24px */
+  flex: 0 0 auto;
+}
+
+/* 시각적으로 숨긴 네이티브 input — display:none 금지 (포커스/키보드 유지) */
+.input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+  z-index: 1;
+}
+.input:disabled { cursor: default }
+
+/* 트랙 */
+.track {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  padding: var(--space-1);
+  border-radius: var(--radius-full);
+  background: var(--surface-container-high);
+  box-shadow: inset 0 0 0 1px var(--outline);
+  transition: background var(--motion-fast) var(--ease-standard);
+}
+
+/* 상태 레이어 오버레이 (M3) — 배경 미변경 */
+.track::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: transparent;
+  transition: background var(--motion-fast) var(--ease-standard);
+  pointer-events: none;
+}
+
+/* 썸 */
+.thumb {
+  width: var(--space-4);   /* 16px */
+  height: var(--space-4);  /* 16px */
+  border-radius: var(--radius-full);
+  background: var(--on-surface-variant);
+  transform: translateX(0);
+  transition: transform var(--motion-base) var(--ease-standard),
+    background var(--motion-fast) var(--ease-standard);
+}
+
+/* checked */
+.input:checked + .track {
+  background: var(--primary);
+  box-shadow: none;
+}
+.input:checked + .track .thumb {
+  background: var(--on-primary);
+  transform: translateX(var(--space-4));  /* 4+16+16+4 = 40 */
+}
+
+/* focus-visible — 링은 트랙에 */
+.input:focus-visible + .track {
+  box-shadow: inset 0 0 0 1px var(--outline), var(--focus-ring);
+}
+.input:checked:focus-visible + .track {
+  box-shadow: var(--focus-ring);
+}
+
+/* hover 상태 레이어 */
+.root:hover .input:not(:disabled):checked + .track::before {
+  background: var(--state-hover);
+}
+.root:hover .input:not(:disabled):not(:checked) + .track::before {
+  background: var(--state-hover-neutral);
+}
+
+/* disabled */
+.input:disabled + .track {
+  background: var(--state-disabled-fill);
+  box-shadow: none;
+}
+.input:disabled + .track .thumb {
+  background: var(--state-disabled-text);
+}
+.disabled { cursor: default }
+.disabled .labelText { color: var(--state-disabled-text) }
+
+/* 라벨 */
+.labelText {
+  font: var(--type-label-lg);
+  letter-spacing: var(--type-label-lg-tracking);
+  color: var(--on-surface);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .track, .track::before, .thumb { transition: none }
+}

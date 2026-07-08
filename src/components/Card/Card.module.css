@@ -1,0 +1,82 @@
+.card {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--radius-lg);
+  color: var(--on-surface);
+  /* 로컬 커스텀 프로퍼티: elevation을 한 채널로 라우팅해 포커스 링이 그 위에 깔끔히 합성된다 */
+  --_elev: var(--elevation-0);
+  box-shadow: var(--_elev);
+  transition: box-shadow var(--motion-base) var(--ease-standard);
+}
+
+/* -------- surface ladder -------- */
+.base { background: var(--surface) }
+.low { background: var(--surface-container-low) }
+.default { background: var(--surface-container) }
+.high { background: var(--surface-container-high) }
+
+/* -------- elevation (로컬 var만 override; elev0은 기본값) -------- */
+.elev1 { --_elev: var(--elevation-1) }
+.elev2 { --_elev: var(--elevation-2) }
+.elev3 { --_elev: var(--elevation-3) }
+.elev4 { --_elev: var(--elevation-4) }
+.elev5 { --_elev: var(--elevation-5) }
+
+/* -------- bordered (box-shadow 채널과 분리된 border 속성) -------- */
+.bordered { border: 1px solid var(--outline-variant) }
+
+/* -------- state layer (interactive 전용) — M3 ::before 오버레이 -------- */
+.card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: transparent;
+  pointer-events: none;
+  transition: background var(--motion-fast) var(--ease-standard);
+}
+
+/* -------- interactive (native button chrome 리셋) -------- */
+.interactive {
+  cursor: pointer;
+  text-align: inherit;
+  border-width: 0;
+  font: inherit;
+  outline: none;
+}
+.interactive:hover::before { background: var(--state-hover-neutral) }
+.interactive:active::before { background: var(--state-press-neutral) }
+.interactive:hover { --_elev: var(--elevation-2) }
+.interactive:focus-visible { box-shadow: var(--focus-ring), var(--_elev) }
+
+.interactive:disabled { cursor: default }
+.interactive:disabled::before { background: transparent }
+.interactive:disabled:hover { --_elev: var(--elevation-0) }
+
+/* -------- subcomponents (spacing/typography/layout only) -------- */
+.header {
+  padding: var(--space-5) var(--space-5) var(--space-4);
+  font: var(--type-title-lg);
+  letter-spacing: var(--type-title-lg-tracking);
+  color: var(--on-surface);
+}
+.body {
+  padding: 0 var(--space-5) var(--space-5);
+  font: var(--type-body-lg);
+  color: var(--on-surface-variant);
+}
+.footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-2);
+  padding: var(--space-4) var(--space-5);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card,
+  .card::before {
+    transition: none;
+  }
+}

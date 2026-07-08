@@ -5,7 +5,8 @@ import styles from './Icon.module.css'
 export interface IconProps extends HTMLAttributes<HTMLSpanElement> {
   /** Material Symbols 아이콘 이름 (리가처) — 예: 'factory', 'smart_toy' */
   name: string
-  size?: 20 | 24 | 40 | 48
+  /** 아이콘 px 크기. 권장 스텝 16/18/20/24/40/48이지만 컨테이너에 맞춰 자유롭게 지정 가능 */
+  size?: number
   /** 의미 전달용 라벨. 없으면 장식용(aria-hidden) */
   label?: string
 }

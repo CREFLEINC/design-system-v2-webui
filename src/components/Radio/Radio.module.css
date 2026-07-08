@@ -1,0 +1,102 @@
+/* label root */
+.radio {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  cursor: pointer;
+}
+
+/* native input overlays the whole label: focusable + full-row hit target, but invisible */
+.input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+.input:disabled {
+  cursor: default;
+}
+
+/* visible ring */
+.control {
+  position: relative;
+  flex: none;
+  display: inline-grid;
+  place-items: center;
+  width: var(--space-5);            /* 20 */
+  height: var(--space-5);
+  border: 2px solid var(--outline);
+  border-radius: var(--radius-full);
+  transition: border-color var(--motion-fast) var(--ease-standard);
+}
+
+/* M3 state-layer halo — overlay only, never touches the ring fill */
+.control::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: var(--space-8);            /* 40 halo */
+  height: var(--space-8);
+  transform: translate(-50%, -50%);
+  border-radius: var(--radius-full);
+  background: transparent;
+  transition: background var(--motion-fast) var(--ease-standard);
+  pointer-events: none;
+}
+.input:enabled:hover + .control::before { background: var(--state-hover); }
+.input:enabled:active + .control::before { background: var(--state-press); }
+
+/* inner dot */
+.dot {
+  width: var(--space-2);            /* 8 */
+  height: var(--space-2);
+  border-radius: var(--radius-full);
+  background: var(--primary-text);
+  transform: scale(0);
+  opacity: 0;
+  transition: transform var(--motion-fast) var(--ease-standard),
+              opacity var(--motion-fast) var(--ease-standard);
+}
+
+/* checked */
+.input:checked + .control { border-color: var(--primary-text); }
+.input:checked + .control .dot { transform: scale(1); opacity: 1; }
+
+/* focus ring on the visible control (box-shadow ≠ border, no conflict) */
+.input:focus-visible + .control { box-shadow: var(--focus-ring); }
+
+/* label text */
+.label {
+  font: var(--type-body-lg);
+  color: var(--on-surface);
+}
+
+/* disabled — never color-only: muted border + muted dot + muted label */
+.input:disabled + .control { border-color: var(--state-disabled-fill); }
+.input:disabled:checked + .control .dot { background: var(--state-disabled-text); }
+.input:disabled ~ .label { color: var(--state-disabled-text); }
+
+/* group container */
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+.horizontal {
+  flex-direction: row;
+  gap: var(--space-5);
+}
+
+/* reduced motion — Task 0 convention */
+@media (prefers-reduced-motion: reduce) {
+  .control,
+  .control::before,
+  .dot {
+    transition: none;
+  }
+}

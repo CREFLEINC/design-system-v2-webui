@@ -1,0 +1,62 @@
+.root {
+  position: relative;
+  isolation: isolate;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  outline: none;
+  transition: box-shadow var(--motion-fast) var(--ease-standard);
+}
+
+/* 상태 레이어 — 배경을 건드리지 않고 오버레이만 얹는다 (M3, Button과 동일) */
+.root::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: transparent;
+  transition: background var(--motion-fast) var(--ease-standard);
+  pointer-events: none;
+}
+
+.root:focus-visible { box-shadow: var(--focus-ring); }
+
+/* -------- sizes (정사각형) -------- */
+.sm { width: var(--control-height-sm); height: var(--control-height-sm); }
+.md { width: var(--control-height-md); height: var(--control-height-md); }
+.lg { width: var(--control-height-lg); height: var(--control-height-lg); }
+
+/* -------- variants (기본/토글 selected 룩) -------- */
+.standard { background: transparent; color: var(--on-surface-variant); }
+.standard:hover::before { background: var(--state-hover-neutral); }
+.standard:active::before { background: var(--state-press-neutral); }
+.standard[aria-pressed='true'] { color: var(--primary-text); }
+
+.filled { background: var(--primary); color: var(--on-primary); }
+.filled:hover::before { background: var(--state-hover-on-primary); }
+.filled:active::before { background: var(--state-press-on-primary); }
+/* 토글 unselected — 눌리지 않은 상태를 중립 컨테이너로 구분 */
+.filled[aria-pressed='false'] { background: var(--surface-container-high); color: var(--on-surface-variant); }
+.filled[aria-pressed='false']:hover::before { background: var(--state-hover-neutral); }
+.filled[aria-pressed='false']:active::before { background: var(--state-press-neutral); }
+
+.tonal { background: var(--primary-container); color: var(--on-primary-container); }
+.tonal:hover::before { background: var(--state-hover); }
+.tonal:active::before { background: var(--state-press); }
+.tonal[aria-pressed='false'] { background: var(--surface-container-high); color: var(--on-surface-variant); }
+.tonal[aria-pressed='false']:hover::before { background: var(--state-hover-neutral); }
+.tonal[aria-pressed='false']:active::before { background: var(--state-press-neutral); }
+
+/* -------- disabled -------- */
+.root:disabled { cursor: default; color: var(--state-disabled-text); }
+.filled:disabled, .tonal:disabled { background: var(--state-disabled-fill); }
+.root:disabled::before { background: transparent; }
+
+/* -------- reduced motion (Task 0 관례) -------- */
+@media (prefers-reduced-motion: reduce) {
+  .root, .root::before { transition: none; }
+}

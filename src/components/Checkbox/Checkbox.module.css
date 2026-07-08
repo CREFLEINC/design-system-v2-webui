@@ -1,0 +1,121 @@
+.root {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  cursor: pointer;
+  font: var(--type-body-lg);
+  color: var(--on-surface);
+}
+
+/* 컨트롤 래퍼 — M3 hover 상태 레이어를 박스 뒤 원형 리플로 얹는다 */
+.control {
+  position: relative;
+  isolation: isolate;
+  display: inline-flex;
+  flex: none;
+}
+
+.control::before {
+  content: '';
+  position: absolute;
+  inset: calc(var(--space-2) * -1);
+  border-radius: var(--radius-full);
+  background: transparent;
+  pointer-events: none;
+  transition: background var(--motion-fast) var(--ease-standard);
+}
+
+.root:hover .control::before {
+  background: var(--state-hover);
+}
+
+/* 실제 컨트롤 — 투명하게 박스를 덮는다 (포커스/히트/AT 소스) */
+.input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: inherit;
+}
+
+.box {
+  width: var(--space-5);
+  height: var(--space-5);
+  border-radius: 2px;
+  border: 2px solid var(--outline);
+  background: transparent;
+  display: grid;
+  place-items: center;
+  color: var(--on-primary);
+  transition:
+    background var(--motion-fast) var(--ease-standard),
+    border-color var(--motion-fast) var(--ease-standard),
+    box-shadow var(--motion-fast) var(--ease-standard);
+}
+
+.check,
+.dash {
+  grid-area: 1 / 1;
+  width: var(--space-4);
+  height: var(--space-4);
+  fill: none;
+  stroke: currentColor;
+  opacity: 0;
+  transition: opacity var(--motion-fast) var(--ease-standard);
+}
+
+/* CHECKED */
+.input:checked + .box {
+  background: var(--primary);
+  border-color: var(--primary);
+}
+.input:checked + .box .check {
+  opacity: 1;
+}
+
+/* INDETERMINATE — checked 를 이긴다 */
+.input:indeterminate + .box {
+  background: var(--primary);
+  border-color: var(--primary);
+}
+.input:indeterminate + .box .dash {
+  opacity: 1;
+}
+.input:indeterminate + .box .check {
+  opacity: 0;
+}
+
+/* FOCUS — 키보드 포커스 시 박스에 링 */
+.input:focus-visible + .box {
+  box-shadow: var(--focus-ring);
+}
+
+/* DISABLED */
+.input:disabled + .box {
+  border-color: var(--state-disabled-fill);
+  color: var(--state-disabled-text);
+}
+.input:disabled:checked + .box,
+.input:disabled:indeterminate + .box {
+  background: var(--state-disabled-fill);
+  border-color: var(--state-disabled-fill);
+}
+
+.root:has(.input:disabled) {
+  cursor: default;
+  color: var(--state-disabled-text);
+}
+.root:has(.input:disabled):hover .control::before {
+  background: transparent;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .box,
+  .check,
+  .dash,
+  .control::before {
+    transition: none;
+  }
+}

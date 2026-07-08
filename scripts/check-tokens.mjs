@@ -15,6 +15,9 @@ const DEFINE_RE = /(--[a-zA-Z0-9-]+)\s*:/g
 const REF_RE = /var\(\s*(--[a-zA-Z0-9-]+)/g
 const errors = []
 
+// CSS 주석을 제거하되 줄바꿈은 보존해 줄 번호를 유지한다. (주석 안의 설명용 px/hex는 위반이 아니다)
+const stripComments = (text) => text.replace(/\/\*[\s\S]*?\*\//g, (m) => m.replace(/[^\n]/g, ''))
+
 function walk(dir, match, cb) {
   if (!existsSync(dir)) return
   for (const name of readdirSync(dir)) {
@@ -25,7 +28,7 @@ function walk(dir, match, cb) {
 }
 
 function check(path) {
-  readFileSync(path, 'utf8').split('\n').forEach((line, i) => {
+  stripComments(readFileSync(path, 'utf8')).split('\n').forEach((line, i) => {
     if (line.trimStart().startsWith('@media')) return
     if (COLOR_RE.test(line)) errors.push(`${path}:${i + 1} raw 색상 금지 → 토큰 사용: ${line.trim()}`)
     for (const m of line.matchAll(PX_RE))
@@ -37,8 +40,6 @@ walk(SRC, (p) => p.endsWith('.module.css'), check)
 
 // -------- 토큰 존재성 검사 --------
 // CSS 주석을 제거한 뒤 정의(DEFINE_RE)와 참조(REF_RE)를 수집한다.
-const stripComments = (text) => text.replace(/\/\*[\s\S]*?\*\//g, (m) => m.replace(/[^\n]/g, ''))
-
 const definitions = new Set()
 const references = [] // { name, file, line }
 

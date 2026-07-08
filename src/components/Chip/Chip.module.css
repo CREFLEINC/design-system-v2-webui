@@ -1,0 +1,88 @@
+.chip {
+  position: relative;
+  isolation: isolate;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  border-radius: var(--radius-full);
+  font: var(--type-label-lg);
+  letter-spacing: var(--type-label-lg-tracking);
+  white-space: nowrap;
+}
+
+/* -------- sizes -------- */
+.md { padding: var(--space-1) var(--space-3) }
+.sm {
+  padding: var(--space-1) var(--space-2);
+  font: var(--type-label-sm);
+  letter-spacing: var(--type-label-sm-tracking);
+}
+
+/* -------- status (non-interactive) -------- */
+.status { cursor: default }
+.status-success { background: var(--semantic-success-container); color: var(--on-semantic-success-container) }
+.status-error { background: var(--semantic-error-container); color: var(--on-semantic-error-container) }
+.status-warning { background: var(--semantic-warning-container); color: var(--on-semantic-warning-container) }
+.status-info { background: var(--semantic-info-container); color: var(--on-semantic-info-container) }
+.status-idle { background: var(--semantic-idle-container); color: var(--on-semantic-idle-container) }
+
+/* -------- filter (toggle) -------- */
+.filter {
+  background: transparent;
+  color: var(--on-surface-variant);
+  box-shadow: inset 0 0 0 1px var(--outline);
+  cursor: pointer;
+  border: 0;
+  outline: none;
+  transition: box-shadow var(--motion-fast) var(--ease-standard);
+}
+.selected { background: var(--primary-container); color: var(--on-primary-container); box-shadow: none }
+
+/* M3 상태 레이어 — 배경을 건드리지 않고 오버레이만 얹는다 (filter 전용) */
+.filter::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: transparent;
+  transition: background var(--motion-fast) var(--ease-standard);
+  pointer-events: none;
+}
+.filter:hover::before { background: var(--state-hover) }
+.filter:active::before { background: var(--state-press) }
+
+.filter:focus-visible { box-shadow: inset 0 0 0 1px var(--outline), var(--focus-ring) }
+.selected:focus-visible { box-shadow: var(--focus-ring) }
+
+/* -------- remove button (nested in status span) -------- */
+.remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-inline-start: var(--space-1);
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  position: relative;
+  isolation: isolate;
+  outline: none;
+}
+.remove::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: transparent;
+  transition: background var(--motion-fast) var(--ease-standard);
+  pointer-events: none;
+}
+.remove:hover::before { background: var(--state-hover-neutral) }
+.remove:active::before { background: var(--state-press-neutral) }
+.remove:focus-visible { box-shadow: var(--focus-ring) }
+
+@media (prefers-reduced-motion: reduce) {
+  .chip, .filter::before, .remove::before { transition: none }
+}
