@@ -1,3 +1,10 @@
+/* 폰트 패밀리 토큰 — 파운데이션 ds-bundle/styles.css와 동일 값
+   (tokens.css에는 없고 styles.css에 있어서 여기서 정의해야 한다) */
+:root {
+  --font-sans: 'Spoqa Han Sans Neo', system-ui, -apple-system, 'Apple SD Gothic Neo', sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
 /* Spoqa Han Sans Neo — 파운데이션 번들 폰트 */
 @font-face {
   font-family: 'Spoqa Han Sans Neo';
