@@ -1,0 +1,20 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  # 잡 이름 'check' 가 그대로 status check 컨텍스트 이름이 된다 (branch protection 이 이 이름을 참조).
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      # 파운데이션 repo 에 접근하지 않는다. lock 파일과 디스크만 대조한다.
+      - run: npm run check
