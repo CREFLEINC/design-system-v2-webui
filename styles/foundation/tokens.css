@@ -92,3 +92,5 @@
   --state-disabled-fill: rgba(27, 27, 31, 0.12);  /* on-surface @ 12% */
   --state-disabled-text: rgba(27, 27, 31, 0.38);  /* on-surface @ 38% */
 }
+
+/* 몰래 고침 — protection 실증용 */
