@@ -1,8 +1,8 @@
 {
   "repo": "https://github.com/CREFLEINC/design-system-v2.git",
   "ref": "main",
-  "commit": "7ea18c4eefc9d86bcaac94fbb2078ec2de5bae80",
-  "syncedAt": "2026-07-09T07:30:56.578Z",
+  "commit": "e7344d850bcb1e56b9b7661c388e8939b877a085",
+  "syncedAt": "2026-07-09T11:52:55.686Z",
   "files": {
     "fonts/MaterialSymbolsRounded.woff2": "sha256:f74ee5e7c21080e800ce00f2e136b241349c2489c2ee3622b23115a45edeb357",
     "fonts/SpoqaHanSansNeo-Bold.woff2": "sha256:c85faa3fa812cae9fad6eadc662b0e68c84f010b61c5c0ebc769a7b43e0fcd4d",
