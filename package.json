@@ -26,11 +26,16 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "lint:tokens": "node scripts/check-tokens.mjs",
+    "check:foundation": "node scripts/check-foundation.mjs",
+    "check:foundation:upstream": "node scripts/check-foundation.mjs --upstream",
     "sync-foundation": "node scripts/sync-foundation.mjs",
     "shoot": "bash scripts/shoot.sh",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
-    "check": "npm run typecheck && npm test && npm run lint:tokens && npm run build && npm run build-storybook"
+    "check": "npm run check:foundation && npm run typecheck && npm test && npm run lint:tokens && npm run build && npm run build-storybook"
+  },
+  "engines": {
+    "node": ">=20.19"
   },
   "peerDependencies": {
     "react": "^18.0.0 || ^19.0.0",
