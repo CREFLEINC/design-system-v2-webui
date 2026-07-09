@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** 파운데이션 미러의 무단 수정을 기계적으로 차단하고, 동기화를 원격 git 기반으로 바꾸며, 웹 DS 문서를 webui repo로 이관하고, 공개 범위·라이선스·병합 차단을 정합화한다.
+**Goal:** 파운데이션 미러의 무단 수정을 기계적으로 차단하고, 동기화를 원격 git 기반으로 바꾸며, 웹 DS 문서를 webui repo로 이관하고, 공개 범위·라이선스·병합 차단을 정합화한 뒤, 그 구조를 다음 도메인 DS(모바일 등)가 재사용할 수 있도록 파운데이션에 기록한다.
 
 **Architecture:** `styles/foundation/PIN`(7자 해시)을 `foundation.lock.json`(repo·ref·전체 SHA·파일별 sha256)으로 승격한다. 순수 함수 `verifyMirror(dir)`가 lock과 디스크를 대조하고, 두 개의 얇은 CLI(`sync-foundation.mjs` 갱신, `check-foundation.mjs` 검증)가 그것을 감싼다. tamper 검사는 네트워크를 타지 않으므로 오프라인·CI 어디서든 같은 판정을 내린다. staleness는 `--upstream`에서만 확인하고 절대 실패하지 않는다.
 
@@ -26,7 +26,9 @@
 - 게이트: `npm run check` (Task 3 이후 `check:foundation`이 맨 앞에 온다).
 - **되돌리기 어려운 단계**: Task 7(공개 범위 전환)은 공개 행위다. Task 6(라이선스)이 끝나지 않았으면 실행하지 않는다.
 
-**스펙의 7단계 → 이 계획의 8태스크 매핑:** 스펙 1단계(lock 스키마 + sync 재작성)를 TDD를 위해 Task 1(순수 로직 + 단위 테스트)과 Task 2(sync CLI)로 쪼갰다. 나머지는 1:1이다. 스펙이 테스트 파일명을 `scripts/check-foundation.test.mjs`로 예시했으나, 실제 테스트 대상이 `foundation-lock.mjs`이므로 `scripts/foundation-lock.test.mjs`로 둔다.
+**스펙의 7단계 → 이 계획의 9태스크 매핑:** 스펙 1단계(lock 스키마 + sync 재작성)를 TDD를 위해 Task 1(순수 로직 + 단위 테스트)과 Task 2(sync CLI)로 쪼갰다. 스펙 2~7단계는 Task 3~8과 1:1이다. **Task 9(도메인 DS 확장 가이드)는 스펙에 없는 추가 요구다** — 2026-07-09 사용자 요청: "다른 서브 디자인 시스템(예: Mobile UI)을 만들 때 동일한 구조를 사용할 수 있도록 파운데이션에 기록". 스펙 §8(YAGNI)이 `@crefle/tokens` 퍼블리시를 도메인 3개 시점으로 미룬 것과 모순되지 않는다. 가이드는 문서이지 추상화가 아니다.
+
+스펙이 테스트 파일명을 `scripts/check-foundation.test.mjs`로 예시했으나, 실제 테스트 대상이 `foundation-lock.mjs`이므로 `scripts/foundation-lock.test.mjs`로 둔다.
 
 ---
 
@@ -1169,6 +1171,223 @@ Expected: 빈 출력. 이후 모든 변경은 브랜치 → PR → CI green → 
 
 ---
 
+### Task 9: 도메인 DS 확장 가이드를 파운데이션에 기록
+
+이 구조(vendoring + lock + 오프라인 검사 + 원격 sync)는 웹 DS만을 위한 것이 아니다. 다음 도메인 DS(모바일 UI 등)가 **같은 뼈대를 그대로 재사용**할 수 있도록 파운데이션 repo에 기록한다. 파운데이션이 이 패턴의 소유자이기 때문이다.
+
+**Files (파운데이션 repo `/Users/rangkim/Documents/Claude/Projects/CREFLE Design System`):**
+- Create: `docs/domain-ds-guide.md`
+- Modify: `docs/README.md` (가이드 링크 추가)
+
+**Interfaces:** 없음 (문서 전용). 단, 가이드가 참조하는 파일 경로는 Task 1~6이 만든 실제 경로여야 한다.
+
+**전제:** Task 1~8이 끝나 webui repo가 이 패턴의 **참조 구현**으로 완성되어 있어야 한다. webui는 public이므로 파운데이션이 private이어도 링크가 열린다.
+
+- [ ] **Step 1: 참조 구현의 경로가 계획대로인지 확인한다**
+
+가이드에 적을 경로가 실재하는지 먼저 검증한다. 하나라도 없으면 그 태스크가 미완이다.
+
+```bash
+cd "/Users/rangkim/Documents/Claude/Projects/CREFLE Web Design System"
+for f in scripts/foundation-lock.mjs scripts/sync-foundation.mjs scripts/check-foundation.mjs \
+         scripts/foundation-lock.test.mjs styles/foundation/foundation.lock.json \
+         styles/foundation/README.md .github/workflows/ci.yml LICENSE; do
+  test -f "$f" && echo "OK   $f" || echo "MISSING $f"
+done
+```
+Expected: 여덟 줄 모두 `OK`
+
+- [ ] **Step 2: 가이드를 쓴다**
+
+파운데이션 repo의 `docs/domain-ds-guide.md`:
+
+````markdown
+# 도메인 DS 확장 가이드
+
+CREFLE 디자인 시스템은 **파운데이션 하나 + 도메인별 DS 여럿**의 폴리레포다.
+파운데이션(이 repo)이 브랜드 토큰의 단일 진실원이고, 각 도메인 DS가 그것을 소비한다.
+
+```
+design-system-v2 (이 repo, private)        ← 토큰 단일 진실원
+  └── tokens.css
+       ├─ design-system-v2-webui (public)  ← 웹 UI. 참조 구현
+       ├─ design-system-v2-mobile          ← 다음 도메인 (예정)
+       └─ …
+```
+
+새 도메인 DS를 시작한다면 **`design-system-v2-webui`를 그대로 베껴라.**
+아래는 그 구조가 왜 그렇게 생겼는지와, 무엇을 복사하고 무엇을 바꿔야 하는지다.
+
+## 결합 방식: vendoring + lock
+
+도메인 DS는 파운데이션을 npm 의존으로 끌어오지 않는다. `tokens.css`와 폰트를
+**자기 repo 안에 복사해 두고**(vendoring), 그 복사본이 어느 커밋에서 왔고 내용이
+그대로인지를 lock 파일로 증명한다.
+
+핵심 이득은 하나다. **도메인 DS repo만 클론해도 파운데이션 없이 빌드·테스트가 전부 통과한다.**
+새 팀원이, CI가, 외부 기여자가 파운데이션 접근 권한 없이 일할 수 있다.
+git submodule은 이 성질을 깨므로 쓰지 않는다.
+
+### drift의 두 방향
+
+| 방향 | 뜻 | 처리 | 네트워크 |
+|---|---|---|---|
+| **tamper** (아래쪽) | 미러를 직접 고침 | **에러** — 빌드·CI 실패 | 불필요 |
+| **staleness** (위쪽) | 파운데이션이 앞서 나감 | **경고** — 절대 실패 아님 | 필요 |
+
+staleness가 에러가 아닌 이유: 도메인 DS가 의도적으로 옛 토큰에 핀을 박을 수 있다.
+파운데이션에 커밋이 하나 생겼다고 모든 도메인 CI가 빨개지면 안 된다.
+
+tamper 검사가 네트워크를 안 타는 이유: 파운데이션이 private이어도 CI에 자격증명이 필요 없다.
+lock의 sha256이 "동기화 시점 원본의 지문"이므로, 원본의 *현재*가 아니라
+*마지막으로 동의한 시점*과 비교하면 충분하다.
+
+## 복사할 것
+
+참조 구현: https://github.com/CREFLEINC/design-system-v2-webui
+
+| 파일 | 그대로? | 비고 |
+|---|---|---|
+| `scripts/foundation-lock.mjs` | 그대로 | `verifyMirror` 순수 로직. 허용 목록 정규식만 확인 |
+| `scripts/sync-foundation.mjs` | 그대로 | 원격 sparse fetch + lock 생성 |
+| `scripts/check-foundation.mjs` | 그대로 | tamper 에러 / `--upstream` 경고 |
+| `scripts/foundation-lock.test.mjs` | 그대로 | 통과 1 + 실패 4 경로 |
+| `styles/foundation/README.md` | 문구만 수정 | DO-NOT-EDIT 안내 |
+| `.github/workflows/ci.yml` | 그대로 | 잡 이름 `check` 유지 (protection이 참조) |
+| `LICENSE` | 그대로 | 독점 + 폰트 서드파티 고지 |
+| `styles/foundation/fonts/LICENSE-*.txt` | 그대로 | 폰트를 번들한다면 **필수** |
+
+`package.json`에 배선할 것:
+
+```json
+"engines": { "node": ">=20.19" },
+"scripts": {
+  "check:foundation": "node scripts/check-foundation.mjs",
+  "check:foundation:upstream": "node scripts/check-foundation.mjs --upstream",
+  "sync-foundation": "node scripts/sync-foundation.mjs",
+  "check": "npm run check:foundation && npm run typecheck && npm test && …"
+}
+```
+
+`check:foundation`은 반드시 **맨 앞**에 둔다. 1초짜리 검사라 미러가 오염됐으면
+긴 빌드를 기다리기 전에 즉시 죽는다.
+
+`check:foundation:upstream`은 **`check`에 넣지 않는다.** 네트워크가 필요하므로
+오프라인이나 토큰 없는 CI에서 빌드를 막게 된다.
+
+## 도메인마다 바꿀 것
+
+**미러 경로.** 웹은 `styles/foundation/`이다. 도메인의 관례를 따르되
+(예: React Native면 `src/foundation/`), `foundation-lock.mjs`의 `MIRROR_DIR` 하나만 고치면 된다.
+
+**소비할 파운데이션 산출물.** 웹은 `tokens.css` + woff2 6종을 가져간다.
+모바일이면 CSS가 아니라 토큰 JSON이 필요할 수 있다. 그 경우 파운데이션에
+`tokens.json`을 **추가**하고(기존 `tokens.css`는 건드리지 않는다)
+`sync-foundation.mjs`의 획득 목록만 바꾼다.
+
+**신규 토큰의 자리.** 도메인에만 필요한 토큰은 파운데이션에 밀어 넣지 말고
+도메인 repo의 자체 레이어에 둔다. 웹은 `styles/web-tokens.css`가 그 자리다.
+여러 도메인에서 같은 토큰이 반복되면 그때 파운데이션으로 **승격**한다(Stage 2).
+
+> **웹에서 나온 승격 후보** (아직 파운데이션에 없음):
+> `--outline`, `--primary-text`(다크에서 레드 텍스트용, 6.8:1),
+> `--on-primary-container`, `--semantic-*-text`, semantic 컨테이너 10종.
+> 또한 파운데이션의 `--on-surface-muted`는 4.26:1로 **WCAG AA 미달**이며,
+> `--font-sans`가 `tokens.css`가 아니라 `styles.css`에 있어 복사하는 쪽이 놓치기 쉽다.
+
+## repo 설정
+
+| 항목 | 값 | 이유 |
+|---|---|---|
+| 파운데이션 | **private** | `onmyfactory/`, 로고 원본, 스타일 가이드 |
+| 도메인 DS | **public** | GitHub Free 플랜은 private repo에 branch protection을 못 건다 |
+| branch protection | `main` 직접 push 금지, PR 필수, required check `check` | 리뷰어 승인은 요구하지 않음(1인 개발) |
+
+**주의:** 도메인 DS가 public이면 파운데이션을 private으로 해도 **토큰은 공개된다**
+(미러가 동봉되므로). 브랜드 색을 비공개로 유지해야 한다면 org를 GitHub Team으로
+올리고 양쪽 다 private + protection으로 가야 한다.
+
+**폰트를 번들해 public으로 열 거라면 라이선스 전문 동봉은 선택이 아니라 의무다.**
+Spoqa Han Sans Neo = SIL OFL 1.1, Material Symbols = Apache-2.0. 둘 다 재배포 시
+전문 포함을 요구한다.
+
+## 문서는 소비 repo에 둔다
+
+도메인 DS의 컴포넌트 스펙과 구현 플랜은 **그 도메인 repo의 `docs/superpowers/`** 에 둔다.
+파운데이션에 두면, 도메인 repo만 클론한 사람이 설계 의도를 볼 수 없다.
+파운데이션의 `docs/`는 파운데이션 자신의 스펙 자리다.
+
+## 새 도메인 DS 부트스트랩 체크리스트
+
+- [ ] repo 생성 (`CREFLEINC/design-system-v2-<domain>`), public
+- [ ] `scripts/foundation-lock.mjs` · `sync-foundation.mjs` · `check-foundation.mjs` · 테스트 복사
+- [ ] `MIRROR_DIR`과 획득 파일 목록을 도메인에 맞게 조정
+- [ ] `npm run sync-foundation` → `foundation.lock.json` 생성
+- [ ] `package.json` scripts·engines 배선, `check:foundation`을 `check` 맨 앞에
+- [ ] 미러 디렉토리에 `README.md`(DO-NOT-EDIT 안내) 작성
+- [ ] `LICENSE` + 번들 폰트 라이선스 전문
+- [ ] `.github/workflows/ci.yml` (잡 이름 `check`)
+- [ ] 첫 CI run이 green인지 확인
+- [ ] branch protection (`contexts: ["check"]`)
+- [ ] 실증: 미러를 1바이트 고쳐 `npm run check`가 실패하는지, 되돌리면 통과하는지
+- [ ] 실증: 빈 디렉토리에 클론 → `npm ci && npm run check`가 파운데이션 없이 green인지
+
+## 설계 근거 원문
+
+- 스펙: `design-system-v2-webui` → `docs/superpowers/specs/2026-07-09-polyrepo-integrity-design.md`
+- 구현 계획: 같은 repo → `docs/superpowers/plans/2026-07-09-polyrepo-integrity.md`
+- 검토했다가 **배제한** 대안: git submodule/subtree(클린 클론 빌드를 깬다), CODEOWNERS만(강제력 없음),
+  `@crefle/tokens` npm 퍼블리시(도메인이 셋 될 때 재검토)
+````
+
+- [ ] **Step 3: 파운데이션 `docs/README.md`에 링크를 추가한다**
+
+Task 5 Step 5에서 만든 `docs/README.md` 맨 아래에 다음을 덧붙인다:
+
+```markdown
+
+---
+
+## 새 도메인 DS를 시작한다면
+
+[`domain-ds-guide.md`](./domain-ds-guide.md) — 파운데이션을 소비하는 도메인 DS repo의
+표준 구조(vendoring + lock, 오프라인 무결성 검사, 원격 동기화, CI, 라이선스, 공개 범위).
+`design-system-v2-webui`가 참조 구현이다.
+```
+
+- [ ] **Step 4: 가이드가 참조하는 링크와 경로가 유효한지 확인한다**
+
+```bash
+cd "/Users/rangkim/Documents/Claude/Projects/CREFLE Design System"
+test -f docs/domain-ds-guide.md && echo "가이드 OK"
+grep -q 'domain-ds-guide.md' docs/README.md && echo "README 링크 OK"
+gh repo view CREFLEINC/design-system-v2-webui --json visibility --jq '.visibility'
+```
+Expected: `가이드 OK`, `README 링크 OK`, `PUBLIC`
+(webui가 PUBLIC이어야 private 파운데이션 문서에서 건 링크가 열린다)
+
+- [ ] **Step 5: 커밋·push 한다**
+
+```bash
+git add docs/domain-ds-guide.md docs/README.md
+git commit -F - <<'EOF'
+docs: 도메인 DS 확장 가이드
+
+파운데이션을 소비하는 도메인 DS repo의 표준 구조를 기록한다. 모바일 DS 등 다음 도메인이
+webui 를 베껴 쓸 수 있도록 vendoring+lock, drift 두 방향(tamper=에러/staleness=경고),
+복사할 파일, 도메인마다 바꿀 것, repo 설정, 부트스트랩 체크리스트를 담았다.
+
+토큰 승격 후보(--outline, --primary-text 등)와 파운데이션의 알려진 문제
+(--on-surface-muted 4.26:1 AA 미달, --font-sans 위치)도 함께 기록.
+
+Co-Authored-By: Claude Opus 4.8 (1M context) <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_011iV62ofjqrgbiTTPqpgycU
+EOF
+git push origin main
+```
+
+---
+
 ## Self-Review
 
 **스펙 커버리지**
@@ -1200,6 +1419,7 @@ Expected: 빈 출력. 이후 모든 변경은 브랜치 → PR → CI green → 
 | §6 CI 첫 run | Task 4 Step 3 |
 | §6 병합 차단 확인 | Task 8 Step 3, 5 |
 | §6 라이선스 존재 확인 | Task 7 Step 1 |
+| (스펙 외) 도메인 DS 확장 가이드 | Task 9 |
 
 빠진 요구 없음.
 
@@ -1211,4 +1431,6 @@ Expected: 빈 출력. 이후 모든 변경은 브랜치 → PR → CI green → 
 
 ## 빌드 순서
 
-Task 1 → 2 → 3 은 엄격한 순서 의존이다(순수 로직 → lock 생성 → 검사). Task 4·5 는 3 이후 어느 순서든 무방하다. Task 6 → 7 → 8 은 다시 엄격한 순서 의존이다(라이선스 없이 공개 금지, Free 플랜에서는 public 이어야 protection 이 켜짐). 병렬화 여지는 4와 5뿐이며, 둘 다 짧아 순차 실행해도 손해가 없다.
+Task 1 → 2 → 3 은 엄격한 순서 의존이다(순수 로직 → lock 생성 → 검사). Task 4·5 는 3 이후 어느 순서든 무방하다. Task 6 → 7 → 8 은 다시 엄격한 순서 의존이다(라이선스 없이 공개 금지, Free 플랜에서는 public 이어야 protection 이 켜짐). Task 9 는 맨 마지막이다 — 가이드가 참조 구현의 실제 경로와 webui 의 PUBLIC 상태를 검증하므로 1~8이 모두 끝나야 한다. Task 9 는 파운데이션 repo 만 건드리므로 webui 의 branch protection 과 충돌하지 않는다.
+
+병렬화 여지는 4와 5뿐이며, 둘 다 짧아 순차 실행해도 손해가 없다.
