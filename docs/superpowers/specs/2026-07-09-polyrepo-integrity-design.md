@@ -41,10 +41,14 @@ CREFLE 디자인 시스템은 폴리레포다. 파운데이션(`design-system-v2
 
 | 항목 | 결정 |
 |---|---|
-| 강제 지점 | 로컬 게이트(`npm run check`) + CI(GitHub Actions) 둘 다, 동일 스크립트 |
+| 강제 지점 | 로컬 게이트(`npm run check`) + CI(GitHub Actions) + branch protection, 동일 스크립트 |
 | 동기화 소스 | 원격 git에서 특정 ref를 fetch (기본 `design-system-v2` / `main`), `FOUNDATION_DIR`로 로컬 오버라이드 유지 |
 | 스펙 이관 | 웹 DS 문서 전부 webui repo로 이관, 파운데이션 원본 삭제, 포인터만 남김 |
-| 공개 범위 | 두 repo 모두 PRIVATE |
+| 공개 범위 | webui = **PUBLIC**, 파운데이션 = **PRIVATE** |
+| 병합 차단 | webui `main` 직접 push 금지, PR 필수, `check` 잡을 required status check로 지정 (리뷰어 승인은 요구하지 않음) |
+| 라이선스 | 코드 = 독점(All rights reserved), 번들 폰트 = 원 라이선스 전문 동봉 |
+
+공개 범위 결정은 브레인스토밍 중 한 번 뒤집혔다. 처음에는 "둘 다 PRIVATE"이었으나, GitHub이 **private repo의 branch protection을 유료 플랜에서만** 허용하고 `CREFLEINC` org가 Free 플랜임이 확인되면서(API가 403 `Upgrade to GitHub Pro or make this repository public`) "private + 병합 차단"이 동시에 성립하지 않게 되었다. 병합 차단을 택하고 webui를 public으로 열기로 했다.
 
 ---
 
@@ -58,6 +62,7 @@ styles/foundation/
   README.md                ← 사람을 위한 DO-NOT-EDIT 안내
   tokens.css               ← 동봉 미러 (내용 무수정)
   fonts/*.woff2            ← 6개
+  fonts/LICENSE-*.txt      ← 폰트 원 라이선스 전문 (§4)
 scripts/
   foundation-lock.mjs      ← 순수 로직 (hashFile, readLock, verifyMirror)
   sync-foundation.mjs      ← 갱신기 (lock 생성)
@@ -107,7 +112,7 @@ scripts/
 3. 파일의 sha256이 lock과 불일치 (= 수정됨)
 4. lock에 없는 파일이 `styles/foundation/` 안에 존재 (= 몰래 추가됨)
 
-4번의 허용 목록은 `foundation.lock.json`, `README.md` 두 개다. 이 검사가 없으면 누군가 미러 디렉토리에 자기 토큰 파일을 끼워 넣어도 통과한다.
+4번의 허용 목록은 `foundation.lock.json`, `README.md`, `fonts/LICENSE-*.txt`다. 이 검사가 없으면 누군가 미러 디렉토리에 자기 토큰 파일을 끼워 넣어도 통과한다.
 
 **신뢰 루트의 한계.** lock 파일 자체를 수정해 변조된 미러의 해시와 맞추면 검사는 통과한다. 이 검사는 악의적 우회가 아니라 **실수**(미러를 원본으로 착각하고 고치는 것)를 막기 위한 것이다. lock 파일 변경은 커밋 diff에 눈에 띄게 드러나므로 코드 리뷰가 마지막 방어선이다.
 
@@ -194,19 +199,49 @@ webui의 `docs/2026-07-08-web-frontend-ds-design.md`는 파운데이션본과 **
 
 ---
 
-## 4. 공개 범위
+## 4. 공개 범위와 라이선스
 
 ```
-gh repo edit CREFLEINC/design-system-v2 --visibility private --accept-visibility-change-consequences
+gh repo edit CREFLEINC/design-system-v2      --visibility private --accept-visibility-change-consequences
+gh repo edit CREFLEINC/design-system-v2-webui --visibility public  --accept-visibility-change-consequences
 ```
 
-파운데이션에는 `onmyfactory/` 브랜드 산출물과 로고 원본이 들어 있어 PUBLIC이 부적절하다.
+파운데이션에는 `onmyfactory/` 브랜드 리디자인 산출물, 로고 SVG 원본, 정적 스타일 가이드가 들어 있어 private으로 돌린다. webui는 branch protection을 쓰기 위해 public으로 연다(§5 참조).
 
-영향받는 것은 sync 스크립트의 원격 clone 하나뿐이며, `gh` credential helper가 처리한다. **CI는 파운데이션에 접근하지 않으므로 영향이 없다** — tamper 검사가 lock 파일만 보고 네트워크를 타지 않도록 설계한 것이 여기서 값을 한다. 포크나 외부 클론은 아직 없다(repo 생성 후 1일).
+### 무엇이 실제로 공개되는가
+
+webui가 `styles/foundation/tokens.css`를 통째로 동봉하므로, **파운데이션을 private으로 돌려도 브랜드 토큰 전체(브랜드 레드 `#C9252C` 포함)는 공개된다.** 여기에 이관되는 컴포넌트 스펙 29개와 OnMyFactory 대시보드 데모도 함께 공개된다. 데모 fixture는 전부 가공된 상수이므로 실제 공장 데이터는 노출되지 않는다(`src/demo/fixtures.ts` 확인).
+
+파운데이션을 private으로 돌려 실제로 가려지는 것은 `onmyfactory/`, `assets/`(로고 원본), `index.html`뿐이다. "브랜드를 비공개로 유지한다"가 목적이었다면 이 조합으로는 달성되지 않는다는 점을 명시적으로 수용한다.
+
+### 라이선스 (public 전환의 선행 조건)
+
+**코드 — 독점.** `LICENSE`에 저작권 고지와 "All rights reserved"를 명시한다. `package.json`에 `"license": "UNLICENSED"`를 추가한다(`"private": true`는 유지 — 이건 npm 퍼블리시 방지 플래그로 repo 공개 범위와 무관하다). 소스는 열람 가능하지만 사용·복제·파생은 허용하지 않는다.
+
+**번들 폰트 — 원 라이선스 동봉 (의무).** repo에 폰트 6개가 라이선스 파일도 저작권 고지도 없이 들어 있다. 재배포 시 라이선스 전문 포함이 요구되므로, public 전환 **전에** 반드시 추가한다.
+
+| 폰트 | 라이선스 | 추가할 파일 |
+|---|---|---|
+| Spoqa Han Sans Neo (Thin/Light/Regular/Medium/Bold) | SIL OFL 1.1 | `styles/foundation/fonts/LICENSE-SpoqaHanSansNeo.txt` |
+| Material Symbols Rounded | Apache-2.0 | `styles/foundation/fonts/LICENSE-MaterialSymbols.txt` |
+
+이 두 파일은 파운데이션에서 동기화된 것이 아니므로 lock의 `files`에 등재되지 않는다. 그대로 두면 `verifyMirror`의 4번 검사(미등록 파일 = 에러)에 걸린다. 그래서 §1의 허용 목록에 `fonts/LICENSE-*.txt`가 처음부터 포함돼 있다 — 2단계에서 검사기를 구현할 때 이미 반영하고, 5단계는 파일만 추가한다.
+
+### private 파운데이션이 sync에 주는 영향
+
+`sync-foundation.mjs`의 기본 `FOUNDATION_REPO`가 private repo를 가리키게 된다. webui를 클론한 외부인은 `npm run sync-foundation`을 실행할 수 없다. 이는 의도된 것이다 — 토큰 동기화는 메인테이너의 작업이다. **`check-foundation.mjs`는 오프라인이므로 누구나 실행할 수 있고 CI도 green이다.** 이 사실을 `styles/foundation/README.md`에 적는다.
 
 ---
 
-## 5. CI
+## 5. CI와 병합 차단
+
+### CI는 파운데이션 repo에 접근하지 않는다
+
+이 점을 오해하기 쉬우므로 못박아 둔다. CI가 하는 일은 repo 안의 `foundation.lock.json`에 적힌 sha256과 같은 repo 안 `styles/foundation/`의 실제 파일을 대조하는 것이다. 파운데이션 원본을 clone하지 않는다. 즉 **원본의 *현재* 가 아니라 *마지막으로 동의한 시점* 과 비교한다.** 그래야 (a) 파운데이션이 private이어도 CI에 자격증명이 필요 없고, (b) 파운데이션에 누가 커밋했다고 해서 webui의 CI가 아무 변경 없이 빨개지지 않으며, (c) 로컬과 CI가 항상 같은 판정을 내린다.
+
+파운데이션이 앞서 나갔는지는 `check:foundation:upstream`이 알려주며, 이것은 수동이고 절대 실패하지 않는다.
+
+### 워크플로우
 
 webui repo에만 `.github/workflows/ci.yml`을 둔다. 파운데이션 repo에는 빌드도 테스트도 없어 검사할 대상이 없다.
 
@@ -243,6 +278,27 @@ jobs:
 
 `check:foundation:upstream`은 네트워크가 필요하므로 `check`에 넣지 않는다. 토큰을 갱신하려는 사람이 명시적으로 부르는 명령이다.
 
+### 병합 차단 (branch protection)
+
+CI가 빨간 X를 띄우는 것만으로는 병합이 막히지 않는다. 실제 차단은 branch protection이 한다.
+
+```
+gh api -X PUT repos/CREFLEINC/design-system-v2-webui/branches/main/protection \
+  -F required_status_checks[strict]=true \
+  -F 'required_status_checks[contexts][]=check' \
+  -F enforce_admins=false \
+  -F required_pull_request_reviews[required_approving_review_count]=0 \
+  -F restrictions=null
+```
+
+`main` 직접 push를 금지하고 PR을 필수로 하며, `check` 잡을 required status check로 지정한다. **리뷰어 승인은 요구하지 않는다** — 현재 1인 개발이라 자기 PR을 승인할 수 없어 스스로 막히기 때문이다. 팀이 늘면 `required_approving_review_count`를 올린다.
+
+`enforce_admins=false`로 두어 관리자가 긴급 상황에 우회할 수 있게 한다.
+
+이 설정은 지금까지의 워크플로우를 바꾼다. webui repo의 29개 커밋은 전부 `main` 직행이었으나, 이후로는 브랜치 → PR → CI green → 병합이 된다. 그래서 이 설정은 **구현 순서의 맨 마지막**에 적용한다(§7).
+
+방어선은 세 겹이 된다. 로컬 `npm run check`가 즉시 실패하고, CI가 PR에서 실패 표시를 내고, branch protection이 병합을 물리적으로 막는다.
+
 ---
 
 ## 6. 검증
@@ -257,32 +313,41 @@ jobs:
 
 **CI.** 첫 workflow run이 green인지 `gh run watch`로 확인한다.
 
+**병합 차단.** protection을 켠 뒤, 미러를 일부러 변조한 브랜치로 PR을 열어 `check`가 실패하고 병합 버튼이 잠기는지 확인한다. 확인 후 PR을 닫고 브랜치를 지운다. `main` 직접 push가 거부되는지도 확인한다.
+
+**라이선스.** public 전환 **직전에** `LICENSE`, `package.json`의 `license` 필드, 폰트 라이선스 2종이 모두 존재하는지 확인한다. 하나라도 없으면 전환하지 않는다.
+
 ---
 
 ## 7. 작업 순서
 
-다섯 커밋. 각각 독립적으로 되돌릴 수 있다.
+일곱 단계. 각각 독립적으로 되돌릴 수 있다. **아직 `main` 직행이 가능한 동안** 1~6을 끝내고, 마지막에 branch protection을 켠다.
 
 1. **lock 스키마 + sync 재작성** (webui) — `foundation-lock.mjs`, `sync-foundation.mjs`, `styles/foundation/README.md`. `PIN`과 `sync-foundation.sh` 삭제. 실행해 `foundation.lock.json` 생성.
 2. **검사기 + 테스트 + 게이트 배선** (webui) — `check-foundation.mjs`, `scripts/check-foundation.test.mjs`, `vite.config.ts` include 확장, `package.json` scripts·engines.
-3. **CI** (webui) — `.github/workflows/ci.yml`.
-4. **문서 이관** (webui + 파운데이션, 유일하게 두 repo를 동시에 건드림) — 29개 복사, 루트 중복본 삭제, 파운데이션에서 삭제 + `docs/README.md` 포인터.
-5. **공개 범위 전환** — `gh repo edit … --visibility private`.
+3. **CI** (webui) — `.github/workflows/ci.yml`. push 후 첫 run이 green인지 확인.
+4. **문서 이관** (webui + 파운데이션, 유일하게 두 repo를 동시에 건드림) — 29개 복사, 루트 중복본 삭제, `README.md`의 스펙 경로 링크 갱신, 파운데이션에서 삭제 + `docs/README.md` 포인터.
+5. **라이선스** (webui) — `LICENSE`(독점), `package.json`의 `"license": "UNLICENSED"`, 폰트 라이선스 2종 추가. 허용 목록은 2단계에서 이미 반영돼 있다. **public 전환 전에 반드시 완료.**
+6. **공개 범위 전환** — 파운데이션 private, webui public.
+7. **branch protection** — webui `main`. 이후 모든 변경은 PR을 거친다.
 
-1→2는 순서 의존(lock이 있어야 검사할 대상이 생긴다). 3·4·5는 2 이후 어느 순서든 무방하다.
+1→2는 순서 의존(lock이 있어야 검사할 대상이 생긴다). 5→6도 순서 의존(라이선스 없이 공개하면 폰트 재배포 위반). 6→7도 순서 의존(Free 플랜에서는 public이어야 protection이 켜진다). 3·4는 2 이후 어느 순서든 무방하다.
 
 ## 8. 하지 않을 것 (YAGNI)
 
 - **`@crefle/tokens` npm 퍼블리시** — 모듈이 셋이 되는 시점(모바일 DS)으로 미룬다. 그때 vendoring과 lock이 모두 불필요해진다.
 - **git submodule / subtree** — 클린 클론 빌드를 깬다.
-- **CODEOWNERS** — lock 검사가 기계적으로 판정하므로 불필요하다.
+- **CODEOWNERS** — lock 검사가 기계적으로 판정하고 branch protection이 병합을 막으므로 불필요하다.
+- **pre-push 훅** — branch protection이 서버 측에서 강제하므로 클라이언트 훅은 중복이다. (protection을 못 쓰는 상황이었다면 필요했다.)
+- **리뷰어 승인 필수** — 1인 개발이라 자기 PR을 승인할 수 없어 스스로 막힌다. 팀이 늘면 켠다.
 - **nightly upstream cron** — 파운데이션이 사실상 정지 상태(마지막 토큰 변경 이후 커밋 9개가 전부 문서 변경, `tokens.css`를 건드린 커밋 0개)라 과하다.
 - **미러 파일 배너 주입** — "미러 == 업스트림" 불변식을 잃는다.
 
 ## 성공 기준
 
-- 미러 파일(`tokens.css`, `fonts/*.woff2`)을 수정하거나, `styles/foundation/`에 파일을 추가하면 `npm run check`와 CI가 모두 실패하고, 실패 메시지가 `npm run sync-foundation`을 지시한다. (`README.md`와 `foundation.lock.json`은 허용 목록이라 예외다.)
+- 미러 파일(`tokens.css`, `fonts/*.woff2`)을 수정하거나 `styles/foundation/`에 파일을 추가하면 `npm run check`와 CI가 모두 실패하고, 실패 메시지가 `npm run sync-foundation`을 지시한다. (허용 목록인 `README.md`, `foundation.lock.json`, `fonts/LICENSE-*.txt`는 예외다.)
+- 그 상태의 PR은 `main`에 병합할 수 없다.
 - 파운데이션 repo가 없는 머신에서 `npm run sync-foundation`이 원격에서 토큰을 받아 lock을 갱신한다.
 - `npm run check:foundation:upstream`이 파운데이션의 최신 상태를 알려주되 빌드를 막지 않는다.
-- webui repo만 클론한 사람이 컴포넌트 스펙과 구현 플랜을 모두 볼 수 있다.
-- 두 repo 모두 PRIVATE이고, 그 상태에서 CI가 green이다.
+- webui repo만 클론한 사람이 컴포넌트 스펙과 구현 플랜을 모두 볼 수 있고, 파운데이션 접근 없이 `npm run check`가 green이다.
+- webui는 PUBLIC이며 코드 라이선스와 폰트 라이선스 전문이 동봉돼 있다. 파운데이션은 PRIVATE이다.
