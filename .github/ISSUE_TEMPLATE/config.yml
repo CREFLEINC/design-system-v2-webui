@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: 토큰 요청 (색상 · 간격 · 라운드 · 타이포)
+    url: https://github.com/CREFLEINC/design-system-v2/issues/new
+    about: 컴포넌트가 아니라 값이 없어서 막힌 경우입니다. 파운데이션 repo에 내세요. (사내 전용 · 비공개)
