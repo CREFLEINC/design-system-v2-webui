@@ -13,16 +13,20 @@ The source is published for reference and transparency only.
 
 THIRD-PARTY ASSETS
 
-This repository bundles font files that are licensed separately. Their license
-texts are included alongside the fonts:
+This repository bundles font files that are licensed separately. The same
+fonts are distributed twice — once under styles/foundation/fonts/ (source)
+and once under ds-bundle/fonts/ (self-contained sync bundle) — and each
+copy carries its own license texts alongside it:
 
   Spoqa Han Sans Neo (Thin/Light/Regular/Medium/Bold)
     SIL Open Font License 1.1
     styles/foundation/fonts/LICENSE-SpoqaHanSansNeo.txt
+    ds-bundle/fonts/LICENSE-SpoqaHanSansNeo.txt
 
   Material Symbols Rounded
     Apache License 2.0
     styles/foundation/fonts/LICENSE-MaterialSymbols.txt
+    ds-bundle/fonts/LICENSE-MaterialSymbols.txt
 
 The "All rights reserved" statement above does not apply to these fonts.
 

@@ -59,6 +59,17 @@ npm run build-storybook  # 정적 빌드 (storybook-static/)
 
 (Navigation은 Sidebar/SidebarItem/SidebarSection/Topbar, Chart는 Line/Bar/Pie로 하위 분할된다.)
 
+## 서드파티 폰트 라이선스
+
+`fonts/*.woff2` 6개(Spoqa Han Sans Neo 5종 + Material Symbols Rounded 1종)는
+이 저장소 소유가 아닌 서드파티 자산이며, 각각 라이선스에 따라 재배포된다:
+
+- Spoqa Han Sans Neo — SIL Open Font License 1.1 → `fonts/LICENSE-SpoqaHanSansNeo.txt`
+- Material Symbols Rounded — Apache License 2.0 → `fonts/LICENSE-MaterialSymbols.txt`
+
+이 폰트들은 `styles/foundation/fonts/`에도 동일 파일로 존재한다(이 번들은
+그 사본을 자체 완결형으로 재배포한다) — 두 위치 모두 라이선스 텍스트를 동봉한다.
+
 ## 메타
 
 - 회사: 크레플 주식회사 / CREFLE Inc.
