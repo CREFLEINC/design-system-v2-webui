@@ -5,6 +5,13 @@ on:
     branches: [main]
   pull_request:
 
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   # 잡 이름 'check' 가 그대로 status check 컨텍스트 이름이 된다 (branch protection 이 이 이름을 참조).
   check:

@@ -26,7 +26,12 @@ const gitBuf = (args) => execFileSync('git', args, { maxBuffer: 64 * 1024 * 1024
 // die() 는 process.exit 를 직접 호출하지 않는다 — process.exit 은 감싸고 있는
 // finally 블록(임시 디렉토리 정리)을 건너뛰기 때문이다. 대신 이 타입을 던지고,
 // 최상위 흐름에서 잡아 메시지를 찍은 뒤 exitCode 만 설정한다.
-class FoundationSyncError extends Error {}
+class FoundationSyncError extends Error {
+  constructor(message) {
+    super(message)
+    this.name = 'FoundationSyncError'
+  }
+}
 
 function die(msg) {
   throw new FoundationSyncError(msg)
