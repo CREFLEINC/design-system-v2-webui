@@ -23,6 +23,8 @@ import { Button } from '@crefle/web-ui'
 ```
 
 - 테마: `<html data-theme="light|dark">` — `ThemeProvider` 사용
+- **[컴포넌트 인벤토리](docs/COMPONENTS.md)** — 무엇이 있는지. `src/index.ts` 에서 생성되며 게이트가 드리프트를 막는다
+- **[컴포넌트 요청 가이드](docs/component-requests.md)** — 없는 것을 어디에 어떻게 요청하는지
 - 스펙: `docs/superpowers/specs/2026-07-08-web-frontend-ds-design.md`
 - 컴포넌트 상세 스펙: `docs/superpowers/specs/phase{2,3,4}-components/`
 - 구현 플랜: `docs/superpowers/plans/`

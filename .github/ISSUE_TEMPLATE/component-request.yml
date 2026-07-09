@@ -1,0 +1,103 @@
+name: 컴포넌트 요청
+description: 없는 컴포넌트(d) 또는 기존 컴포넌트의 변형·prop(b)을 요청합니다.
+title: '[컴포넌트] '
+labels: [component-request, needs-triage]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        먼저 [컴포넌트 인벤토리](../blob/main/docs/COMPONENTS.md)와
+        [요청 가이드](../blob/main/docs/component-requests.md)를 확인하세요.
+
+        ⚠️ **이 repo는 공개입니다.** 제품 와이어프레임 캡처, 미공개 제품 정보,
+        내부 화면명·고객사명을 적지 마세요. 컴포넌트의 언어로 써 주세요.
+
+        토큰(색상·간격·라운드·타이포)이 없어서 막힌 경우는 여기가 아니라
+        파운데이션 repo에 내야 합니다.
+
+  - type: dropdown
+    id: kind
+    attributes:
+      label: 요청 유형
+      options:
+        - 'b — 기존 컴포넌트에 변형/prop 추가'
+        - 'd — 신규 컴포넌트'
+    validations:
+      required: true
+
+  - type: input
+    id: component
+    attributes:
+      label: 컴포넌트 이름
+      description: b면 기존 이름, d면 제안하는 이름.
+      placeholder: 'Chip / DatePicker'
+    validations:
+      required: true
+
+  - type: textarea
+    id: need
+    attributes:
+      label: 무엇이 필요한가
+      description: 어떤 UI 동작이 필요한지. 화면이 아니라 컴포넌트의 행동으로 기술하세요.
+    validations:
+      required: true
+
+  - type: textarea
+    id: why-not-composition
+    attributes:
+      label: 왜 기존 컴포넌트의 조합(c)으로는 안 되는가
+      description: |
+        가장 중요한 항목입니다. 인벤토리의 어떤 컴포넌트들을 조합해 봤고, 무엇이 막혔는지 쓰세요.
+        조합으로 되는 것은 DS가 아니라 제품 repo에서 만듭니다.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: usages
+    attributes:
+      label: 현재 사용처 개수
+      description: 세 곳 규칙 — 한 곳뿐이면 제품 repo의 `src/ds-candidates/`에 두고 기다립니다.
+      options:
+        - '1곳'
+        - '2곳'
+        - '3곳 이상'
+    validations:
+      required: true
+
+  - type: textarea
+    id: api
+    attributes:
+      label: 제안하는 API
+      description: props 시그니처와 변형. 이미 구현한 것이 있다면 그 타입을 그대로 붙여넣으세요.
+      render: typescript
+
+  - type: input
+    id: implementation
+    attributes:
+      label: 기존 구현 링크
+      description: 제품 repo의 `src/ds-candidates/` 구현이 있다면 링크하세요. 승격 검토가 훨씬 빨라집니다.
+
+  - type: textarea
+    id: a11y
+    attributes:
+      label: 접근성 요구사항
+      description: 키보드 조작, 포커스 이동, 스크린리더 기대 동작. 해당 ARIA 패턴이 있다면 링크.
+
+  - type: checkboxes
+    id: deps
+    attributes:
+      label: 함께 필요한 것
+      options:
+        - label: 새 파운데이션 토큰이 필요하다 (파운데이션 repo에 별도 이슈를 내고 여기 링크)
+        - label: 다크 테마에서 별도 처리가 필요하다
+        - label: 애니메이션이 있다 (`prefers-reduced-motion` 대응 필요)
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: 확인
+      options:
+        - label: 인벤토리에서 같은 컴포넌트를 찾아봤다
+          required: true
+        - label: 이 이슈에 미공개 제품 정보를 넣지 않았다
+          required: true
