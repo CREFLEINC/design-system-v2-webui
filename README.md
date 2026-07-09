@@ -9,4 +9,6 @@ import { Button } from '@crefle/web-ui'
 ```
 
 - 테마: `<html data-theme="light|dark">` — `ThemeProvider` 사용
-- 스펙: `docs/2026-07-08-web-frontend-ds-design.md`
+- 스펙: `docs/superpowers/specs/2026-07-08-web-frontend-ds-design.md`
+- 컴포넌트 상세 스펙: `docs/superpowers/specs/phase{2,3,4}-components/`
+- 구현 플랜: `docs/superpowers/plans/`
