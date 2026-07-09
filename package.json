@@ -26,7 +26,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "lint:tokens": "node scripts/check-tokens.mjs",
-    "sync-foundation": "bash scripts/sync-foundation.sh",
+    "sync-foundation": "node scripts/sync-foundation.mjs",
     "shoot": "bash scripts/shoot.sh",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
