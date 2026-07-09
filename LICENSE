@@ -1,0 +1,33 @@
+Copyright (c) 2026 CREFLE Inc. (크레플 주식회사)
+All rights reserved.
+
+This software and its source code are proprietary and confidential.
+
+Permission is NOT granted to use, copy, modify, merge, publish, distribute,
+sublicense, or sell copies of this software, in whole or in part, except with
+the prior written permission of CREFLE Inc.
+
+The source is published for reference and transparency only.
+
+---
+
+THIRD-PARTY ASSETS
+
+This repository bundles font files that are licensed separately. Their license
+texts are included alongside the fonts:
+
+  Spoqa Han Sans Neo (Thin/Light/Regular/Medium/Bold)
+    SIL Open Font License 1.1
+    styles/foundation/fonts/LICENSE-SpoqaHanSansNeo.txt
+
+  Material Symbols Rounded
+    Apache License 2.0
+    styles/foundation/fonts/LICENSE-MaterialSymbols.txt
+
+The "All rights reserved" statement above does not apply to these fonts.
+
+---
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.

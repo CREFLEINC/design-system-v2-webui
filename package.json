@@ -2,6 +2,7 @@
   "name": "@crefle/web-ui",
   "version": "0.1.0",
   "private": true,
+  "license": "UNLICENSED",
   "type": "module",
   "sideEffects": [
     "*.css"
