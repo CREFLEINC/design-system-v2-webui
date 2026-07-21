@@ -2,6 +2,7 @@ import { useState } from 'react'
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { Tabs, type TabItem } from './Tabs'
 import { Icon } from '../Icon/Icon'
+import { Badge } from '../Chip/Badge'
 
 const items: TabItem[] = [
   { value: 'overview', label: '개요', content: <p style={{ padding: 16 }}>개요 패널</p> },
@@ -68,7 +69,43 @@ export const Controlled: Story = {
   }
 }
 
-// Matrix — 사이즈 x 상태 (기본 / 아이콘 / disabled). renderVerify 스크린샷 타깃.
+// 뱃지 유/무 · 0 표기 정책 · max 초과 표기를 한 화면에서 확인.
+// 0 정책: <Badge count={0}/>는 Badge 자체 동작으로 null을 반환해 숨겨진다(Tabs에 별도 옵션 없음).
+// 노출하려면 소비자가 <Badge count={0} showZero/>로 명시한다. max(기본 99) 초과는 '99+'로 축약된다.
+export const WithBadge: Story = {
+  args: {
+    'aria-label': '뱃지 데모',
+    items: [
+      {
+        value: 'pending',
+        label: '결재 대기',
+        content: <p style={{ padding: 16 }}>결재 대기 패널</p>,
+        badge: <Badge count={3} />
+      },
+      { value: 'plain', label: '뱃지 없음', content: <p style={{ padding: 16 }}>뱃지 없음 패널</p> },
+      {
+        value: 'zero-hidden',
+        label: '0건(숨김)',
+        content: <p style={{ padding: 16 }}>count=0 — 기본값은 뱃지 숨김</p>,
+        badge: <Badge count={0} />
+      },
+      {
+        value: 'zero-shown',
+        label: '0건(노출)',
+        content: <p style={{ padding: 16 }}>count=0 showZero — 뱃지 노출</p>,
+        badge: <Badge count={0} showZero />
+      },
+      {
+        value: 'over-max',
+        label: '초과',
+        content: <p style={{ padding: 16 }}>count=120 — max(99) 초과로 '99+' 표기</p>,
+        badge: <Badge count={120} />
+      }
+    ]
+  }
+}
+
+// Matrix — 사이즈 x 상태 (기본 / 아이콘 / disabled / 뱃지). renderVerify 스크린샷 타깃.
 export const Matrix: Story = {
   render: () => {
     const rowItems: TabItem[] = [
@@ -83,6 +120,12 @@ export const Matrix: Story = {
         content: <p style={{ padding: 12 }}>설정</p>
       },
       { value: 'c', label: '멤버', content: <p style={{ padding: 12 }}>멤버</p> },
+      {
+        value: 'd',
+        label: '뱃지',
+        content: <p style={{ padding: 12 }}>뱃지</p>,
+        badge: <Badge count={3} />
+      },
       { value: 'x', label: '비활성', content: <p style={{ padding: 12 }}>비활성</p>, disabled: true }
     ]
     return (

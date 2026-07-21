@@ -1,7 +1,8 @@
 import { expect, test, vi } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { Tabs, type TabItem } from './Tabs'
+import { Badge } from '../Chip/Badge'
 import styles from './Tabs.module.css'
 
 const items: TabItem[] = [
@@ -91,4 +92,47 @@ test('탭과 패널이 id로 양방향 연결된다', () => {
   expect(tab).toHaveAttribute('aria-controls', panel.id)
   expect(panel).toHaveAttribute('aria-labelledby', tab.id)
   expect(panel).toHaveAttribute('tabindex', '0')
+})
+
+test('badge가 있으면 탭 버튼 내부에 렌더되어 접근성 이름에 포함된다', () => {
+  const withBadge: TabItem[] = [
+    { value: 'pending', label: '결재 대기', content: <p>대기 내용</p>, badge: <Badge count={3} /> },
+    { value: 'done', label: '완료', content: <p>완료 내용</p> }
+  ]
+  render(<Tabs items={withBadge} defaultValue="pending" aria-label="결재" />)
+  // Tabs는 라벨-뱃지 사이에 구분 공백 텍스트 노드를 렌더하므로(라벨이 숫자로 끝나도 건수와
+  // 합쳐지지 않게) 접근성 이름은 "결재 대기 3"이다. 공백 노드는 flex 레이아웃에는 영향 없음.
+  const tab = screen.getByRole('tab', { name: '결재 대기 3' })
+  expect(within(tab).getByText('3')).toBeInTheDocument()
+})
+
+test('badge count=0은 기본적으로 렌더되지 않는다', () => {
+  const withZero: TabItem[] = [
+    { value: 'pending', label: '결재 대기', content: <p>대기 내용</p>, badge: <Badge count={0} /> }
+  ]
+  render(<Tabs items={withZero} defaultValue="pending" aria-label="결재" />)
+  expect(screen.getByRole('tab', { name: '결재 대기' })).toBeInTheDocument()
+  expect(screen.queryByText('0')).not.toBeInTheDocument()
+})
+
+test('badge count=0 showZero는 0을 렌더한다', () => {
+  const withZeroShown: TabItem[] = [
+    { value: 'pending', label: '결재 대기', content: <p>대기 내용</p>, badge: <Badge count={0} showZero /> }
+  ]
+  render(<Tabs items={withZeroShown} defaultValue="pending" aria-label="결재" />)
+  const tab = screen.getByRole('tab', { name: '결재 대기 0' })
+  expect(within(tab).getByText('0')).toBeInTheDocument()
+})
+
+test('뱃지 있는 탭을 클릭해 활성 전환해도 뱃지 텍스트가 유지된다', async () => {
+  const withBadge: TabItem[] = [
+    { value: 'overview', label: '개요', content: <p>개요 내용</p> },
+    { value: 'pending', label: '결재 대기', content: <p>대기 내용</p>, badge: <Badge count={3} /> }
+  ]
+  render(<Tabs items={withBadge} defaultValue="overview" aria-label="결재" />)
+  const tab = screen.getByRole('tab', { name: '결재 대기 3' })
+  expect(tab).toHaveAttribute('aria-selected', 'false')
+  await userEvent.click(tab)
+  expect(tab).toHaveAttribute('aria-selected', 'true')
+  expect(within(tab).getByText('3')).toBeInTheDocument()
 })
