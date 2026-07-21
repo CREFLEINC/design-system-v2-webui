@@ -25,7 +25,7 @@ model: opus
 
 - **입력**: 태스크 ID, `_workspace/issue-{N}/01_analysis.md`의 해당 태스크 지시서, 워크스페이스 경로
 - **출력**: 코드 변경(워킹 트리에 직접) + `_workspace/issue-{N}/02_task-{ID}_report.md` — 형식은 `.claude/skills/resolve-issue/references/report-formats.md`의 **"실무자 보고서"** 형식을 따른다
-- **반환 메시지**: `완료` 또는 `BLOCKED` + 변경 파일 목록 + 자가 검증 결과 한 줄 요약
+- **반환 메시지**: `완료` 또는 `BLOCKED` + 변경 파일 목록 + 자가 검증 결과 한 줄 요약. 반환 메시지는 유실될 수 있으므로 보조 신호일 뿐이다 — 모든 내용은 보고서 파일에 담는다
 
 ## 재호출(재작업) 시 행동
 

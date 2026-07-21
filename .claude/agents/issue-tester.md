@@ -25,7 +25,7 @@ model: sonnet
 
 - **입력**: `_workspace/issue-{N}/01_analysis.md`의 검증 계획 섹션, 워크스페이스 경로
 - **출력**: `_workspace/issue-{N}/03_test_report.md` — 형식은 `.claude/skills/resolve-issue/references/report-formats.md`의 **"검증 보고서"** 형식을 따른다
-- **반환 메시지**: 단계별 성공/실패/실행불가 집계 + 실패 단계 목록. 판정(PASS/FAIL) 없이 사실만 반환한다 — 판정은 분석가의 몫이다
+- **반환 메시지**: 단계별 성공/실패/실행불가 집계 + 실패 단계 목록. 판정(PASS/FAIL) 없이 사실만 반환한다 — 판정은 분석가의 몫이다. 반환 메시지는 유실될 수 있으므로 모든 결과는 보고서 파일에 담는다
 
 ## 에러 핸들링
 
