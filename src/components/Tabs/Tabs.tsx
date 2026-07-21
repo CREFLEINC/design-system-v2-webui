@@ -13,6 +13,9 @@ export interface TabItem {
   content: ReactNode
   /** true면 탭이 비활성 — 클릭·키보드 로빙에서 건너뛴다 */
   disabled?: boolean
+  /** 라벨 뒤 후행 뱃지/카운트(선택). 보통 <Badge count={3}/>. SidebarItem.badge와 동일 패턴.
+      count 0 숨김/노출은 Badge의 showZero 정책을 따른다 */
+  badge?: ReactNode
 }
 
 export interface TabsProps extends Omit<HTMLAttributes<HTMLDivElement>, 'onChange'> {
@@ -119,6 +122,10 @@ export const Tabs = forwardRef<HTMLDivElement, TabsProps>(function Tabs(
               }}
             >
               {it.label}
+              {/* 라벨-뱃지 구분 공백: 접근성 이름이 "결재 대기3"처럼 붙지 않게 한다.
+                  공백만 있는 텍스트 노드는 flex 레이아웃에서 렌더되지 않아 시각 간격(gap)에는 영향 없음 */}
+              {it.badge != null && ' '}
+              {it.badge}
             </button>
           )
         })}
