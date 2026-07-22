@@ -12,7 +12,7 @@
 
 ## Global Constraints
 
-- repo: `/Users/rangkim/Documents/Claude/Projects/CREFLE Web Design System` (이하 `$WEB`). 스펙 브리프: 파운데이션 repo `docs/superpowers/specs/phase2-components/`.
+- repo: `/Users/rangkim/Documents/Claude/Projects/CREFLE Web Design System` (이하 `$WEB`). 스펙 브리프: 이 repo `docs/superpowers/specs/phase2-components/`.
 - 파일 세트: `src/components/<Name>/<Name>.{tsx,module.css,stories.tsx,test.tsx}`. index.ts에 export 추가(기존 export 유지, append).
 - **`.module.css`는 토큰만**: raw 색상(hex/rgb/hsl) 금지, px는 0/1/2만. `npm run lint:tokens`가 이를 강제하고 **미정의 `var(--x)` 참조도 검출**한다 — 존재하지 않는 토큰 참조 시 빌드 실패.
 - 런타임 의존성 0. React는 peer. 외부 라이브러리(floating-ui/popper/clsx/react-aria 등) 금지. 로컬 `cx`, 네이티브 API, 자체 구현만.
