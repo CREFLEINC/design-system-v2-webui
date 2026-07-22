@@ -182,7 +182,7 @@
 `src/components/Table/Table.tsx` · 스토리 ✓
 
 **Table**
-- props `TableProps`: columns, rows, getRowId, caption, density, zebra, sort, defaultSort, onSortChange, selectable, selectedIds, onSelectionChange, empty, summaryRows _(+ 네이티브 HTML 속성)_
+- props `TableProps`: columns, rows, getRowId, caption, density, zebra, sort, defaultSort, onSortChange, selectable, selectedIds, onSelectionChange, empty, summaryRows, groupBy, renderGroupHeader _(+ 네이티브 HTML 속성)_
 
 - `ColumnAlign`: `start` `center` `end`
 - `SortDirection`: `ascending` `descending`

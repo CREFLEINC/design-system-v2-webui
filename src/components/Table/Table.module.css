@@ -35,6 +35,14 @@
   text-align: center;
 }
 
+/* -------- row group header (그룹 헤더 셀 — thead 위계와 동일한 시각 관례) -------- */
+.table tbody th[scope='rowgroup'] {
+  background: var(--surface-container);
+  color: var(--on-surface-variant);
+  font: var(--type-label-lg);
+  text-align: left;
+}
+
 /* -------- density -------- */
 .comfortable td,
 .comfortable th {
@@ -113,7 +121,7 @@
   background: transparent;
   transition: background var(--motion-fast) var(--ease-standard);
 }
-.zebra tbody tr:nth-child(even) td {
+.zebra tbody tr[data-parity='even'] td {
   background: var(--surface-container-low);
 }
 .table tbody tr:hover td {

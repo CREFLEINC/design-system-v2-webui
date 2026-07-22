@@ -81,6 +81,11 @@ export interface TableProps<T> extends Omit<HTMLAttributes<HTMLTableElement>, 'c
   empty?: ReactNode
   /** 하단 요약/합계 행들 (소계+총계 등 다중 지원). tfoot으로 렌더되며 정렬 대상에서 제외 */
   summaryRows?: SummaryCell[][]
+  // ----- 행 그룹 (row group header) -----
+  /** 행의 그룹 키 추출. 지정 시 그룹 헤더 행이 삽입되고 내부 정렬이 그룹 내부로 제한된다 */
+  groupBy?: (row: T) => string
+  /** 그룹 헤더 셀 내용. groupRows는 렌더 순서의 그룹 행들. 미지정 시 groupKey 텍스트 */
+  renderGroupHeader?: (groupKey: string, groupRows: readonly T[]) => ReactNode
 }
 
 function alignAttr(align?: ColumnAlign): 'center' | 'end' | undefined {
@@ -120,6 +125,8 @@ function TableInner<T>(
     onSelectionChange,
     empty,
     summaryRows,
+    groupBy,
+    renderGroupHeader,
     className,
     ...rest
   }: TableProps<T>,
@@ -146,20 +153,47 @@ function TableInner<T>(
     onSortChange?.(next)
   }
 
-  const sortedRows = (() => {
-    if (isControlled || !activeSort) return rows
+  // 비제어 + activeSort일 때만 내부 재정렬. 그룹핑 시 각 그룹 배열에 개별 적용된다
+  const sortWithin = (list: T[]): T[] => {
+    if (isControlled || !activeSort) return list
     const col = columns.find((c) => c.key === activeSort.key)
-    if (!col) return rows
+    if (!col) return list
     const accessor = col.sortAccessor ?? ((row: T) => (row as Record<string, string | number>)[col.key])
     const dir = activeSort.direction === 'ascending' ? 1 : -1
-    return [...rows].sort((a, b) => {
+    return [...list].sort((a, b) => {
       const av = accessor(a)
       const bv = accessor(b)
       if (av < bv) return -1 * dir
       if (av > bv) return 1 * dir
       return 0
     })
-  })()
+  }
+
+  // 파티셔닝(그룹 우선) 후 그룹 내 정렬. key=null은 그룹핑 미사용(헤더 없는 단일 tbody)
+  const groups: { key: string | null; rows: T[] }[] = groupBy
+    ? (() => {
+        const clusters = new Map<string, T[]>()
+        for (const row of rows) {
+          const k = groupBy(row)
+          const bucket = clusters.get(k)
+          if (bucket) bucket.push(row)
+          else clusters.set(k, [row])
+        }
+        return [...clusters].map(([key, groupRows]) => ({ key, rows: sortWithin(groupRows) }))
+      })()
+    : [{ key: null, rows: sortWithin(rows) }]
+
+  // 평탄화 누적 인덱스(그룹 헤더 제외) — col.render/getRowId의 index 계약 유지
+  let flatOffset = 0
+  const groupOffsets = groups.map((g) => {
+    const start = flatOffset
+    flatOffset += g.rows.length
+    return start
+  })
+
+  // zebra 패리티: 그룹 내 1-기준 홀=odd/짝=even (미그룹 시 전체 기준 — 기존 nth-child(even)와 동일)
+  const parityOf = (positionInGroup: number): 'odd' | 'even' =>
+    positionInGroup % 2 === 0 ? 'odd' : 'even'
 
   const selectedSet = new Set(selectedIds ?? [])
   const allIds = rows.map((r, i) => resolveRowId(r, i))
@@ -179,6 +213,25 @@ function TableInner<T>(
   }
 
   const colCount = columns.length + (selectable ? 1 : 0)
+
+  const renderDataRow = (row: T, index: number, parity: 'odd' | 'even') => {
+    const id = resolveRowId(row, index)
+    const isSelected = selectedSet.has(id)
+    return (
+      <tr key={id} data-selected={isSelected || undefined} data-parity={parity}>
+        {selectable && (
+          <td className={styles.selectCell}>
+            <Checkbox aria-label="행 선택" checked={isSelected} onChange={() => toggleRow(id)} />
+          </td>
+        )}
+        {columns.map((col) => (
+          <td key={col.key} data-align={alignAttr(col.align)}>
+            {col.render ? col.render(row, index) : String((row as Record<string, unknown>)[col.key])}
+          </td>
+        ))}
+      </tr>
+    )
+  }
 
   return (
     <div className={styles.scroll}>
@@ -234,32 +287,28 @@ function TableInner<T>(
             })}
           </tr>
         </thead>
-        <tbody>
-          {rows.length === 0 ? (
+        {rows.length === 0 ? (
+          <tbody>
             <tr className={styles.emptyCell}>
               <td colSpan={colCount}>{empty}</td>
             </tr>
-          ) : (
-            sortedRows.map((row, index) => {
-              const id = resolveRowId(row, index)
-              const isSelected = selectedSet.has(id)
-              return (
-                <tr key={id} data-selected={isSelected || undefined}>
-                  {selectable && (
-                    <td className={styles.selectCell}>
-                      <Checkbox aria-label="행 선택" checked={isSelected} onChange={() => toggleRow(id)} />
-                    </td>
-                  )}
-                  {columns.map((col) => (
-                    <td key={col.key} data-align={alignAttr(col.align)}>
-                      {col.render ? col.render(row, index) : String((row as Record<string, unknown>)[col.key])}
-                    </td>
-                  ))}
+          </tbody>
+        ) : (
+          groups.map(({ key, rows: groupRows }, gi) => (
+            <tbody key={key ?? 'rows'}>
+              {key !== null && (
+                <tr data-group-header="true">
+                  <th scope="rowgroup" colSpan={colCount}>
+                    {renderGroupHeader ? renderGroupHeader(key, groupRows) : key}
+                  </th>
                 </tr>
-              )
-            })
-          )}
-        </tbody>
+              )}
+              {groupRows.map((row, posInGroup) =>
+                renderDataRow(row, groupOffsets[gi] + posInGroup, parityOf(posInGroup))
+              )}
+            </tbody>
+          ))
+        )}
         {summaryRows && summaryRows.length > 0 && (
           <tfoot>
             {summaryRows.map((row, rowIndex) => {
