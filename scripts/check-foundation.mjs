@@ -1,8 +1,10 @@
 #!/usr/bin/env node
 // 파운데이션 미러의 무결성을 검사한다.
 //
-//   node scripts/check-foundation.mjs              tamper 검사 (오프라인). 불일치 시 exit 1
-//   node scripts/check-foundation.mjs --upstream   + staleness 확인. 절대 실패하지 않는다
+//   node scripts/check-foundation.mjs                        tamper 검사 (오프라인). 불일치 시 exit 1
+//   node scripts/check-foundation.mjs --upstream             + staleness 확인. 절대 실패하지 않는다
+//   node scripts/check-foundation.mjs --upstream --strict    신선함을 확실히 확인하지 못하면 exit 1 — cron 워크플로용.
+//                                                              기본 모드는 여전히 절대 실패하지 않는다
 //
 // CI 는 파운데이션 repo 에 접근하지 않는다. lock 파일과 디스크만 대조한다.
 import { mkdtempSync, rmSync } from 'node:fs'
@@ -54,6 +56,9 @@ if (problems.length) {
 
   if (process.argv.includes('--upstream')) {
     // ---- staleness: 경고 전용. 네트워크·인증 실패도 통과시킨다. ----
+    // --strict 는 opt-in: 아래 ⚠ 경로에서만 exit 1 로 바꾼다. ✓/ℹ 경로와
+    // --strict 없는 기본 모드는 한 글자도 동작이 달라지지 않는다.
+    const strict = process.argv.includes('--strict')
     const repo = process.env.FOUNDATION_REPO || lock.repo || DEFAULT_REPO
     const ref = process.env.FOUNDATION_REF || lock.ref || DEFAULT_REF
 
@@ -66,6 +71,7 @@ if (problems.length) {
         const remote = git(['ls-remote', repo, ref]).trim().split(/\s+/)[0]
         if (!remote) {
           console.warn(`⚠ 원격 ref '${ref}' 를 찾을 수 없습니다. 업스트림 확인을 건너뜁니다.`)
+          if (strict) process.exitCode = 1
           return
         }
         if (remote === lock.commit) {
@@ -82,13 +88,16 @@ if (problems.length) {
         const short = (s) => s.slice(0, 7)
         if (sha256(upstreamTokens) === lock.files['tokens.css'])
           console.log(`ℹ 파운데이션이 앞서 있으나(${short(lock.commit)} → ${short(remote)}) tokens.css 는 동일합니다 (문서 변경뿐).`)
-        else
+        else {
           console.warn(
             `⚠ 파운데이션의 tokens.css 가 변경되었습니다 (${short(lock.commit)} → ${short(remote)}).\n` +
               '  npm run sync-foundation 실행을 검토하세요.'
           )
+          if (strict) process.exitCode = 1
+        }
       } catch (e) {
         console.warn(`⚠ 업스트림 확인을 건너뜁니다 (네트워크/인증 실패): ${String(e.message).split('\n')[0]}`)
+        if (strict) process.exitCode = 1
       } finally {
         if (tmp) rmSync(tmp, { recursive: true, force: true })
       }

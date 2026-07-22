@@ -1,0 +1,33 @@
+name: upstream
+
+# 파운데이션(tokens.css) staleness 주간 점검 — 이슈 #4.
+# 실패 = 신호다: 스케줄 런 실패 시 GitHub 이 cron 최종 수정자에게 알림을 보낸다.
+# 주의: 리포가 60일간 무활동이면 GitHub 이 스케줄을 자동 비활성화한다.
+on:
+  schedule:
+    - cron: '0 0 * * 1' # 매주 월요일 00:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  # 본 게이트(ci.yml 의 check)와 분리 — 이 잡만 파운데이션 자격증명(FOUNDATION_PAT)을 쓴다.
+  upstream:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '24'
+      - name: 파운데이션 접근 자격 구성
+        env:
+          FOUNDATION_PAT: ${{ secrets.FOUNDATION_PAT }}
+        run: |
+          if [ -z "$FOUNDATION_PAT" ]; then
+            echo "::error::FOUNDATION_PAT secret 이 없습니다 (CREFLEINC/design-system-v2 Contents:Read fine-grained PAT 를 등록하세요)."
+            exit 1
+          fi
+          git config --global url."https://x-access-token:${FOUNDATION_PAT}@github.com/".insteadOf "https://github.com/"
+      # npm ci 불필요 — 스크립트는 node 내장 모듈만 쓴다 (prepare 의 전체 빌드 낭비 방지).
+      - run: node scripts/check-foundation.mjs --upstream --strict

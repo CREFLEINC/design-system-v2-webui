@@ -16,7 +16,7 @@
 //   3) ls-remote 자체가 실패           → mkdtempSync 미호출(비교 대상, 정직하게 표기)
 import { describe, it, expect, afterEach } from 'vitest'
 import { spawnSync, execFileSync } from 'node:child_process'
-import { mkdtempSync, writeFileSync, rmSync, readdirSync } from 'node:fs'
+import { mkdtempSync, writeFileSync, rmSync, readdirSync, readFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { ROOT, MIRROR_DIR, verifyMirror } from './foundation-lock.mjs'
@@ -43,13 +43,14 @@ function makeRemoteRepo(files) {
   return dir
 }
 
-function runUpstream(repoDir) {
+// extraArgs 는 기본 빈 배열 — 기존 호출부(runUpstream(remote))는 동작 불변.
+function runUpstream(repoDir, extraArgs = []) {
   const env = {
     ...process.env,
     FOUNDATION_REPO: `file://${repoDir}`,
     FOUNDATION_REF: 'main'
   }
-  return spawnSync(process.execPath, [SCRIPT, '--upstream'], { encoding: 'utf8', env })
+  return spawnSync(process.execPath, [SCRIPT, '--upstream', ...extraArgs], { encoding: 'utf8', env })
 }
 
 let remoteDirs = []
@@ -127,5 +128,47 @@ describe('check-foundation --upstream: 임시 디렉토리 정리', () => {
     // mkdtempSync 가 애초에 호출되지 않으므로 이 단언은 자명하게 참이다(공허함을 인지하고 남긴다).
     const leaked = [...tmpEntries()].filter((name) => !before.has(name))
     expect(leaked).toEqual([])
+  })
+})
+
+// --strict 는 opt-in: 위 세 케이스(--upstream 단독)의 ⚠ 경로에서만 exit 1 로 바꾼다.
+// ✓/ℹ 경로와 --strict 없는 기본 모드는 동작이 달라지지 않는다 (위 describe 가 그 회귀 방어막).
+describe('check-foundation --upstream --strict: exit code', () => {
+  it('tokens.css 드리프트 시 --strict 는 exit 1 이며 변경 메시지를 담는다', () => {
+    const remote = makeRemoteRepo({ 'tokens.css': ':root { --crefle-fixture-strict-differs: 1; }\n' })
+    remoteDirs.push(remote)
+
+    const result = runUpstream(remote, ['--strict'])
+    const output = result.stdout + result.stderr
+
+    expect(result.status).toBe(1)
+    expect(output).toContain('tokens.css 가 변경되었습니다')
+  })
+
+  it('원격 ref 를 찾을 수 없으면(ls-remote 실패) --strict 는 exit 1 이다', () => {
+    const env = {
+      ...process.env,
+      FOUNDATION_REPO: 'file:///nonexistent-crefle-upstream-repo',
+      FOUNDATION_REF: 'main'
+    }
+
+    const result = spawnSync(process.execPath, [SCRIPT, '--upstream', '--strict'], { encoding: 'utf8', env })
+
+    expect(result.status).toBe(1)
+    expect(result.stdout + result.stderr).toContain('업스트림 확인을 건너뜁니다')
+  })
+
+  it('원격이 앞서 있으나 tokens.css 가 동일하면 --strict 도 exit 0 이다', () => {
+    // 실제 미러의 tokens.css 를 그대로 커밋한다 — 커밋 SHA 는 lock.commit 과 다를
+    // 수밖에 없으므로(새 저장소) ls-remote → commit 비교를 지나 ℹ 경로에 확실히 도달한다.
+    const currentTokens = readFileSync(join(MIRROR_DIR, 'tokens.css'))
+    const remote = makeRemoteRepo({ 'tokens.css': currentTokens })
+    remoteDirs.push(remote)
+
+    const result = runUpstream(remote, ['--strict'])
+    const output = result.stdout + result.stderr
+
+    expect(result.status).toBe(0)
+    expect(output).toContain('tokens.css 는 동일합니다')
   })
 })
