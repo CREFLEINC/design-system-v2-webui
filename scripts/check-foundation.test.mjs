@@ -16,10 +16,10 @@
 //   3) ls-remote 자체가 실패           → mkdtempSync 미호출(비교 대상, 정직하게 표기)
 import { describe, it, expect, afterEach } from 'vitest'
 import { spawnSync, execFileSync } from 'node:child_process'
-import { mkdtempSync, writeFileSync, rmSync, readdirSync, readFileSync } from 'node:fs'
+import { mkdtempSync, mkdirSync, writeFileSync, rmSync, readdirSync, readFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
-import { join } from 'node:path'
-import { ROOT, MIRROR_DIR, verifyMirror } from './foundation-lock.mjs'
+import { join, dirname } from 'node:path'
+import { ROOT, MIRROR_DIR, verifyMirror, verifyAgainstUpstream, sha256 } from './foundation-lock.mjs'
 
 const TMP_PREFIX = 'crefle-upstream-' // check-foundation.mjs 의 mkdtempSync 접두어와 동일해야 한다.
 const SCRIPT = join(ROOT, 'scripts', 'check-foundation.mjs')
@@ -34,14 +34,25 @@ const git = (args) => execFileSync('git', args, { encoding: 'utf8', stdio: ['ign
 // tokens.css(또는 다른 파일) 하나를 커밋한 로컬 git 저장소를 만들어 원격처럼 쓴다.
 // 접두어를 TMP_PREFIX 와 다르게 둬서(crefle-fixture-remote-) leaked-dir 판정에서
 // 픽스처 자신이 오검출되지 않게 한다.
+// files 의 키는 POSIX 경로이며 중첩 디렉토리(ds-bundle/fonts/…)를 지원한다.
 function makeRemoteRepo(files) {
   const dir = mkdtempSync(join(tmpdir(), 'crefle-fixture-remote-'))
   git(['init', '--quiet', '-b', 'main', dir])
-  for (const [rel, content] of Object.entries(files)) writeFileSync(join(dir, rel), content)
+  // verifyAgainstUpstream 은 lock.commit(SHA) 을 직접 fetch 한다. file:// 원격은 임의 SHA
+  // fetch 를 기본 거부하므로, reachable SHA fetch 를 명시적으로 허용한다(GitHub 는 기본 허용 — 분석가 실증).
+  // ref(main) 기반 fetch 를 쓰는 기존 --upstream 테스트에는 영향이 없다.
+  git(['-C', dir, 'config', 'uploadpack.allowReachableSHA1InWant', 'true'])
+  for (const [rel, content] of Object.entries(files)) {
+    const abs = join(dir, ...rel.split('/'))
+    mkdirSync(dirname(abs), { recursive: true })
+    writeFileSync(abs, content)
+  }
   git(['-C', dir, 'add', '-A'])
   git(['-C', dir, '-c', 'user.email=test@test.invalid', '-c', 'user.name=test', 'commit', '--quiet', '-m', 'fixture'])
   return dir
 }
+
+const headCommit = (dir) => git(['-C', dir, 'rev-parse', 'HEAD']).trim()
 
 // extraArgs 는 기본 빈 배열 — 기존 호출부(runUpstream(remote))는 동작 불변.
 function runUpstream(repoDir, extraArgs = []) {
@@ -170,5 +181,100 @@ describe('check-foundation --upstream --strict: exit code', () => {
 
     expect(result.status).toBe(0)
     expect(output).toContain('tokens.css 는 동일합니다')
+  })
+})
+
+// ── verifyAgainstUpstream (신뢰 루트 대조, fail-closed) ──────────────────────────
+// 스크립트가 아니라 함수를 직접 호출한다 — lock 을 손으로 만들어 주입한다(스크립트의
+// MIRROR_DIR 은 고정이므로 함수 단위로만 위조 시나리오를 재현할 수 있다).
+// upstream 픽스처는 파운데이션 리포 레이아웃(tokens.css 루트 + ds-bundle/fonts/*.woff2)을 흉내낸다.
+describe('verifyAgainstUpstream (함수 단위, file:// 픽스처)', () => {
+  const TOKENS = ':root { --crefle-verify-fixture: 1; }\n'
+  const FONT_A = Buffer.from('woff2-A-bytes-for-verify')
+
+  // 픽스처를 만들고 remoteDirs 에 등록한다(afterEach 가 정리).
+  function upstreamFixture() {
+    const dir = makeRemoteRepo({ 'tokens.css': TOKENS, 'ds-bundle/fonts/A.woff2': FONT_A })
+    remoteDirs.push(dir)
+    return dir
+  }
+
+  // 픽스처와 정확히 일치하는 lock 객체.
+  function lockMatching(dir) {
+    return {
+      repo: `file://${dir}`,
+      ref: 'main',
+      commit: headCommit(dir),
+      files: { 'tokens.css': sha256(TOKENS), 'fonts/A.woff2': sha256(FONT_A) }
+    }
+  }
+
+  it('(a) 정상 lock ↔ 픽스처 일치 → 빈 problems', () => {
+    const dir = upstreamFixture()
+    expect(verifyAgainstUpstream(lockMatching(dir), { repo: `file://${dir}` })).toEqual([])
+  })
+
+  it('(b) 해시 위조(tokens.css) → 해시 불일치 보고', () => {
+    const dir = upstreamFixture()
+    const lock = lockMatching(dir)
+    lock.files['tokens.css'] = sha256('forged-tokens-content')
+    const problems = verifyAgainstUpstream(lock, { repo: `file://${dir}` })
+    expect(problems.some((p) => p.includes('해시 불일치') && p.includes('tokens.css'))).toBe(true)
+  })
+
+  it('(c) 존재하지 않는 commit SHA → 커밋 미존재(fetch 실패) 보고', () => {
+    const dir = upstreamFixture()
+    const lock = lockMatching(dir)
+    lock.commit = '0123456789abcdef0123456789abcdef01234567' // reachable 하지 않은 SHA
+    const problems = verifyAgainstUpstream(lock, { repo: `file://${dir}` })
+    expect(problems.some((p) => p.includes('가져올 수 없습니다') && p.includes('sync-foundation'))).toBe(true)
+  })
+
+  it('(d) lock 에서 파일 삭제(집합 불일치) → 보고', () => {
+    const dir = upstreamFixture()
+    const lock = lockMatching(dir)
+    delete lock.files['fonts/A.woff2'] // 폰트 항목을 몰래 제거해 위조를 숨긴다
+    const problems = verifyAgainstUpstream(lock, { repo: `file://${dir}` })
+    expect(problems.some((p) => p.includes('집합 불일치') && p.includes('fonts/A.woff2'))).toBe(true)
+  })
+
+  it('(e) 원격 접근 불가(없는 경로) → 인증/네트워크 실패 보고 (fail-closed)', () => {
+    const lock = { repo: 'file:///no', ref: 'main', commit: 'a'.repeat(40), files: { 'tokens.css': sha256(TOKENS) } }
+    const problems = verifyAgainstUpstream(lock, { repo: 'file:///nonexistent-crefle-verify-fixture' })
+    expect(problems.some((p) => p.includes('업스트림 접근 실패'))).toBe(true)
+  })
+
+  it('(f) lock 에 upstream 에 없는 파일이 있으면 집합 불일치(반입 위조)로 잡는다', () => {
+    const dir = upstreamFixture()
+    const lock = lockMatching(dir)
+    lock.files['fonts/ROGUE.woff2'] = sha256('rogue')
+    const problems = verifyAgainstUpstream(lock, { repo: `file://${dir}` })
+    expect(problems.some((p) => p.includes('집합 불일치') && p.includes('fonts/ROGUE.woff2'))).toBe(true)
+  })
+})
+
+// ── 스크립트 배선(exit code) ─────────────────────────────────────────────────
+// 스크립트는 실제 미러의 고정 lock 을 읽으므로 "통과" 경로는 실 upstream 으로만 재현 가능하다
+// (라이브 자가 검증에서 별도 확인). 여기서는 fail-closed 배선을 spawnSync 로 증명한다:
+// 오프라인 검사는 통과하지만 원격 접근이 불가하면 exit 1 로 끝나야 한다.
+describe('check-foundation --verify-upstream: 스크립트 배선', () => {
+  it('원격 접근 불가 시 오프라인 검사 통과 후 fail-closed 로 exit 1 이다', () => {
+    // 실제 미러가 clean 해야 오프라인 검사를 통과해 verify 분기에 도달한다.
+    expect(verifyMirror(MIRROR_DIR).problems).toEqual([])
+
+    const env = {
+      ...process.env,
+      FOUNDATION_REPO: 'file:///nonexistent-crefle-verify-wiring',
+      GIT_TERMINAL_PROMPT: '0'
+    }
+    const result = spawnSync(process.execPath, [SCRIPT, '--verify-upstream'], { encoding: 'utf8', env })
+    const output = result.stdout + result.stderr
+
+    expect(result.status).toBe(1)
+    expect(output).toContain('✓ 파운데이션 미러 무결성 OK') // 오프라인 검사는 통과했다
+    expect(output).toContain('업스트림 신뢰 루트 대조 실패') // verify 가 실행되어 fail-closed 로 실패했다
+
+    // verify 분기는 원격을 fetch 만 할 뿐 로컬 미러에는 절대 쓰지 않는다.
+    expect(verifyMirror(MIRROR_DIR).problems).toEqual([])
   })
 })

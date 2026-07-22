@@ -31,3 +31,6 @@ jobs:
           git config --global url."https://x-access-token:${FOUNDATION_PAT}@github.com/".insteadOf "https://github.com/"
       # npm ci 불필요 — 스크립트는 node 내장 모듈만 쓴다 (prepare 의 전체 빌드 낭비 방지).
       - run: node scripts/check-foundation.mjs --upstream --strict
+      # 주간 사후 위조 감사 — PR CI(ci.yml 의 check job)를 우회한 변조의 백스톱.
+      # 위 스텝과 같은 PAT 구성을 재사용한다.
+      - run: node scripts/check-foundation.mjs --verify-upstream

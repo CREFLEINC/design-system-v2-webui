@@ -2,11 +2,16 @@
 // 파운데이션 미러의 무결성을 검사한다.
 //
 //   node scripts/check-foundation.mjs                        tamper 검사 (오프라인). 불일치 시 exit 1
-//   node scripts/check-foundation.mjs --upstream             + staleness 확인. 절대 실패하지 않는다
+//   node scripts/check-foundation.mjs --upstream             + staleness 확인. 절대 실패하지 않는다 (fail-open)
 //   node scripts/check-foundation.mjs --upstream --strict    신선함을 확실히 확인하지 못하면 exit 1 — cron 워크플로용.
 //                                                              기본 모드는 여전히 절대 실패하지 않는다
+//   node scripts/check-foundation.mjs --verify-upstream      오프라인 검사 통과 후, lock 을 파운데이션 원본(@lock.commit)과
+//                                                              전수 대조한다. 검증 불가(네트워크·인증·커밋 미존재)를 포함해
+//                                                              모든 실패가 exit 1 — --upstream 과 정반대의 fail-closed 계약이다.
+//                                                              (신뢰 루트를 lock → 파운데이션 리포로 옮겨 같은-PR 위조를 잡는다.)
 //
-// CI 는 파운데이션 repo 에 접근하지 않는다. lock 파일과 디스크만 대조한다.
+// 기본·--upstream 모드는 파운데이션 repo 에 접근하지 않는다 (lock 파일과 디스크만 대조).
+// --verify-upstream 만 예외적으로 원격에 접근한다 — CI 에서는 foundation 변경 PR 에 한해 실행한다.
 import { mkdtempSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
@@ -17,6 +22,7 @@ import {
   DEFAULT_REF,
   verifyMirror,
   verifyBundleFonts,
+  verifyAgainstUpstream,
   listMirrorFiles,
   sha256,
   git as execGit,
@@ -104,5 +110,30 @@ if (problems.length) {
     }
 
     checkUpstream()
+  }
+
+  if (process.argv.includes('--verify-upstream')) {
+    // ---- 신뢰 루트 대조: fail-closed. --upstream 과 달리 검증을 완료하지 못하면 실패시킨다. ----
+    // verifyAgainstUpstream 은 모든 실패(네트워크·인증·커밋 미존재·집합/해시 불일치)를
+    // problems 로 담고 예외를 스스로 흡수한다. 그래도 혹시 새는 예외까지 fail-closed 로 처리한다.
+    const repo = process.env.FOUNDATION_REPO || lock.repo || DEFAULT_REPO
+    let verifyProblems
+    try {
+      verifyProblems = verifyAgainstUpstream(lock, { repo })
+    } catch (e) {
+      console.error('✗ 업스트림 신뢰 루트 대조 실패 (예기치 못한 오류 — fail-closed)\n')
+      console.error('  - ' + String(e.message).split('\n')[0])
+      process.exitCode = 1
+      verifyProblems = null
+    }
+
+    if (verifyProblems && verifyProblems.length) {
+      console.error('✗ 업스트림 신뢰 루트 대조 실패 — 웹UI 미러가 파운데이션 원본과 다릅니다\n')
+      for (const p of verifyProblems) console.error('  - ' + p)
+      console.error(FIX)
+      process.exitCode = 1
+    } else if (verifyProblems) {
+      console.log(`✓ upstream 대조 OK — ${Object.keys(lock.files).length}개 파일 @ ${lock.commit.slice(0, 7)}`)
+    }
   }
 }

@@ -16,20 +16,19 @@ import {
   LOCK_NAME,
   DEFAULT_REPO,
   DEFAULT_REF,
+  FONT_DIR_IN_SOURCE,
   sha256,
   listMirrorFiles,
   isAllowed,
   writeBundleFonts,
-  git,
-  gitBuf
+  openRemoteSource,
+  git
 } from './foundation-lock.mjs'
 
 const allowDirty = process.argv.includes('--allow-dirty')
 const repo = process.env.FOUNDATION_REPO || DEFAULT_REPO
 const ref = process.env.FOUNDATION_REF || DEFAULT_REF
 const localDir = process.env.FOUNDATION_DIR
-
-const FONT_DIR_IN_SOURCE = 'ds-bundle/fonts'
 
 // die() 는 process.exit 를 직접 호출하지 않는다 — process.exit 은 감싸고 있는
 // finally 블록(임시 디렉토리 정리)을 건너뛰기 때문이다. 대신 이 타입을 던지고,
@@ -67,35 +66,18 @@ function openLocalSource(dir) {
   }
 }
 
-function openRemoteSource(tmp) {
-  // working tree 를 만들지 않는다. fetch 후 `git show` 로 blob 만 꺼낸다.
-  // 이 방식은 브랜치·태그·전체 SHA 를 모두 지원한다.
-  git(['init', '--quiet', tmp])
-  git(['-C', tmp, 'remote', 'add', 'origin', repo])
-  try {
-    git(['-C', tmp, 'fetch', '--quiet', '--depth', '1', '--filter=blob:none', 'origin', ref], {
-      stdio: ['ignore', 'ignore', 'pipe']
-    })
-  } catch (e) {
-    die(`파운데이션을 가져오지 못했습니다 (repo=${repo}, ref=${ref}).\n${String(e.stderr || e.message).trim()}`)
-  }
-  const commit = git(['-C', tmp, 'rev-parse', 'FETCH_HEAD']).trim()
-  return {
-    commit,
-    dirty: false,
-    read: (p) => gitBuf(['-C', tmp, 'show', `FETCH_HEAD:${p}`]),
-    listFonts: () =>
-      git(['-C', tmp, 'ls-tree', '--name-only', 'FETCH_HEAD', `${FONT_DIR_IN_SOURCE}/`])
-        .trim()
-        .split('\n')
-        .filter((p) => p.endsWith('.woff2'))
-  }
-}
-
 let tmp
 try {
   try {
-    const src = localDir ? openLocalSource(localDir) : openRemoteSource((tmp = mkdtempSync(join(tmpdir(), 'crefle-foundation-'))))
+    const src = localDir
+      ? openLocalSource(localDir)
+      : openRemoteSource((tmp = mkdtempSync(join(tmpdir(), 'crefle-foundation-'))), {
+          repo,
+          ref,
+          // fetch 실패 시 sync 의 die() 로 위임 — 임시 디렉토리를 정리한 뒤 ✗ 메시지 + exit 1 (동작 불변).
+          onFetchError: (e) =>
+            die(`파운데이션을 가져오지 못했습니다 (repo=${repo}, ref=${ref}).\n${String(e.stderr || e.message).trim()}`)
+        })
     console.log(`파운데이션 소스: ${localDir ? localDir : `${repo} @ ${ref}`}  (${src.commit.slice(0, 7)}${src.dirty ? ', dirty' : ''})`)
 
     const before = new Map(
