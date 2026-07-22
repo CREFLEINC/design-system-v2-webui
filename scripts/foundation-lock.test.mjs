@@ -3,7 +3,7 @@ import { describe, it, expect, afterEach } from 'vitest'
 import { mkdtempSync, mkdirSync, writeFileSync, rmSync, unlinkSync, appendFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { verifyMirror, sha256, LOCK_NAME } from './foundation-lock.mjs'
+import { verifyMirror, sha256, LOCK_NAME, listMirrorFiles } from './foundation-lock.mjs'
 
 const TOKENS = ':root { --primary: #C9252C; }\n'
 const FONT = Buffer.from('woff2-stub-bytes')
@@ -95,5 +95,44 @@ describe('verifyMirror', () => {
     writeFileSync(join(dir, 'fonts', 'LICENSE-MaterialSymbols.txt'), 'Apache-2.0')
     const { problems } = verifyMirror(dir)
     expect(problems).toEqual([])
+  })
+
+  it('lock 에 files 필드가 없으면 실패한다', () => {
+    setup()
+    writeFileSync(
+      join(dir, LOCK_NAME),
+      JSON.stringify(
+        {
+          repo: 'https://example.invalid/repo.git',
+          ref: 'main',
+          commit: 'a'.repeat(40),
+          syncedAt: '2026-07-09T00:00:00Z'
+        },
+        null,
+        2
+      )
+    )
+    const { lock, problems } = verifyMirror(dir)
+    expect(lock).toBeNull()
+    expect(problems).toHaveLength(1)
+    expect(problems[0]).toContain('files')
+  })
+})
+
+describe('listMirrorFiles', () => {
+  let listDir
+
+  afterEach(() => {
+    if (listDir) rmSync(listDir, { recursive: true, force: true })
+    listDir = undefined
+  })
+
+  it('디렉토리명이 형제 파일명의 접두사여도 최종 상대경로 기준 사전순으로 정렬한다', () => {
+    listDir = mkdtempSync(join(tmpdir(), 'crefle-listmirror-'))
+    mkdirSync(join(listDir, 'a'))
+    writeFileSync(join(listDir, 'a', 'inner.css'), '')
+    writeFileSync(join(listDir, 'a.css'), '')
+
+    expect(listMirrorFiles(listDir)).toEqual(['a.css', 'a/inner.css'])
   })
 })

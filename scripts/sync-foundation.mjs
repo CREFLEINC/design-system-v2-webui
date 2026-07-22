@@ -7,11 +7,10 @@
 //   FOUNDATION_DIR=../foundation npm run sync-foundation 로컬 체크아웃에서 (동시 작업용)
 //
 // 미러 파일의 내용은 절대 수정하지 않는다 (배너 주입 금지).
-import { execFileSync } from 'node:child_process'
 import { mkdtempSync, mkdirSync, rmSync, writeFileSync, readFileSync, existsSync, unlinkSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { MIRROR_DIR, LOCK_NAME, DEFAULT_REPO, DEFAULT_REF, sha256, listMirrorFiles, isAllowed } from './foundation-lock.mjs'
+import { MIRROR_DIR, LOCK_NAME, DEFAULT_REPO, DEFAULT_REF, sha256, listMirrorFiles, isAllowed, git, gitBuf } from './foundation-lock.mjs'
 
 const allowDirty = process.argv.includes('--allow-dirty')
 const repo = process.env.FOUNDATION_REPO || DEFAULT_REPO
@@ -19,9 +18,6 @@ const ref = process.env.FOUNDATION_REF || DEFAULT_REF
 const localDir = process.env.FOUNDATION_DIR
 
 const FONT_DIR_IN_SOURCE = 'ds-bundle/fonts'
-
-const git = (args, opts = {}) => execFileSync('git', args, { encoding: 'utf8', ...opts })
-const gitBuf = (args) => execFileSync('git', args, { maxBuffer: 64 * 1024 * 1024 })
 
 // die() 는 process.exit 를 직접 호출하지 않는다 — process.exit 은 감싸고 있는
 // finally 블록(임시 디렉토리 정리)을 건너뛰기 때문이다. 대신 이 타입을 던지고,

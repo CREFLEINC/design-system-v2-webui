@@ -29,7 +29,7 @@ function tmpEntries() {
   return new Set(readdirSync(tmpdir()).filter((name) => name.startsWith(TMP_PREFIX)))
 }
 
-const git = (args) => execFileSync('git', args, { encoding: 'utf8' })
+const git = (args) => execFileSync('git', args, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] })
 
 // tokens.css(또는 다른 파일) 하나를 커밋한 로컬 git 저장소를 만들어 원격처럼 쓴다.
 // 접두어를 TMP_PREFIX 와 다르게 둬서(crefle-fixture-remote-) leaked-dir 판정에서

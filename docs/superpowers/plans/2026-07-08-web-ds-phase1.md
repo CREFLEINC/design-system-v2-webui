@@ -11,7 +11,7 @@
 **전체 페이즈 로드맵** (이 문서는 Phase 1만):
 - Phase 1(이 계획): 스캐폴드 + styles + Icon/ThemeProvider/Button + 품질 도구
 - Phase 2: Tier 1 나머지 11종 / Phase 3: Tier 2 10종 / Phase 4: Tier 3 + 데모 대시보드 / Phase 5: Claude Design "CREFLE Web UI" 동기화
-- 스펙: 파운데이션 repo `docs/superpowers/specs/2026-07-08-web-frontend-ds-design.md`
+- 스펙: 이 repo `docs/superpowers/specs/2026-07-08-web-frontend-ds-design.md`
 
 ## Global Constraints
 

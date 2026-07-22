@@ -1,6 +1,7 @@
 // 파운데이션 미러(styles/foundation/)의 무결성 계약.
 // sync-foundation.mjs 가 lock 을 쓰고, check-foundation.mjs 가 lock 을 검증한다.
-// 여기에는 순수 로직만 둔다 — 네트워크도 프로세스도 없다.
+// import 시 부수효과 없음 — 프로세스 실행은 아래 git 헬퍼 호출 시에만 일어난다.
+import { execFileSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
 import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs'
 import { join, relative, sep, dirname } from 'node:path'
@@ -11,6 +12,10 @@ export const MIRROR_DIR = join(ROOT, 'styles', 'foundation')
 export const LOCK_NAME = 'foundation.lock.json'
 export const DEFAULT_REPO = 'https://github.com/CREFLEINC/design-system-v2.git'
 export const DEFAULT_REF = 'main'
+
+// git 헬퍼 — sync/check 스크립트가 공유. 호출 시에만 프로세스 실행, import 부수효과 없음.
+export const git = (args, opts = {}) => execFileSync('git', args, { encoding: 'utf8', ...opts })
+export const gitBuf = (args, opts = {}) => execFileSync('git', args, { maxBuffer: 64 * 1024 * 1024, ...opts })
 
 // lock 의 files 에 등재되지 않아도 미러 디렉토리에 존재해도 되는 파일들.
 // 파운데이션에서 동기화된 것이 아니라 이 repo 가 소유하는 파일이다.
@@ -24,14 +29,14 @@ export const hashFile = (abs) => sha256(readFileSync(abs))
 export function listMirrorFiles(dir) {
   const out = []
   const walk = (d) => {
-    for (const name of readdirSync(d).sort()) {
+    for (const name of readdirSync(d)) {
       const p = join(d, name)
       if (statSync(p).isDirectory()) walk(p)
       else out.push(relative(dir, p).split(sep).join('/'))
     }
   }
   if (existsSync(dir)) walk(dir)
-  return out
+  return out.sort()
 }
 
 // lock 과 디스크를 대조한다. 문제가 없으면 problems 는 빈 배열.
