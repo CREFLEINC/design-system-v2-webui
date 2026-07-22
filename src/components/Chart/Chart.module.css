@@ -121,6 +121,14 @@
 .s4 { --series-color: var(--chart-4); }
 .s5 { --series-color: var(--chart-5); }
 
+/* -------- 축 고정 기준선(referenceLines): 톤은 --ref-color만 참조 -------- */
+.refLine { stroke: var(--ref-color); }
+.refLabel { font: var(--type-label-sm); letter-spacing: var(--type-label-sm-tracking); fill: var(--ref-color); }
+.ref-error { --ref-color: var(--semantic-error); }
+.ref-warning { --ref-color: var(--semantic-warning); }
+.ref-info { --ref-color: var(--semantic-info); }
+.ref-neutral { --ref-color: var(--on-surface-muted); }
+
 /* -------- 마크 -------- */
 .line {
   stroke: var(--series-color);

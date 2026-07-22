@@ -54,6 +54,22 @@ export interface Domain {
   max: number
 }
 
+export type ReferenceLineTone = 'error' | 'warning' | 'info' | 'neutral'
+
+export interface ReferenceLine {
+  /** axis 'y'(기본): y 도메인 값. axis 'x': 0-based 카테고리 인덱스(소수 허용). */
+  value: number
+  axis?: 'x' | 'y'                 // 기본 'y'
+  label?: ReactNode
+  style?: 'solid' | 'dashed'       // 기본 'dashed'
+  tone?: ReferenceLineTone         // 기본 'neutral'
+}
+
+/** 기준선 <line> 공통 stroke-width(px). Gauge/POINT_RADIUS와 동일하게 TSX 상수로만 존재. */
+export const REF_LINE_WIDTH = 1.5
+/** 기준선 dashed 스타일의 SVG strokeDasharray 속성값. */
+export const REF_DASH = '6 4'
+
 /** bar: [0, dataMax] / line: [min(0,dataMin), dataMax]. min/max prop이 있으면 그대로 우선. */
 export function resolveDomain(
   series: ChartSeries[],
@@ -100,6 +116,15 @@ export function summarizePie(data: ChartPoint[], formatValue: (v: number) => str
   if (title) parts.push(title + ':')
   parts.push(data.map((p) => `${p.label} ${formatValue(p.value)}`).join(', '))
   return parts.join(' ')
+}
+
+/** 기준선 목록 → aria 요약 접미 문자열. 빈 배열이면 ''. label이 문자열이면 "라벨(값)", 아니면 값만. */
+export function summarizeReferenceLines(lines: ReferenceLine[], formatValue: (v: number) => string): string {
+  if (lines.length === 0) return ''
+  const items = lines.map((l) =>
+    typeof l.label === 'string' ? `${l.label}(${formatValue(l.value)})` : formatValue(l.value)
+  )
+  return '기준선: ' + items.join(', ')
 }
 
 /** SR 전용 <table> — display:none 대신 클립(styles.srOnly)으로 접근성 트리 유지. */

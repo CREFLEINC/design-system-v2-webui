@@ -4,6 +4,7 @@ import { LineChart } from './LineChart'
 import { BarChart } from './BarChart'
 import { PieChart } from './PieChart'
 import { Chart } from './Chart'
+import styles from './Chart.module.css'
 
 test('LineChart polyline + point count + aria summary', () => {
   const { container } = render(
@@ -130,4 +131,79 @@ test('ariaLabel overrides the auto-generated summary', () => {
       series={[{ name: 's', data: [{ label: 'A', value: 1 }, { label: 'B', value: 2 }] }]} />
   )
   expect(screen.getByRole('img', { name: '맞춤 요약' })).toBeInTheDocument()
+})
+
+test('LineChart referenceLines: y축 위치+라벨+기본 dashed', () => {
+  const { container } = render(
+    <LineChart min={0} max={40} referenceLines={[{ value: 28, label: '상한 28' }]}
+      series={[{ name: 's', data: [{ label: 'A', value: 10 }, { label: 'B', value: 20 }] }]} />
+  )
+  const lines = container.querySelectorAll('[data-chart-refline]')
+  expect(lines.length).toBe(1)
+  const line = lines[0]
+  expect(line.getAttribute('y1')).toBe(line.getAttribute('y2'))
+  expect(parseFloat(line.getAttribute('y1') || '0')).toBeCloseTo(97.6)
+  expect(line.getAttribute('stroke-dasharray')).toBeTruthy()
+  expect(screen.getByText('상한 28')).toBeInTheDocument()
+})
+
+test('LineChart referenceLines: 여러 기준선 + 도메인 밖 skip + solid', () => {
+  const { container } = render(
+    <LineChart min={0} max={40}
+      referenceLines={[{ value: 28 }, { value: 100 }, { value: 10, style: 'solid' }]}
+      series={[{ name: 's', data: [{ label: 'A', value: 10 }, { label: 'B', value: 20 }] }]} />
+  )
+  const lines = container.querySelectorAll('[data-chart-refline]')
+  expect(lines.length).toBe(2)
+  const solidLine = Array.from(lines).find((l) => l.getAttribute('data-value') === '10')
+  expect(solidLine).toBeTruthy()
+  expect(solidLine?.getAttribute('stroke-dasharray')).toBeFalsy()
+})
+
+test('LineChart referenceLines: 톤 클래스', () => {
+  const { container } = render(
+    <LineChart min={0} max={40}
+      referenceLines={[{ value: 10, tone: 'error' }, { value: 20 }]}
+      series={[{ name: 's', data: [{ label: 'A', value: 10 }, { label: 'B', value: 20 }] }]} />
+  )
+  const lines = container.querySelectorAll('[data-chart-refline]')
+  const errorGroup = lines[0].closest('g')
+  const neutralGroup = lines[1].closest('g')
+  expect(errorGroup?.getAttribute('class')).toContain(styles['ref-error'])
+  expect(neutralGroup?.getAttribute('class')).toContain(styles['ref-neutral'])
+})
+
+test('LineChart referenceLines: x축 세로 기준선', () => {
+  const { container } = render(
+    <LineChart referenceLines={[{ axis: 'x', value: 1 }]}
+      series={[{ name: 's', data: [
+        { label: 'A', value: 10 },
+        { label: 'B', value: 20 },
+        { label: 'C', value: 30 },
+      ] }]} />
+  )
+  const lines = container.querySelectorAll('[data-chart-refline]')
+  expect(lines.length).toBe(1)
+  const line = lines[0]
+  expect(line.getAttribute('x1')).toBe(line.getAttribute('x2'))
+  expect(parseFloat(line.getAttribute('x1') || '0')).toBeCloseTo(332)
+})
+
+test('LineChart referenceLines: aria 요약에 기준선 포함', () => {
+  render(
+    <LineChart min={0} max={40} formatValue={(v) => `${v}%`}
+      referenceLines={[{ value: 28, label: '상한' }]}
+      series={[{ name: 's', data: [{ label: 'A', value: 10 }, { label: 'B', value: 20 }] }]} />
+  )
+  const img = screen.getByRole('img')
+  const label = img.getAttribute('aria-label') ?? ''
+  expect(label).toContain('기준선: 상한(28%)')
+})
+
+test('Chart type="line" 경유에서도 referenceLines가 렌더된다', () => {
+  const { container } = render(
+    <Chart type="line" min={0} max={40} referenceLines={[{ value: 28 }]}
+      series={[{ name: 's', data: [{ label: 'A', value: 10 }, { label: 'B', value: 20 }] }]} />
+  )
+  expect(container.querySelectorAll('[data-chart-refline]').length).toBe(1)
 })

@@ -6,17 +6,21 @@ import {
   PADDING,
   POINT_RADIUS,
   DEFAULT_Y_TICKS,
+  REF_LINE_WIDTH,
+  REF_DASH,
   defaultFormatValue,
   resolveDomain,
   xToPx,
   yToPx,
   summarize,
+  summarizeReferenceLines,
   buildSrRows,
   buildLegendItems,
   seriesClassIndex,
   seriesColorStyle,
   type ChartBaseProps,
   type ChartSeries,
+  type ReferenceLine,
 } from './Chart.shared'
 import { ChartFrame, SrDataTable } from './ChartFrame'
 import styles from './Chart.module.css'
@@ -35,6 +39,8 @@ export interface LineChartProps extends CartesianSharedProps {
   area?: boolean
   /** 각 포인트에 원 마커 */
   showPoints?: boolean
+  /** 축 고정 기준선. axis:'x'의 value는 0-based 카테고리 인덱스(소수 허용). */
+  referenceLines?: ReferenceLine[]
 }
 
 export const LineChart = forwardRef<HTMLElement, LineChartProps>(function LineChart(
@@ -54,6 +60,7 @@ export const LineChart = forwardRef<HTMLElement, LineChartProps>(function LineCh
     showGrid = true,
     area = false,
     showPoints = false,
+    referenceLines,
     className,
     ...rest
   },
@@ -78,7 +85,17 @@ export const LineChart = forwardRef<HTMLElement, LineChartProps>(function LineCh
     return { value, y }
   })
 
-  const ariaLabelResolved = ariaLabel ?? summarize(series, formatValue, title)
+  const visibleReferenceLines = (referenceLines ?? []).filter((rl) =>
+    (rl.axis ?? 'y') === 'x'
+      ? rl.value >= 0 && rl.value <= n - 1
+      : rl.value >= domain.min && rl.value <= domain.max
+  )
+
+  const ariaLabelResolved =
+    ariaLabel ??
+    [summarize(series, formatValue, title), summarizeReferenceLines(visibleReferenceLines, formatValue)]
+      .filter(Boolean)
+      .join(' ')
   const legendItems = buildLegendItems(series)
   const srRows = buildSrRows(series, formatValue)
 
@@ -185,6 +202,62 @@ export const LineChart = forwardRef<HTMLElement, LineChartProps>(function LineCh
               </g>
             )
           })}
+
+          {visibleReferenceLines.length > 0 && (
+            <g aria-hidden="true">
+              {visibleReferenceLines.map((rl, i) => {
+                const axis = rl.axis ?? 'y'
+                const tone = rl.tone ?? 'neutral'
+                const dashed = (rl.style ?? 'dashed') !== 'solid'
+                if (axis === 'x') {
+                  const x = xToPx(rl.value, n, plotLeft, plotW)
+                  return (
+                    <g key={i} className={styles['ref-' + tone]}>
+                      <line
+                        className={styles.refLine}
+                        data-chart-refline
+                        data-axis="x"
+                        data-value={rl.value}
+                        x1={x}
+                        x2={x}
+                        y1={plotTop}
+                        y2={plotBottom}
+                        strokeWidth={REF_LINE_WIDTH}
+                        {...(dashed ? { strokeDasharray: REF_DASH } : {})}
+                      />
+                      {rl.label && (
+                        <text className={styles.refLabel} x={x + 4} y={plotTop + 12} textAnchor="start">
+                          {rl.label}
+                        </text>
+                      )}
+                    </g>
+                  )
+                }
+                const y = yToPx(rl.value, domain, plotTop, plotBottom)
+                return (
+                  <g key={i} className={styles['ref-' + tone]}>
+                    <line
+                      className={styles.refLine}
+                      data-chart-refline
+                      data-axis="y"
+                      data-value={rl.value}
+                      x1={plotLeft}
+                      x2={plotRight}
+                      y1={y}
+                      y2={y}
+                      strokeWidth={REF_LINE_WIDTH}
+                      {...(dashed ? { strokeDasharray: REF_DASH } : {})}
+                    />
+                    {rl.label && (
+                      <text className={styles.refLabel} x={plotRight} y={y - 4} textAnchor="end">
+                        {rl.label}
+                      </text>
+                    )}
+                  </g>
+                )
+              })}
+            </g>
+          )}
         </Fragment>
       }
     />

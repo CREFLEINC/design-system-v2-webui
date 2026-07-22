@@ -2,9 +2,9 @@ import { forwardRef } from 'react'
 import { LineChart, type LineChartProps } from './LineChart'
 import { BarChart, type BarChartProps } from './BarChart'
 import { PieChart, type PieChartProps } from './PieChart'
-import type { ChartBaseProps, ChartPoint, ChartSeries } from './Chart.shared'
+import type { ChartBaseProps, ChartPoint, ChartSeries, ReferenceLine, ReferenceLineTone } from './Chart.shared'
 
-export type { ChartPoint, ChartSeries, ChartBaseProps }
+export type { ChartPoint, ChartSeries, ChartBaseProps, ReferenceLine, ReferenceLineTone }
 
 export type ChartType = 'line' | 'bar' | 'pie'
 
