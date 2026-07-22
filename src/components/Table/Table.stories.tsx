@@ -151,6 +151,52 @@ export const SummaryMultiRow: Story = {
   }
 }
 
+// 그룹 헤더(row group header) — status별로 그룹핑, renderGroupHeader로 그룹별 건수 표시.
+// 그룹 순서=첫 등장 순(정상→점검→경고)이고 정렬(온도, sortable)은 각 그룹 내부에서만 일어난다 —
+// 헤더를 클릭해 재정렬해도 그룹 경계·순서는 불변임을 확인할 수 있다
+export const Grouped: Story = {
+  args: {
+    groupBy: (r: Equipment) => r.status,
+    renderGroupHeader: (key, groupRows) => `${key} (${groupRows.length})`,
+    defaultSort: { key: 'temp', direction: 'ascending' } as SortState
+  }
+}
+
+// 그룹핑 + 선택 — Selectable 스토리와 동일한 controlled 패턴. 그룹 헤더 행이 선택 열까지
+// 전폭(colSpan=columns.length+1)으로 렌더되고 체크박스가 없음을 확인
+export const GroupedSelectable: Story = {
+  render: (args) => {
+    const [selectedIds, setSelectedIds] = useState<string[]>(['eq-1', 'eq-4'])
+    return (
+      <Table
+        {...args}
+        selectable
+        selectedIds={selectedIds}
+        onSelectionChange={setSelectedIds}
+        groupBy={(r) => r.status}
+        renderGroupHeader={(key, groupRows) => `${key} (${groupRows.length})`}
+      />
+    )
+  }
+}
+
+// 그룹핑 + 요약 행(tfoot) 공존 — Summary 스토리의 합계 행을 재사용. tbody의 그룹 헤더와
+// tfoot의 요약 행이 서로 영향을 주지 않고(정렬·그룹핑 대상 밖) 함께 렌더됨을 확인
+export const GroupedWithSummary: Story = {
+  args: {
+    groupBy: (r: Equipment) => r.status,
+    renderGroupHeader: (key, groupRows) => `${key} (${groupRows.length})`,
+    defaultSort: { key: 'temp', direction: 'ascending' } as SortState,
+    summaryRows: [
+      [
+        { key: 'label', content: '합계', colSpan: 2, align: 'start' },
+        { key: 'temp', content: '250°C', align: 'end', emphasis: true },
+        { key: 'pressure', content: '63.5bar', align: 'end', emphasis: true }
+      ]
+    ]
+  }
+}
+
 // Matrix(필수) — 밀도(comfortable/compact) × 상태(zebra 기본/정렬 활성/선택 행 포함)를 한 화면에 배열
 // 각 테이블에 요약 행(합계 1행)을 포함시켜 density·selectable·정렬·summaryRows 조합을 전수 확인한다
 export const Matrix: Story = {
