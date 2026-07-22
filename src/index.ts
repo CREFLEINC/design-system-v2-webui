@@ -37,7 +37,7 @@ export type { TabsProps, TabItem, TabsSize } from './components/Tabs/Tabs'
 
 // Phase 3 — Tier 2 components
 export { Table } from './components/Table/Table'
-export type { TableProps, Column, ColumnAlign, SortState, SortDirection, TableDensity } from './components/Table/Table'
+export type { TableProps, Column, ColumnAlign, SortState, SortDirection, TableDensity, SummaryCell } from './components/Table/Table'
 export { StatCard } from './components/StatCard/StatCard'
 export type { StatCardProps, StatCardStatus, StatCardDelta, DeltaDirection } from './components/StatCard/StatCard'
 export { Progress } from './components/Progress/Progress'

@@ -91,6 +91,23 @@
   text-align: center;
 }
 
+/* -------- summary (tfoot) -------- */
+.table tfoot td {
+  background: var(--surface-container);
+  color: var(--on-surface);
+}
+.table tfoot tr:first-child td {
+  border-top: 2px solid var(--outline-variant);
+}
+.table tfoot tr:last-child td {
+  position: sticky;
+  bottom: 0;
+  z-index: 1;
+}
+.table tfoot td[data-emphasis='true'] {
+  font: var(--type-label-lg);
+}
+
 /* -------- zebra / hover / selected — 셀(td) 배경, source order로 우선순위 제어 -------- */
 .table td {
   background: transparent;

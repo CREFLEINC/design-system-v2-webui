@@ -1,5 +1,6 @@
 import {
   forwardRef,
+  useId,
   useState,
   type HTMLAttributes,
   type ReactElement,
@@ -17,6 +18,19 @@ export type TableDensity = 'comfortable' | 'compact'
 export interface SortState {
   key: string
   direction: SortDirection
+}
+
+export interface SummaryCell {
+  /** 셀 식별자 (React key) */
+  key: string
+  /** 셀 내용 */
+  content: ReactNode
+  /** 병합할 데이터 열 수. 기본 1. selectable 선택 열은 세지 않는다 */
+  colSpan?: number
+  /** 셀 정렬. 기존 ColumnAlign 재사용 */
+  align?: ColumnAlign
+  /** 총계 등 강조 — 헤더와 같은 타이포 위계 적용 */
+  emphasis?: boolean
 }
 
 export interface Column<T> {
@@ -65,6 +79,8 @@ export interface TableProps<T> extends Omit<HTMLAttributes<HTMLTableElement>, 'c
   onSelectionChange?: (nextIds: string[]) => void
   /** 데이터 로딩 중/빈 상태에서 tbody 자리에 렌더할 노드 (rows.length===0일 때) */
   empty?: ReactNode
+  /** 하단 요약/합계 행들 (소계+총계 등 다중 지원). tfoot으로 렌더되며 정렬 대상에서 제외 */
+  summaryRows?: SummaryCell[][]
 }
 
 function alignAttr(align?: ColumnAlign): 'center' | 'end' | undefined {
@@ -103,11 +119,14 @@ function TableInner<T>(
     selectedIds,
     onSelectionChange,
     empty,
+    summaryRows,
     className,
     ...rest
   }: TableProps<T>,
   ref: Ref<HTMLTableElement>
 ): ReactElement {
+  const uid = useId()
+  const headerId = (col: Column<T>) => `${uid}-col-${col.key}`
   const isControlled = sort !== undefined
   const [internalSort, setInternalSort] = useState<SortState | null>(defaultSort)
   const activeSort = isControlled ? sort : internalSort
@@ -191,7 +210,13 @@ function TableInner<T>(
               const isSorted = activeSort?.key === col.key
               const ariaSort = col.sortable ? (isSorted ? activeSort!.direction : 'none') : undefined
               return (
-                <th key={col.key} scope="col" data-align={alignAttr(col.align)} aria-sort={ariaSort}>
+                <th
+                  key={col.key}
+                  id={headerId(col)}
+                  scope="col"
+                  data-align={alignAttr(col.align)}
+                  aria-sort={ariaSort}
+                >
                   {col.sortable ? (
                     <button
                       type="button"
@@ -235,6 +260,35 @@ function TableInner<T>(
             })
           )}
         </tbody>
+        {summaryRows && summaryRows.length > 0 && (
+          <tfoot>
+            {summaryRows.map((row, rowIndex) => {
+              let c = 0
+              return (
+                <tr key={rowIndex}>
+                  {selectable && <td className={styles.selectCell} />}
+                  {row.map((cell) => {
+                    const span = cell.colSpan ?? 1
+                    const covered = columns.slice(c, c + span)
+                    const headerIds = covered.map((col) => headerId(col)).join(' ')
+                    c += span
+                    return (
+                      <td
+                        key={cell.key}
+                        colSpan={span > 1 ? span : undefined}
+                        headers={headerIds || undefined}
+                        data-align={alignAttr(cell.align)}
+                        data-emphasis={cell.emphasis || undefined}
+                      >
+                        {cell.content}
+                      </td>
+                    )
+                  })}
+                </tr>
+              )
+            })}
+          </tfoot>
+        )}
       </table>
     </div>
   )
