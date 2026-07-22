@@ -70,6 +70,11 @@ npm run build-storybook  # 정적 빌드 (storybook-static/)
 이 폰트들은 `styles/foundation/fonts/`에도 동일 파일로 존재한다(이 번들은
 그 사본을 자체 완결형으로 재배포한다) — 두 위치 모두 라이선스 텍스트를 동봉한다.
 
+두 사본이 바이트 동일한지는 `npm run check:foundation`이 `styles/foundation/foundation.lock.json`을
+기준으로 강제한다 — `fonts/*.woff2`는 lock 해시로, `fonts/LICENSE-*.txt`는 `styles/foundation/fonts/`와의
+양방향 바이트 동일로 검사하며, 번들 전용 파일 반입도 차단한다. 이 사본을 직접 수정하지 말 것. 갱신은
+`npm run sync-foundation` 하나가 양쪽(`styles/foundation/fonts/`와 `ds-bundle/fonts/`)을 함께 수행한다.
+
 ## 메타
 
 - 회사: 크레플 주식회사 / CREFLE Inc.

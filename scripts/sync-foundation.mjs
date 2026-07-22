@@ -10,7 +10,19 @@
 import { mkdtempSync, mkdirSync, rmSync, writeFileSync, readFileSync, existsSync, unlinkSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { MIRROR_DIR, LOCK_NAME, DEFAULT_REPO, DEFAULT_REF, sha256, listMirrorFiles, isAllowed, git, gitBuf } from './foundation-lock.mjs'
+import {
+  MIRROR_DIR,
+  BUNDLE_FONTS_DIR,
+  LOCK_NAME,
+  DEFAULT_REPO,
+  DEFAULT_REF,
+  sha256,
+  listMirrorFiles,
+  isAllowed,
+  writeBundleFonts,
+  git,
+  gitBuf
+} from './foundation-lock.mjs'
 
 const allowDirty = process.argv.includes('--allow-dirty')
 const repo = process.env.FOUNDATION_REPO || DEFAULT_REPO
@@ -121,6 +133,12 @@ try {
     const pin = join(MIRROR_DIR, 'PIN')
     if (existsSync(pin)) unlinkSync(pin)
 
+    // ds-bundle/fonts/ 사본에 폰트를 전파한다 (자체 완결 번들이 CDN 없이 폰트를 안고 있어야 하므로).
+    // 라이선스 등 비-woff2 는 건드리지 않는다 — 검사(verifyBundleFonts)가 이탈을 잡고 사람이 고친다.
+    const bundleFonts = new Map()
+    for (const [rel, buf] of next) if (rel.startsWith('fonts/')) bundleFonts.set(rel.slice('fonts/'.length), buf)
+    const bundleResult = writeBundleFonts(BUNDLE_FONTS_DIR, bundleFonts)
+
     // 요약.
     const added = [...next.keys()].filter((r) => !before.has(r))
     const changed = [...next.keys()].filter((r) => before.has(r) && before.get(r) !== files[r])
@@ -129,6 +147,18 @@ try {
     const lines = [fmt('추가', added), fmt('변경', changed), fmt('삭제', removed)].filter(Boolean)
     console.log(`✓ 동기화 완료 (${next.size}개 파일)`)
     console.log(lines.length ? lines.join('\n') : '  변경 없음 — 미러가 이미 최신입니다.')
+
+    // ds-bundle 사본 결과 (기존 미러 요약과 구별되게 명시).
+    const bundleLines = [
+      fmt('추가', bundleResult.added),
+      fmt('변경', bundleResult.changed),
+      fmt('삭제', bundleResult.removed)
+    ].filter(Boolean)
+    console.log(
+      bundleLines.length
+        ? `  ds-bundle/fonts 사본 갱신:\n${bundleLines.map((l) => '  ' + l).join('\n')}`
+        : '  ds-bundle/fonts 사본: 변경 없음'
+    )
   } finally {
     if (tmp) rmSync(tmp, { recursive: true, force: true })
   }

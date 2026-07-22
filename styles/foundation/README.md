@@ -25,7 +25,7 @@ npm run sync-foundation
 
 | 명령 | 하는 일 | 네트워크 |
 |---|---|---|
-| `npm run check:foundation` | 미러가 lock 과 일치하는지 검사. 불일치 시 실패 | 불필요 |
+| `npm run check:foundation` | 미러가 lock 과 일치하는지 + `ds-bundle/fonts/` 폰트 사본이 lock·미러와 일치하는지 검사. 불일치 시 실패 | 불필요 |
 | `npm run check:foundation:upstream` | 파운데이션이 앞서 있는지 확인. **경고만 하고 절대 실패하지 않음** | 필요 |
 | `npm run sync-foundation` | 파운데이션에서 다시 받아 lock 갱신 | 필요 |
 
