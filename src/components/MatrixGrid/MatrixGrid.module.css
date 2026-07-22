@@ -1,0 +1,177 @@
+/* MatrixGrid — 항목×기간 밀집 상태 매트릭스. 토큰 전용(raw 색·임의 px 금지). */
+
+/* 가로 스크롤 래퍼 — 넓은 매트릭스가 페이지 바디를 밀지 않게 (Table 선례) */
+.scroll {
+  overflow-x: auto;
+}
+
+.table {
+  border-collapse: separate;
+  border-spacing: 0;
+  table-layout: fixed;
+  color: var(--on-surface);
+  background: var(--surface);
+  font: var(--type-body-sm);
+  letter-spacing: var(--type-body-sm-tracking);
+}
+
+/* -------- 열 너비 (colgroup) -------- */
+.labelCol {
+  width: calc(var(--space-12) + var(--space-6)); /* 120px 라벨 열 */
+}
+.dataCol {
+  width: var(--space-7); /* md 32px */
+}
+.sm .dataCol {
+  width: var(--space-6); /* sm 24px */
+}
+
+/* -------- 기본 셀 -------- */
+.table th,
+.table td {
+  box-sizing: border-box;
+  height: var(--space-7); /* md 행 높이 32px (최소) */
+  padding: var(--space-2);
+  border-right: 1px solid var(--outline-variant);
+  border-bottom: 1px solid var(--outline-variant);
+  text-align: center;
+  vertical-align: middle;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sm th,
+.sm td {
+  height: var(--space-6); /* sm 24px */
+  padding: var(--space-1);
+  font: var(--type-label-sm);
+  letter-spacing: var(--type-label-sm-tracking);
+}
+
+/* -------- 열·그룹 헤더 -------- */
+.table thead th {
+  background: var(--surface-container);
+  color: var(--on-surface-variant);
+  font: var(--type-label-sm);
+  letter-spacing: var(--type-label-sm-tracking);
+}
+
+/* -------- sticky 행 라벨 (첫 열) -------- */
+.labelCell {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  background: var(--surface);
+  border-right: 1px solid var(--outline-variant);
+  text-align: left;
+  color: var(--on-surface-variant);
+  font: var(--type-label-sm);
+  letter-spacing: var(--type-label-sm-tracking);
+  white-space: nowrap;
+}
+/* 좌상단 코너 — 헤더+라벨 교차, 최상위 */
+.corner {
+  z-index: 2;
+  background: var(--surface-container);
+}
+.table thead th.labelCell {
+  background: var(--surface-container);
+}
+
+/* -------- 2단계 상태 톤 (가정 2) --------
+   내용 없는 status 셀 → 진한 톤(solid) 단색 채움.
+   내용 있는 셀 → 연한 컨테이너 톤 배경 + on-* 텍스트(AA). 다크는 토큰이 스왑. */
+.table td[data-tone='solid'][data-status='success'] {
+  background: var(--semantic-success);
+}
+.table td[data-tone='solid'][data-status='error'] {
+  background: var(--semantic-error);
+}
+.table td[data-tone='solid'][data-status='warning'] {
+  background: var(--semantic-warning);
+}
+.table td[data-tone='solid'][data-status='info'] {
+  background: var(--semantic-info);
+}
+.table td[data-tone='solid'][data-status='idle'] {
+  background: var(--semantic-idle);
+}
+.table td[data-tone='container'][data-status='success'] {
+  background: var(--semantic-success-container);
+  color: var(--on-semantic-success-container);
+}
+.table td[data-tone='container'][data-status='error'] {
+  background: var(--semantic-error-container);
+  color: var(--on-semantic-error-container);
+}
+.table td[data-tone='container'][data-status='warning'] {
+  background: var(--semantic-warning-container);
+  color: var(--on-semantic-warning-container);
+}
+.table td[data-tone='container'][data-status='info'] {
+  background: var(--semantic-info-container);
+  color: var(--on-semantic-info-container);
+}
+.table td[data-tone='container'][data-status='idle'] {
+  background: var(--semantic-idle-container);
+  color: var(--on-semantic-idle-container);
+}
+
+/* -------- highlight 관통 강조 (가정 7) --------
+   관통 셀에 inset 2px 링 + 헤더 라벨 강조색. 검증 계약: 관통 thead/tbody/tfoot 셀에 data-highlight 존재. */
+.table [data-highlight] {
+  box-shadow: inset 0 0 0 2px var(--primary);
+}
+.table thead th[data-highlight] {
+  color: var(--primary-text);
+}
+
+/* -------- 클릭 셀 (onCellClick) — M3 상태 레이어 + 포커스 링 -------- */
+.table td[data-clickable] {
+  position: relative;
+  isolation: isolate;
+  cursor: pointer;
+  outline: none;
+  transition: box-shadow var(--motion-fast) var(--ease-standard);
+}
+.table td[data-clickable]::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: transparent;
+  transition: background var(--motion-fast) var(--ease-standard);
+  pointer-events: none;
+}
+.table td[data-clickable]:hover::before {
+  background: var(--state-hover-neutral);
+}
+.table td[data-clickable]:active::before {
+  background: var(--state-press-neutral);
+}
+.table td[data-clickable]:focus-visible {
+  box-shadow: var(--focus-ring);
+}
+/* 관통 강조 + 포커스 동시 — 링 합성 */
+.table td[data-clickable][data-highlight]:focus-visible {
+  box-shadow: var(--focus-ring), inset 0 0 0 2px var(--primary);
+}
+
+/* -------- 요약행 (tfoot) — 본문과 구분되는 밴드 -------- */
+.table tfoot th,
+.table tfoot td {
+  background: var(--surface-container-high);
+  color: var(--on-surface);
+  border-top: 2px solid var(--outline-variant);
+}
+.summaryLabel {
+  color: var(--on-surface);
+  font: var(--type-label-sm);
+  letter-spacing: var(--type-label-sm-tracking);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .table td[data-clickable],
+  .table td[data-clickable]::before {
+    transition: none;
+  }
+}
