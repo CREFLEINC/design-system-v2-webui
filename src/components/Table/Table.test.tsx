@@ -176,3 +176,174 @@ test('rows가 비면 empty 노드를 렌더한다', () => {
   expect(screen.getByText('표시할 이벤트가 없습니다')).toBeInTheDocument()
   expect(screen.queryAllByRole('cell').every((c) => c.textContent !== '가압기')).toBe(true)
 })
+
+test('summaryRows가 tfoot에 다중 요약 행(소계·총계)을 렌더한다', () => {
+  const { container } = render(
+    <Table
+      getRowId={(r) => r.id}
+      columns={[
+        { key: 'name', header: '장비명' },
+        { key: 'temp', header: '온도', align: 'end' },
+        { key: 'pressure', header: '압력', align: 'end' },
+        { key: 'status', header: '상태' }
+      ]}
+      rows={[
+        { id: 'a', name: '가압기', temp: 40, pressure: 5, status: '정상' },
+        { id: 'b', name: '냉각기', temp: 12, pressure: 3, status: '점검' }
+      ]}
+      summaryRows={[
+        [
+          { key: 'subtotal-label', content: '소계', colSpan: 2 },
+          { key: 'subtotal-temp', content: '52', align: 'end' },
+          { key: 'subtotal-pressure', content: '8', align: 'end' }
+        ],
+        [
+          { key: 'total-label', content: '총계', colSpan: 2 },
+          { key: 'total-temp', content: '52', align: 'end' },
+          { key: 'total-pressure', content: '8', align: 'end' }
+        ]
+      ]}
+    />
+  )
+  const tfoot = container.querySelector('tfoot')
+  expect(tfoot).not.toBeNull()
+  const tfootRows = tfoot!.querySelectorAll('tr')
+  expect(tfootRows).toHaveLength(2)
+  expect(tfootRows[0].textContent).toContain('소계')
+  expect(tfootRows[1].textContent).toContain('총계')
+})
+
+test('요약 셀 colSpan이 DOM colspan에 반영되고 headers가 병합된 열들의 th id를 참조한다', () => {
+  render(
+    <Table
+      getRowId={(r) => r.id}
+      columns={[
+        { key: 'name', header: '장비명' },
+        { key: 'temp', header: '온도', align: 'end' },
+        { key: 'pressure', header: '압력', align: 'end' },
+        { key: 'status', header: '상태' }
+      ]}
+      rows={[{ id: 'a', name: '가압기', temp: 40, pressure: 5, status: '정상' }]}
+      summaryRows={[
+        [
+          { key: 'label', content: '합계', colSpan: 3 },
+          { key: 'value', content: '-' }
+        ]
+      ]}
+    />
+  )
+  const headers = screen.getAllByRole('columnheader')
+  const expectedHeaderIds = headers.slice(0, 3).map((h) => h.id).join(' ')
+  const summaryCell = screen.getByRole('cell', { name: '합계' })
+  expect(summaryCell).toHaveAttribute('colspan', '3')
+  expect(summaryCell).toHaveAttribute('headers', expectedHeaderIds)
+})
+
+test('정렬 토글은 본문 순서만 바꾸고 tfoot 요약 행은 내용·개수·위치가 불변이다', async () => {
+  const user = userEvent.setup()
+  render(
+    <Table
+      getRowId={(r) => r.id}
+      columns={[
+        { key: 'name', header: '장비명', sortable: true },
+        { key: 'temp', header: '온도', align: 'end', sortable: true, render: (r) => `${r.temp}°C` }
+      ]}
+      rows={[
+        { id: 'a', name: '가압기', temp: 40 },
+        { id: 'b', name: '냉각기', temp: 12 },
+        { id: 'c', name: '펌프', temp: 25 }
+      ]}
+      summaryRows={[
+        [
+          { key: 'label', content: '합계' },
+          { key: 'value', content: '77°C', align: 'end' }
+        ]
+      ]}
+    />
+  )
+  const bodyNames = () =>
+    screen.getAllByRole('row').slice(1, -1).map((r) => r.querySelector('td')?.textContent)
+  const expectFooterUnchanged = () => {
+    const allRows = screen.getAllByRole('row')
+    expect(allRows).toHaveLength(5) // 헤더1 + 본문3 + 요약1
+    const footerRow = allRows[allRows.length - 1]
+    expect(footerRow.textContent).toContain('합계')
+    expect(footerRow.textContent).toContain('77°C')
+  }
+
+  expect(bodyNames()).toEqual(['가압기', '냉각기', '펌프'])
+  expectFooterUnchanged()
+
+  await user.click(screen.getByRole('button', { name: /온도/ })) // asc
+  expect(bodyNames()).toEqual(['냉각기', '펌프', '가압기']) // 12,25,40
+  expectFooterUnchanged()
+
+  await user.click(screen.getByRole('button', { name: /온도/ })) // desc
+  expect(bodyNames()).toEqual(['가압기', '펌프', '냉각기']) // 40,25,12
+  expectFooterUnchanged()
+})
+
+test('selectable + summaryRows에서 tfoot에는 체크박스가 없고 전체 선택은 본문 행 id만 방출한다', async () => {
+  const user = userEvent.setup()
+  const onSelectionChange = vi.fn()
+  const { container } = render(
+    <Table
+      selectable
+      selectedIds={[]}
+      onSelectionChange={onSelectionChange}
+      getRowId={(r) => r.id}
+      columns={[
+        { key: 'name', header: '장비명' },
+        { key: 'temp', header: '온도', align: 'end' },
+        { key: 'pressure', header: '압력', align: 'end' },
+        { key: 'status', header: '상태' }
+      ]}
+      rows={[
+        { id: 'a', name: '가압기', temp: 40, pressure: 5, status: '정상' },
+        { id: 'b', name: '냉각기', temp: 12, pressure: 3, status: '점검' }
+      ]}
+      summaryRows={[
+        [
+          { key: 'label', content: '합계', colSpan: 3 },
+          { key: 'value', content: '-' }
+        ]
+      ]}
+    />
+  )
+  const tfoot = container.querySelector('tfoot')!
+  expect(tfoot.querySelectorAll('input[type="checkbox"], [role="checkbox"]')).toHaveLength(0)
+
+  const footerCells = tfoot.querySelectorAll('td')
+  // 선행 빈 선택 셀(1) + 요약 셀 2개(label: colSpan 3, value: colSpan 없음) = 3
+  // colSpan으로 열을 병합해도 <td> 개수 자체는 늘지 않음을 함께 확인한다
+  expect(footerCells).toHaveLength(3)
+  expect(footerCells[0]).toBeEmptyDOMElement()
+
+  await user.click(screen.getByRole('checkbox', { name: '전체 선택' }))
+  expect(onSelectionChange).toHaveBeenLastCalledWith(['a', 'b'])
+})
+
+test('요약 셀의 align·emphasis가 data-align·data-emphasis로 반영된다', () => {
+  const { container } = render(
+    <Table
+      getRowId={(r) => r.id}
+      columns={[
+        { key: 'name', header: '장비명' },
+        { key: 'temp', header: '온도', align: 'end' }
+      ]}
+      rows={[{ id: 'a', name: '가압기', temp: 40 }]}
+      summaryRows={[
+        [
+          { key: 'label', content: '합계' },
+          { key: 'value', content: '160', align: 'end', emphasis: true }
+        ]
+      ]}
+    />
+  )
+  const tfoot = container.querySelector('tfoot')!
+  const footerCells = tfoot.querySelectorAll('td')
+  const valueCell = footerCells[footerCells.length - 1]
+  expect(valueCell.textContent).toBe('160')
+  expect(valueCell).toHaveAttribute('data-align', 'end')
+  expect(valueCell).toHaveAttribute('data-emphasis', 'true')
+})

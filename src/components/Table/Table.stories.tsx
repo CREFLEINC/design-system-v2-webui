@@ -113,7 +113,46 @@ export const Empty: Story = {
   }
 }
 
+// 요약 행(tfoot) — 합계 1행. StickyHeader와 동일한 스크롤 컨테이너로 감싸
+// 마지막(유일한) 요약 행이 하단에 sticky로 고정되는지 확인 가능하게 한다
+export const Summary: Story = {
+  render: (args) => (
+    <div style={{ maxHeight: 240, overflowY: 'auto' }}>
+      <Table
+        {...args}
+        summaryRows={[
+          [
+            { key: 'label', content: '합계', colSpan: 2, align: 'start' },
+            { key: 'temp', content: '250°C', align: 'end', emphasis: true },
+            { key: 'pressure', content: '63.5bar', align: 'end', emphasis: true }
+          ]
+        ]}
+      />
+    </div>
+  )
+}
+
+// 요약 다중 행 — 소계 + 총계 2행. CSS는 마지막 행(총계)에만 position:sticky를 적용하므로
+// 소계 행은 본문과 함께 스크롤되고 총계 행만 하단에 항상 노출된다 (구현 설계 가정 4)
+export const SummaryMultiRow: Story = {
+  args: {
+    summaryRows: [
+      [
+        { key: 'label', content: '소계 (1~4)', colSpan: 2, align: 'start' },
+        { key: 'temp', content: '138°C', align: 'end' },
+        { key: 'pressure', content: '40.1bar', align: 'end' }
+      ],
+      [
+        { key: 'label', content: '총계', colSpan: 2, align: 'start' },
+        { key: 'temp', content: '250°C', align: 'end', emphasis: true },
+        { key: 'pressure', content: '63.5bar', align: 'end', emphasis: true }
+      ]
+    ]
+  }
+}
+
 // Matrix(필수) — 밀도(comfortable/compact) × 상태(zebra 기본/정렬 활성/선택 행 포함)를 한 화면에 배열
+// 각 테이블에 요약 행(합계 1행)을 포함시켜 density·selectable·정렬·summaryRows 조합을 전수 확인한다
 export const Matrix: Story = {
   render: () => (
     <div style={{ display: 'grid', gap: 32 }}>
@@ -130,6 +169,13 @@ export const Matrix: Story = {
             selectedIds={['eq-1', 'eq-4']}
             onSelectionChange={() => {}}
             defaultSort={{ key: 'temp', direction: 'descending' }}
+            summaryRows={[
+              [
+                { key: 'label', content: '합계', colSpan: 2, align: 'start' },
+                { key: 'temp', content: '250°C', align: 'end', emphasis: true },
+                { key: 'pressure', content: '63.5bar', align: 'end', emphasis: true }
+              ]
+            ]}
           />
         </div>
       ))}

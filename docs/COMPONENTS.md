@@ -182,12 +182,12 @@
 `src/components/Table/Table.tsx` · 스토리 ✓
 
 **Table**
-- props `TableProps`: columns, rows, getRowId, caption, density, zebra, sort, defaultSort, onSortChange, selectable, selectedIds, onSelectionChange, empty _(+ 네이티브 HTML 속성)_
+- props `TableProps`: columns, rows, getRowId, caption, density, zebra, sort, defaultSort, onSortChange, selectable, selectedIds, onSelectionChange, empty, summaryRows _(+ 네이티브 HTML 속성)_
 
 - `ColumnAlign`: `start` `center` `end`
 - `SortDirection`: `ascending` `descending`
 - `TableDensity`: `comfortable` `compact`
-- 기타 타입: `Column`, `SortState`
+- 기타 타입: `Column`, `SortState`, `SummaryCell`
 
 ### StatCard
 
