@@ -30,6 +30,18 @@ export const LinePlayground: Story = {
   args: { area: true, showPoints: true, caption: '설비 A 라인 · 최근 4개월' }
 }
 
+export const ReferenceLines: Story = {
+  args: {
+    min: 0,
+    max: 100,
+    referenceLines: [
+      { value: 90, label: '상한 90%', tone: 'error' },
+      { value: 85, label: '목표 85%', tone: 'info', style: 'solid' },
+      { value: 70, label: '하한 70%', tone: 'warning' }
+    ]
+  }
+}
+
 export const BarPlayground: StoryObj<typeof BarChart> = {
   render: (args) => <BarChart {...args} />,
   args: {

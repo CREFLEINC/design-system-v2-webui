@@ -330,14 +330,14 @@
   | ({ type: 'pie' } & PieChartProps)`
 
 - `ChartType`: `line` `bar` `pie`
-- 기타 타입: `ChartPoint`, `ChartSeries`, `ChartBaseProps`
+- 기타 타입: `ChartPoint`, `ChartSeries`, `ChartBaseProps`, `ReferenceLine`, `ReferenceLineTone`
 
 ### LineChart
 
 `src/components/Chart/LineChart.tsx`
 
 **LineChart**
-- props `LineChartProps`: title, caption, ariaLabel, width, height, showLegend, showTable, formatValue, series, min, max, yTicks, showGrid, area, showPoints _(+ 네이티브 HTML 속성)_
+- props `LineChartProps`: title, caption, ariaLabel, width, height, showLegend, showTable, formatValue, series, min, max, yTicks, showGrid, area, showPoints, referenceLines _(+ 네이티브 HTML 속성)_
 
 ### BarChart
 
