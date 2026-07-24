@@ -2,7 +2,7 @@
 
 **@crefle/web-ui** — 크레플 주식회사(CREFLE Inc.)의 **웹 컴포넌트 라이브러리** 디자인 시스템이다.
 공통 파운데이션(브랜드 레드 `#C9252C` 단일 액센트 · Spoqa Han Sans Neo · 시맨틱 컬러)을
-그대로 상속하면서, 그 위에 **형태 토큰(type·space·radius·elevation·motion) + 26개 React 컴포넌트**를
+그대로 상속하면서, 그 위에 **형태 토큰(type·space·radius·elevation·motion) + 42개 React 컴포넌트**를
 올린 실사용 UI 시스템이다. 기반은 Material Design 3 파생.
 
 ## 셋업 (Setup)
@@ -48,16 +48,20 @@ npm run build-storybook  # 정적 빌드 (storybook-static/)
 > 이 번들의 `cards/*.html`은 Claude Design용 **정적 토큰 기반 레퍼런스**다 —
 > 실제 앱은 위 React 컴포넌트를 쓰고, 카드는 토큰이 만드는 룩을 보여주는 참고용이다.
 
-## 컴포넌트 26종 + 티어
+## 컴포넌트 42종 + 티어
 
 | 티어 | 컴포넌트 |
 |---|---|
 | **Foundation** | Icon, Button |
 | **Tier 1 — 폼·기본 (Phase 2)** | IconButton, TextField, Select, Checkbox, Radio, Switch, Chip, Badge, Card, Dialog, Tooltip, Tabs |
-| **Tier 2 — 데이터·피드백 (Phase 3)** | Table, StatCard, Progress, Gauge, AlertBanner, Toast, Navigation(Sidebar/Topbar), Breadcrumb, EmptyState, Skeleton, SearchInput |
-| **Tier 3 — 조립·시각화 (Phase 4)** | AppShell, Chart(Line/Bar/Pie), PageHeader |
+| **Tier 2 — 데이터·피드백 (Phase 3)** | Table, StatCard, Progress, Gauge, AlertBanner, Toast, Navigation(Sidebar/Topbar), Breadcrumb, EmptyState, Skeleton, SearchInput, Stepper |
+| **Tier 3 — 조립·시각화 (Phase 4)** | AppShell, Chart(Line/Bar/Pie), PageHeader, MatrixGrid |
 
-(Navigation은 Sidebar/SidebarItem/SidebarSection/Topbar, Chart는 Line/Bar/Pie로 하위 분할된다.)
+(Navigation은 Sidebar/SidebarItem/SidebarSection/Topbar, Chart는 Line/Bar/Pie로 하위 분할된다.
+위 표는 주요 컴포넌트만 나열하며, 하위 컴포넌트·훅까지 포함한 전체 42개 실측 목록은 `docs/COMPONENTS.md`에 있다.)
+
+최근 확장: **Stepper**(순차 단계 — 상태별 노드·커넥터), **MatrixGrid**(항목×기간 밀집 상태 매트릭스 — 상태 셀·관통 강조 열·요약행),
+그리고 기존 컴포넌트 확장 — Tabs `badge` 슬롯, Table `summaryRows`(tfoot 요약행·colSpan)·`groupBy`(행 그룹 헤더), LineChart `referenceLines`(축 고정 기준선).
 
 ## 서드파티 폰트 라이선스
 
