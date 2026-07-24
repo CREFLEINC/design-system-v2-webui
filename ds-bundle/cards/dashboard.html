@@ -100,6 +100,9 @@
   .axis { font: var(--type-label-sm); fill: var(--on-surface-muted); text-anchor: middle; }
   .ctr-val { font: var(--type-title-sm); fill: var(--on-surface); text-anchor: middle; }
   .ctr-lab { font: var(--type-label-sm); fill: var(--on-surface-muted); text-anchor: middle; }
+  /* 축 고정 기준선(LineChart referenceLines) — tone=info. 톤은 시맨틱 토큰만 참조 */
+  .refline { stroke: var(--semantic-info); }
+  .reflabel { font: var(--type-label-sm); fill: var(--semantic-info); text-anchor: end; }
 
   /* ---- Table ---- */
   .tablecard { background: var(--surface-container-low); border: 1px solid var(--outline-variant); border-radius: var(--radius-lg); padding: var(--space-5); }
@@ -238,7 +241,7 @@
         <!-- Line chart -->
         <div class="panel">
           <h2 class="panel-title">시간별 가동률 추이</h2>
-          <svg class="chart-svg" viewBox="0 0 640 300" role="img" aria-label="라인별 시간대별 가동률 추이">
+          <svg class="chart-svg" viewBox="0 0 640 300" role="img" aria-label="라인별 시간대별 가동률 추이. 기준선: 목표 90%">
             <!-- grid -->
             <line x1="40" y1="16" x2="624" y2="16" stroke="var(--chart-grid)"/>
             <line x1="40" y1="79" x2="624" y2="79" stroke="var(--chart-grid)"/>
@@ -269,6 +272,11 @@
             <g fill="var(--chart-3)"><circle cx="40" cy="205" r="4"/><circle cx="137.3" cy="179.8" r="4"/><circle cx="234.7" cy="148.3" r="4"/><circle cx="332" cy="135.7" r="4"/><circle cx="429.3" cy="160.9" r="4"/><circle cx="526.7" cy="192.4" r="4"/><circle cx="624" cy="173.5" r="4"/></g>
             <g fill="var(--chart-2)"><circle cx="40" cy="154.6" r="4"/><circle cx="137.3" cy="142" r="4"/><circle cx="234.7" cy="116.8" r="4"/><circle cx="332" cy="104.2" r="4"/><circle cx="429.3" cy="129.4" r="4"/><circle cx="526.7" cy="110.5" r="4"/><circle cx="624" cy="123.1" r="4"/></g>
             <g fill="var(--chart-1)"><circle cx="40" cy="129.4" r="4"/><circle cx="137.3" cy="110.5" r="4"/><circle cx="234.7" cy="72.7" r="4"/><circle cx="332" cy="91.6" r="4"/><circle cx="429.3" cy="60.1" r="4"/><circle cx="526.7" cy="79" r="4"/><circle cx="624" cy="97.9" r="4"/></g>
+            <!-- reference line: 목표 90% (LineChart referenceLines, axis=y tone=info dashed) -->
+            <g aria-hidden="true">
+              <line class="refline" data-chart-refline data-axis="y" data-value="90" x1="40" y1="79" x2="624" y2="79" stroke-width="1.5" stroke-dasharray="6 4"/>
+              <text class="reflabel" x="624" y="75">목표 90%</text>
+            </g>
           </svg>
           <ul class="legend">
             <li><span class="sw" style="background:var(--chart-1)"></span>A 라인</li>
