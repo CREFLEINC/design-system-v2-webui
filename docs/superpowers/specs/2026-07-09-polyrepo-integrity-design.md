@@ -116,6 +116,18 @@ scripts/
 
 **신뢰 루트의 한계.** lock 파일 자체를 수정해 변조된 미러의 해시와 맞추면 검사는 통과한다. 이 검사는 악의적 우회가 아니라 **실수**(미러를 원본으로 착각하고 고치는 것)를 막기 위한 것이다. lock 파일 변경은 커밋 diff에 눈에 띄게 드러나므로 원래는 코드 리뷰가 마지막 방어선이어야 한다 — 그러나 §5에서 정하는 `required_approving_review_count: 0`(1인 개발 전제) 아래에서는 이 리뷰 게이트가 **강제되지 않는다**. 같은 PR에서 미러와 lock을 함께 위조하면 해시가 서로 맞아 `check`가 green이 되고, 승인 0으로 작성자 본인이 그대로 병합할 수 있다. 즉 "코드 리뷰가 마지막 방어선"은 지금은 권고일 뿐 실제 닫힘이 아니며, 팀이 늘어 `required_approving_review_count`를 1 이상으로 올리는 것이 이 구멍을 닫는 유일한 실질적 조치다.
 
+> **[2026-07-22 갱신 — 이슈 #3]** `--verify-upstream`(`npm run check:foundation:verify`) 도입으로 위 결론은
+> 갱신됐다. `styles/foundation`을 변경하는 PR에 한해 CI가 이 모드를 실행해, lock이 아니라 파운데이션
+> 원본(`CREFLEINC/design-system-v2`)을 `lock.commit` 기준으로 직접 대조한다 — 기대 파일 집합·해시를
+> lock이 아니라 upstream 내용에서 도출하므로 lock을 신뢰하지 않는다. 신뢰 루트가 lock(같은 PR에서
+> 위조 가능)에서 파운데이션 리포(웹UI PR 작성자가 건드릴 수 없음)로 옮겨졌다. 다만 "위조 불가능"은
+> 아니다 — 정확히는 "웹UI PR 단독으로는 위조 불가 — 파운데이션 리포 침해 또는 워크플로(`ci.yml`)
+> 동시 변조가 필요"다. `required_approving_review_count`를 1 이상으로 올리는 조치는 여전히 유효한
+> 추가 방어선이지만, 활성 기여자가 1인뿐인 지금 즉시 켜면 개발이 정지된다 — 재개 조건을 "제2의
+> 활성 기여자 등장 시"로 재정의했다. 잔여 리스크(같은 PR에서 `ci.yml` 자체를 무력화하는 경우, 파운데이션
+> 리포 자체가 침해되는 경우, `FOUNDATION_PAT`이 PR CI에 노출되는 경우)는
+> `styles/foundation/README.md` "신뢰의 한계"에 상세히 기록했다.
+
 문제가 하나라도 있으면 `check-foundation.mjs`는 `exit 1`과 함께 다음 행동을 지시한다.
 
 > `styles/foundation/tokens.css`는 파운데이션 repo의 동봉본입니다. 직접 수정하지 마세요.
@@ -133,6 +145,16 @@ scripts/
 4. 네트워크·인증 실패 → 경고 출력 후 `exit 0`
 
 오프라인에서도, 파운데이션 접근 토큰이 없는 CI에서도 빌드가 멈추면 안 되기 때문이다.
+
+### `--verify-upstream` (신뢰 루트 위조 검증) — [2026-07-22 갱신, 이슈 #3]
+
+`--upstream`과 계약이 정반대다. `--upstream`은 **fail-open**(staleness 경고, 검증 실패해도 항상
+`exit 0`)인 반면 `--verify-upstream`은 **fail-closed**다 — lock을 신뢰하지 않고 파운데이션 원본
+(`lock.commit` 기준으로 fetch)에서 기대 파일 집합·해시를 직접 도출해 lock과 대조하며, 네트워크·인증
+실패나 커밋 미존재를 포함한 모든 검증 불가 상황도 성공으로 치지 않고 `exit 1`로 실패시킨다. 오프라인
+불변인 `check`(기본 게이트)에는 넣지 않고, `styles/foundation`을 변경하는 PR의 CI에서만 조건부로
+실행한다(§5). 구현은 `scripts/foundation-lock.mjs`의 `verifyAgainstUpstream(lock, { repo })`, CLI는
+`node scripts/check-foundation.mjs --verify-upstream`(= `npm run check:foundation:verify`).
 
 ---
 

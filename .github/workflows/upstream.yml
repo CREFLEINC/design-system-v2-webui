@@ -16,7 +16,11 @@ jobs:
   upstream:
     runs-on: ubuntu-latest
     steps:
+      # persist-credentials: false — GITHUB_TOKEN extraheader 가 FOUNDATION_PAT(insteadOf)을
+      # 무력화하는 것을 차단한다 (ci.yml 의 동일 주석 참조, PR #29 CI 실측). 끄지 말 것.
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: '24'
@@ -31,3 +35,6 @@ jobs:
           git config --global url."https://x-access-token:${FOUNDATION_PAT}@github.com/".insteadOf "https://github.com/"
       # npm ci 불필요 — 스크립트는 node 내장 모듈만 쓴다 (prepare 의 전체 빌드 낭비 방지).
       - run: node scripts/check-foundation.mjs --upstream --strict
+      # 주간 사후 위조 감사 — PR CI(ci.yml 의 check job)를 우회한 변조의 백스톱.
+      # 위 스텝과 같은 PAT 구성을 재사용한다.
+      - run: node scripts/check-foundation.mjs --verify-upstream
