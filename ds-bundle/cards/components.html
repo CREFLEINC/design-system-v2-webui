@@ -94,7 +94,7 @@
 
   /* ---- Tabs ---- */
   .tabs { display: flex; gap: var(--space-2); box-shadow: inset 0 -1px 0 0 var(--outline); padding: var(--space-1) 0; }
-  .tab { position: relative; display: inline-flex; align-items: center; height: var(--control-height-md); padding: 0 var(--space-3); border: 0; background: transparent; color: var(--on-surface-variant); font: var(--type-label-lg); border-radius: var(--radius-sm); cursor: pointer; }
+  .tab { position: relative; display: inline-flex; align-items: center; gap: var(--space-2); height: var(--control-height-md); padding: 0 var(--space-3); border: 0; background: transparent; color: var(--on-surface-variant); font: var(--type-label-lg); border-radius: var(--radius-sm); cursor: pointer; }
   .tab.active { color: var(--primary-text); }
   .tab.active::after { content: ''; position: absolute; left: var(--space-3); right: var(--space-3); bottom: calc(-1 * var(--space-1)); height: 2px; border-radius: var(--radius-full); background: var(--primary); }
 
@@ -136,6 +136,59 @@
   .tbl td { padding: var(--space-3) var(--space-4); border-bottom: 1px solid var(--outline-variant); }
   .tbl tbody tr:nth-child(even) td { background: var(--surface-container-low); }
   .tbl tbody tr:last-child td { border-bottom: 0; }
+
+  /* ---- Table: 그룹 헤더 행(tbody th) + 요약행(tfoot) ---- */
+  /* 그룹 헤더는 tbody th[scope=rowgroup] — 기존 .tbl th 규칙이 thead와 동일한 밴드 룩을 그대로 부여한다 */
+  .tbl [data-align='end'] { text-align: right; }
+  .tbl tfoot td { background: var(--surface-container); color: var(--on-surface); }
+  .tbl tfoot tr:first-child td { border-top: 2px solid var(--outline-variant); }
+  .tbl tfoot tr:last-child td { border-bottom: 0; }
+  .tbl tfoot td[data-emphasis='true'] { font: var(--type-label-lg); }
+
+  /* ---- Stepper — 순차 단계(노드+커넥터). 노드 지름=--space-8(40) / 반경=--space-5(20)=지름/2 ---- */
+  .stp { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: row; align-items: flex-start; }
+  .stp-step { position: relative; flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; align-items: center; text-align: center; gap: var(--space-2); }
+  .stp-node { position: relative; z-index: 1; box-sizing: border-box; flex: 0 0 auto; width: var(--space-8); height: var(--space-8); display: inline-flex; align-items: center; justify-content: center; border-radius: var(--radius-full); font: var(--type-label-lg); letter-spacing: var(--type-label-lg-tracking); }
+  .stp-node .material-symbols-rounded { font-size: 20px; }
+  .stp-step.complete .stp-node { background: var(--semantic-success); color: var(--on-primary); }
+  .stp-step.current .stp-node { background: var(--primary); color: var(--on-primary); box-shadow: 0 0 0 2px var(--state-focus); }
+  .stp-step.rejected .stp-node { background: var(--semantic-error); color: var(--on-primary); }
+  .stp-step.pending .stp-node { background: var(--surface); color: var(--on-surface-variant); border: 1px solid var(--outline-variant); }
+  /* 커넥터: 노드 중심 높이(top=반경)에 가로 레일. 자기 노드 우측 edge~다음 노드 좌측 edge (source 공식 그대로) */
+  .stp-conn { position: absolute; top: var(--space-5); transform: translateY(-50%); height: 2px; left: calc(50% + var(--space-5) + var(--space-1)); right: calc(-50% + var(--space-5) + var(--space-1)); background: var(--outline-variant); border-radius: var(--radius-full); }
+  .stp-conn.done { background: var(--semantic-success); }
+  .stp-labels { display: flex; flex-direction: column; gap: var(--space-1); align-items: center; min-width: 0; }
+  .stp-label { font: var(--type-label-lg); letter-spacing: var(--type-label-lg-tracking); color: var(--on-surface); }
+  .stp-step.current .stp-label { font-weight: 700; }
+  .stp-desc { font: var(--type-body-sm); letter-spacing: var(--type-body-sm-tracking); color: var(--on-surface-variant); }
+  .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+
+  /* ---- MatrixGrid — 항목×기간 밀집 상태 매트릭스 ---- */
+  .mtx-scroll { overflow-x: auto; }
+  .mtx { border-collapse: separate; border-spacing: 0; table-layout: fixed; color: var(--on-surface); background: var(--surface); font: var(--type-label-sm); letter-spacing: var(--type-label-sm-tracking); border-radius: var(--radius-md); overflow: hidden; }
+  .mtx-labelcol { width: calc(var(--space-12) + var(--space-6)); } /* 라벨 열 = space-12 + space-6 */
+  .mtx-datacol { width: var(--space-7); } /* 데이터 열 = space-7 */
+  .mtx th, .mtx td { box-sizing: border-box; height: var(--space-7); padding: var(--space-2); border-right: 1px solid var(--outline-variant); border-bottom: 1px solid var(--outline-variant); text-align: center; vertical-align: middle; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .mtx thead th { background: var(--surface-container); color: var(--on-surface-variant); }
+  .mtx-label { text-align: left; color: var(--on-surface-variant); background: var(--surface); }
+  .mtx-corner { background: var(--surface-container); }
+  /* 2단계 톤: 내용 없는 status 셀 → 진한 solid, 내용 있는 셀 → 연한 container 톤(+on-* 텍스트) */
+  .mtx td[data-tone='solid'][data-status='success'] { background: var(--semantic-success); }
+  .mtx td[data-tone='solid'][data-status='error'] { background: var(--semantic-error); }
+  .mtx td[data-tone='solid'][data-status='warning'] { background: var(--semantic-warning); }
+  .mtx td[data-tone='solid'][data-status='info'] { background: var(--semantic-info); }
+  .mtx td[data-tone='solid'][data-status='idle'] { background: var(--semantic-idle); }
+  .mtx td[data-tone='container'][data-status='success'] { background: var(--semantic-success-container); color: var(--on-semantic-success-container); }
+  .mtx td[data-tone='container'][data-status='error'] { background: var(--semantic-error-container); color: var(--on-semantic-error-container); }
+  .mtx td[data-tone='container'][data-status='warning'] { background: var(--semantic-warning-container); color: var(--on-semantic-warning-container); }
+  .mtx td[data-tone='container'][data-status='info'] { background: var(--semantic-info-container); color: var(--on-semantic-info-container); }
+  .mtx td[data-tone='container'][data-status='idle'] { background: var(--semantic-idle-container); color: var(--on-semantic-idle-container); }
+  /* 관통 강조 열(오늘): inset 링 + 헤더 라벨 강조색 */
+  .mtx [data-highlight] { box-shadow: inset 0 0 0 2px var(--primary); }
+  .mtx thead th[data-highlight] { color: var(--primary-text); }
+  /* 요약행(tfoot) — 본문과 구분되는 밴드 */
+  .mtx tfoot th, .mtx tfoot td { background: var(--surface-container-high); color: var(--on-surface); border-top: 2px solid var(--outline-variant); }
+  .mtx-sumlabel { color: var(--on-surface); }
 </style>
 
 <div class="head">
@@ -234,7 +287,7 @@
       <div class="tabs">
         <button class="tab active">실시간</button>
         <button class="tab">이력</button>
-        <button class="tab">알림</button>
+        <button class="tab">알림 <span class="badge badge-neutral">5</span></button>
       </div>
       <nav class="crumbs"><a class="crumb-link">홈</a><span class="material-symbols-rounded">chevron_right</span><a class="crumb-link">설비</a><span class="material-symbols-rounded">chevron_right</span><span class="crumb-current">설비 모니터링</span></nav>
     </div>
@@ -275,6 +328,107 @@
         <div class="dcard-h">점검 예약</div>
         <div class="dcard-b">압축기 D의 점검을 예약합니다. 담당 엔지니어에게 알림이 전송됩니다.</div>
         <div class="dcard-f"><button class="btn btn-text btn-sm">취소</button><button class="btn btn-filled btn-sm">예약</button></div>
+      </div>
+    </div>
+
+    <div class="spec span2">
+      <h3>Table — 그룹 헤더 · 요약행</h3>
+      <table class="tbl">
+        <thead><tr><th>설비</th><th style="width:96px">상태</th><th style="width:112px" data-align="end">처리량</th><th style="width:96px" data-align="end">가동률</th></tr></thead>
+        <tbody>
+          <tr><th scope="rowgroup" colspan="4">A 라인 · 2기</th></tr>
+          <tr><td>로봇암 A-3</td><td><span class="chip chip-sm chip-success">정상</span></td><td data-align="end">312</td><td data-align="end">98%</td></tr>
+          <tr><td>컨베이어 2</td><td><span class="chip chip-sm chip-warning">경고</span></td><td data-align="end">248</td><td data-align="end">91%</td></tr>
+          <tr><th scope="rowgroup" colspan="4">B 라인 · 2기</th></tr>
+          <tr><td>압축기 D</td><td><span class="chip chip-sm chip-error">불량</span></td><td data-align="end">0</td><td data-align="end">0%</td></tr>
+          <tr><td>포장기 P2</td><td><span class="chip chip-sm chip-idle">대기</span></td><td data-align="end">156</td><td data-align="end">72%</td></tr>
+        </tbody>
+        <tfoot>
+          <tr><td colspan="2" class="tbl-sumlabel">전체 합계</td><td data-align="end" data-emphasis="true">716</td><td data-align="end" data-emphasis="true">평균 65%</td></tr>
+        </tfoot>
+      </table>
+    </div>
+
+    <div class="spec span2">
+      <h3>Stepper — 단계 상태</h3>
+      <ol class="stp">
+        <li class="stp-step complete">
+          <span class="stp-node"><span class="material-symbols-rounded">check</span></span>
+          <span class="stp-labels"><span class="stp-label">점검 요청<span class="sr-only"> — 완료</span></span><span class="stp-desc">04-12 접수</span></span>
+          <span class="stp-conn done"></span>
+        </li>
+        <li class="stp-step rejected">
+          <span class="stp-node"><span class="material-symbols-rounded">close</span></span>
+          <span class="stp-labels"><span class="stp-label">1차 승인<span class="sr-only"> — 반려</span></span><span class="stp-desc">보완 요청</span></span>
+          <span class="stp-conn"></span>
+        </li>
+        <li class="stp-step current">
+          <span class="stp-node">3</span>
+          <span class="stp-labels"><span class="stp-label">재검토<span class="sr-only"> — 진행 중</span></span><span class="stp-desc">담당 엔지니어</span></span>
+          <span class="stp-conn"></span>
+        </li>
+        <li class="stp-step pending">
+          <span class="stp-node">4</span>
+          <span class="stp-labels"><span class="stp-label">최종 승인<span class="sr-only"> — 대기</span></span></span>
+        </li>
+      </ol>
+    </div>
+
+    <div class="spec span2">
+      <h3>MatrixGrid — 상태 매트릭스</h3>
+      <div class="mtx-scroll">
+        <table class="mtx" role="grid">
+          <colgroup>
+            <col class="mtx-labelcol" />
+            <col class="mtx-datacol" /><col class="mtx-datacol" /><col class="mtx-datacol" /><col class="mtx-datacol" /><col class="mtx-datacol" />
+          </colgroup>
+          <thead>
+            <tr>
+              <th class="mtx-label mtx-corner"></th>
+              <th scope="col">월</th><th scope="col">화</th><th scope="col">수</th><th scope="col">목</th><th scope="col" data-highlight>금·오늘</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th scope="row" class="mtx-label">A 라인</th>
+              <td data-status="success" data-tone="solid" aria-label="A 라인 · 월 · 정상"></td>
+              <td data-status="success" data-tone="solid" aria-label="A 라인 · 화 · 정상"></td>
+              <td data-status="warning" data-tone="solid" aria-label="A 라인 · 수 · 주의"></td>
+              <td data-status="success" data-tone="solid" aria-label="A 라인 · 목 · 정상"></td>
+              <td data-status="success" data-tone="container" data-highlight>0</td>
+            </tr>
+            <tr>
+              <th scope="row" class="mtx-label">B 라인</th>
+              <td data-status="success" data-tone="solid" aria-label="B 라인 · 월 · 정상"></td>
+              <td data-status="warning" data-tone="solid" aria-label="B 라인 · 화 · 주의"></td>
+              <td data-status="success" data-tone="solid" aria-label="B 라인 · 수 · 정상"></td>
+              <td data-status="success" data-tone="solid" aria-label="B 라인 · 목 · 정상"></td>
+              <td data-status="success" data-tone="container" data-highlight>0</td>
+            </tr>
+            <tr>
+              <th scope="row" class="mtx-label">C 라인</th>
+              <td data-status="idle" data-tone="solid" aria-label="C 라인 · 월 · 대기"></td>
+              <td data-status="success" data-tone="solid" aria-label="C 라인 · 화 · 정상"></td>
+              <td data-status="success" data-tone="solid" aria-label="C 라인 · 수 · 정상"></td>
+              <td data-status="success" data-tone="solid" aria-label="C 라인 · 목 · 정상"></td>
+              <td data-status="success" data-tone="container" data-highlight>0</td>
+            </tr>
+            <tr>
+              <th scope="row" class="mtx-label">D 라인</th>
+              <td data-status="warning" data-tone="solid" aria-label="D 라인 · 월 · 주의"></td>
+              <td data-status="error" data-tone="solid" aria-label="D 라인 · 화 · 이상"></td>
+              <td data-status="warning" data-tone="solid" aria-label="D 라인 · 수 · 주의"></td>
+              <td data-status="success" data-tone="solid" aria-label="D 라인 · 목 · 정상"></td>
+              <td data-status="warning" data-tone="container" data-highlight>1</td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <th scope="row" class="mtx-label mtx-sumlabel">가동률</th>
+              <td>98%</td><td>95%</td><td>92%</td><td>99%</td><td data-highlight>97%</td>
+            </tr>
+          </tfoot>
+        </table>
       </div>
     </div>
 
@@ -372,7 +526,7 @@
       <div class="tabs">
         <button class="tab active">실시간</button>
         <button class="tab">이력</button>
-        <button class="tab">알림</button>
+        <button class="tab">알림 <span class="badge badge-neutral">5</span></button>
       </div>
       <nav class="crumbs"><a class="crumb-link">홈</a><span class="material-symbols-rounded">chevron_right</span><a class="crumb-link">설비</a><span class="material-symbols-rounded">chevron_right</span><span class="crumb-current">설비 모니터링</span></nav>
     </div>
@@ -413,6 +567,107 @@
         <div class="dcard-h">점검 예약</div>
         <div class="dcard-b">압축기 D의 점검을 예약합니다. 담당 엔지니어에게 알림이 전송됩니다.</div>
         <div class="dcard-f"><button class="btn btn-text btn-sm">취소</button><button class="btn btn-filled btn-sm">예약</button></div>
+      </div>
+    </div>
+
+    <div class="spec span2">
+      <h3>Table — 그룹 헤더 · 요약행</h3>
+      <table class="tbl">
+        <thead><tr><th>설비</th><th style="width:96px">상태</th><th style="width:112px" data-align="end">처리량</th><th style="width:96px" data-align="end">가동률</th></tr></thead>
+        <tbody>
+          <tr><th scope="rowgroup" colspan="4">A 라인 · 2기</th></tr>
+          <tr><td>로봇암 A-3</td><td><span class="chip chip-sm chip-success">정상</span></td><td data-align="end">312</td><td data-align="end">98%</td></tr>
+          <tr><td>컨베이어 2</td><td><span class="chip chip-sm chip-warning">경고</span></td><td data-align="end">248</td><td data-align="end">91%</td></tr>
+          <tr><th scope="rowgroup" colspan="4">B 라인 · 2기</th></tr>
+          <tr><td>압축기 D</td><td><span class="chip chip-sm chip-error">불량</span></td><td data-align="end">0</td><td data-align="end">0%</td></tr>
+          <tr><td>포장기 P2</td><td><span class="chip chip-sm chip-idle">대기</span></td><td data-align="end">156</td><td data-align="end">72%</td></tr>
+        </tbody>
+        <tfoot>
+          <tr><td colspan="2" class="tbl-sumlabel">전체 합계</td><td data-align="end" data-emphasis="true">716</td><td data-align="end" data-emphasis="true">평균 65%</td></tr>
+        </tfoot>
+      </table>
+    </div>
+
+    <div class="spec span2">
+      <h3>Stepper — 단계 상태</h3>
+      <ol class="stp">
+        <li class="stp-step complete">
+          <span class="stp-node"><span class="material-symbols-rounded">check</span></span>
+          <span class="stp-labels"><span class="stp-label">점검 요청<span class="sr-only"> — 완료</span></span><span class="stp-desc">04-12 접수</span></span>
+          <span class="stp-conn done"></span>
+        </li>
+        <li class="stp-step rejected">
+          <span class="stp-node"><span class="material-symbols-rounded">close</span></span>
+          <span class="stp-labels"><span class="stp-label">1차 승인<span class="sr-only"> — 반려</span></span><span class="stp-desc">보완 요청</span></span>
+          <span class="stp-conn"></span>
+        </li>
+        <li class="stp-step current">
+          <span class="stp-node">3</span>
+          <span class="stp-labels"><span class="stp-label">재검토<span class="sr-only"> — 진행 중</span></span><span class="stp-desc">담당 엔지니어</span></span>
+          <span class="stp-conn"></span>
+        </li>
+        <li class="stp-step pending">
+          <span class="stp-node">4</span>
+          <span class="stp-labels"><span class="stp-label">최종 승인<span class="sr-only"> — 대기</span></span></span>
+        </li>
+      </ol>
+    </div>
+
+    <div class="spec span2">
+      <h3>MatrixGrid — 상태 매트릭스</h3>
+      <div class="mtx-scroll">
+        <table class="mtx" role="grid">
+          <colgroup>
+            <col class="mtx-labelcol" />
+            <col class="mtx-datacol" /><col class="mtx-datacol" /><col class="mtx-datacol" /><col class="mtx-datacol" /><col class="mtx-datacol" />
+          </colgroup>
+          <thead>
+            <tr>
+              <th class="mtx-label mtx-corner"></th>
+              <th scope="col">월</th><th scope="col">화</th><th scope="col">수</th><th scope="col">목</th><th scope="col" data-highlight>금·오늘</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th scope="row" class="mtx-label">A 라인</th>
+              <td data-status="success" data-tone="solid" aria-label="A 라인 · 월 · 정상"></td>
+              <td data-status="success" data-tone="solid" aria-label="A 라인 · 화 · 정상"></td>
+              <td data-status="warning" data-tone="solid" aria-label="A 라인 · 수 · 주의"></td>
+              <td data-status="success" data-tone="solid" aria-label="A 라인 · 목 · 정상"></td>
+              <td data-status="success" data-tone="container" data-highlight>0</td>
+            </tr>
+            <tr>
+              <th scope="row" class="mtx-label">B 라인</th>
+              <td data-status="success" data-tone="solid" aria-label="B 라인 · 월 · 정상"></td>
+              <td data-status="warning" data-tone="solid" aria-label="B 라인 · 화 · 주의"></td>
+              <td data-status="success" data-tone="solid" aria-label="B 라인 · 수 · 정상"></td>
+              <td data-status="success" data-tone="solid" aria-label="B 라인 · 목 · 정상"></td>
+              <td data-status="success" data-tone="container" data-highlight>0</td>
+            </tr>
+            <tr>
+              <th scope="row" class="mtx-label">C 라인</th>
+              <td data-status="idle" data-tone="solid" aria-label="C 라인 · 월 · 대기"></td>
+              <td data-status="success" data-tone="solid" aria-label="C 라인 · 화 · 정상"></td>
+              <td data-status="success" data-tone="solid" aria-label="C 라인 · 수 · 정상"></td>
+              <td data-status="success" data-tone="solid" aria-label="C 라인 · 목 · 정상"></td>
+              <td data-status="success" data-tone="container" data-highlight>0</td>
+            </tr>
+            <tr>
+              <th scope="row" class="mtx-label">D 라인</th>
+              <td data-status="warning" data-tone="solid" aria-label="D 라인 · 월 · 주의"></td>
+              <td data-status="error" data-tone="solid" aria-label="D 라인 · 화 · 이상"></td>
+              <td data-status="warning" data-tone="solid" aria-label="D 라인 · 수 · 주의"></td>
+              <td data-status="success" data-tone="solid" aria-label="D 라인 · 목 · 정상"></td>
+              <td data-status="warning" data-tone="container" data-highlight>1</td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <th scope="row" class="mtx-label mtx-sumlabel">가동률</th>
+              <td>98%</td><td>95%</td><td>92%</td><td>99%</td><td data-highlight>97%</td>
+            </tr>
+          </tfoot>
+        </table>
       </div>
     </div>
 
