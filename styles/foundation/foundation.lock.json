@@ -1,8 +1,8 @@
 {
   "repo": "https://github.com/CREFLEINC/design-system-v2.git",
   "ref": "main",
-  "commit": "e7344d850bcb1e56b9b7661c388e8939b877a085",
-  "syncedAt": "2026-07-09T11:52:55.686Z",
+  "commit": "e4d2380943fbd2bfd09a02d0cccf9510a092335b",
+  "syncedAt": "2026-07-24T06:10:44.144Z",
   "files": {
     "fonts/MaterialSymbolsRounded.woff2": "sha256:f74ee5e7c21080e800ce00f2e136b241349c2489c2ee3622b23115a45edeb357",
     "fonts/SpoqaHanSansNeo-Bold.woff2": "sha256:c85faa3fa812cae9fad6eadc662b0e68c84f010b61c5c0ebc769a7b43e0fcd4d",
@@ -10,6 +10,6 @@
     "fonts/SpoqaHanSansNeo-Medium.woff2": "sha256:7f98c688a6a270ccbc2b1dbf96bd89f40174c4b859edd8aa6d3c885d8346ad12",
     "fonts/SpoqaHanSansNeo-Regular.woff2": "sha256:4249bafc6673772edd9f3ed64589496ffbbd084a81dd85d6e170058fad86d117",
     "fonts/SpoqaHanSansNeo-Thin.woff2": "sha256:6740c25430d6a25c5de198d1493e49beda3464982ff58a310c8cf27d66f61a89",
-    "tokens.css": "sha256:225280d54abb0f2263b6a5b8eb1a5b504545914f558fd7f37c8669116504eff8"
+    "tokens.css": "sha256:50636cc60a59ce39eafa4ed8815de80490228aa245139ae299b01bc2a0024c76"
   }
 }

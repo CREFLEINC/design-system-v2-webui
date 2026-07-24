@@ -31,7 +31,7 @@
   --brand-gradient-dark: linear-gradient(135deg,
                            #1F2125 0%,
                            #7D161B 60%,
-                           #C9252C 100%);
+                           #C9252C 100%);  /* @kind color */
 
   /* ==========================================================================
      2. PRIMARY  — 공통 주색 별칭 (= 브랜드 레드)
@@ -69,9 +69,12 @@
   --outline-variant:     #C6C5D0;  /* 카드 1px 보더          */
 
   /* ==========================================================================
-     5. SEMANTIC  — 개념 동등 = 색 동등 (라이트/다크 고정)
+     5. SEMANTIC  — 개념 동등 = 색 동등
      "양품"은 어디서나 success, "불량"은 어디서나 error.
      장식용으로 새 hex 만들지 말 것.
+     - 강조(accent) 5색: 라이트/다크 고정
+     - container 계열(연한 상태 표면 + on-container): surface 상대적 → 테마별 값.
+       다크 값은 파일 하단 [data-theme="dark"] 블록이 공식 정의.
      ========================================================================== */
 
   --semantic-success:  #1F883D;  /* 양품 / Pass / OK       */
@@ -79,6 +82,19 @@
   --semantic-warning:  #E8A100;  /* 주의 / Attention       */
   --semantic-info:     #0B57D0;  /* 정보 / Info            */
   --semantic-idle:     #6E7781;  /* 대기 / Idle            */
+
+  /* 시맨틱 컨테이너 — 연한 상태 표면(상태 셀·뱃지 배경·배너 바탕)과
+     그 위 텍스트/아이콘. 진한 강조는 위의 --semantic-* 를 그대로 쓴다. (라이트 값) */
+  --semantic-success-container:    #E6F4EA;
+  --on-semantic-success-container: #0E5223;
+  --semantic-error-container:      #FBEAE8;
+  --on-semantic-error-container:   #8C1D18;
+  --semantic-warning-container:    #FBF0D0;
+  --on-semantic-warning-container: #6B4E00;
+  --semantic-info-container:       #E5EDFB;
+  --on-semantic-info-container:    #0A458F;
+  --semantic-idle-container:       #ECEDEF;
+  --on-semantic-idle-container:    #3B4147;
 
   /* ==========================================================================
      6. STATE LAYERS  — M3 상태 레이어 알파 (overlay 용)
@@ -91,4 +107,25 @@
   --state-press:    rgba(201, 37, 44, 0.12);  /* primary @ 12%  */
   --state-disabled-fill: rgba(27, 27, 31, 0.12);  /* on-surface @ 12% */
   --state-disabled-text: rgba(27, 27, 31, 0.38);  /* on-surface @ 38% */
+}
+
+/* ============================================================================
+   SEMANTIC CONTAINERS — 다크 테마 공식 값
+   컨테이너 표면은 surface 상대적이라 테마별 값을 갖는다 (강조 --semantic-* 는
+   테마 고정 유지). 이 블록은 파운데이션이 소유하는 다크 값의 전부이며,
+   전체 다크 테마(표면·primary 등)는 도메인 DS 소관이다 — 참조 구현:
+   design-system-v2-webui styles/themes.css. 활성화는 <html> 또는 임의
+   컨테이너에 data-theme="dark" 를 걸면 된다 (미설정 시 완전 불활성).
+   ============================================================================ */
+[data-theme="dark"] {
+  --semantic-success-container:    #17311F;
+  --on-semantic-success-container: #A6D9B6;
+  --semantic-error-container:      #3A1512;
+  --on-semantic-error-container:   #F2B8B5;
+  --semantic-warning-container:    #362B04;
+  --on-semantic-warning-container: #F2D48F;
+  --semantic-info-container:       #14243F;
+  --on-semantic-info-container:    #AEC9F5;
+  --semantic-idle-container:       #2A2D33;
+  --on-semantic-idle-container:    #C4C6CC;
 }
