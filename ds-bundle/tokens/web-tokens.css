@@ -78,14 +78,6 @@
   /* -------- Semantic 텍스트 역할 — 다크에서 밝은 톤으로 스왑 -------- */
   --semantic-error-text: var(--semantic-error);  /* light #B3261E 6.21:1 on #FBF8FD */
 
-  /* -------- Semantic 컨테이너 — 상태 칩 소프트 배경 + 그 위 텍스트 (surface-relative, 다크 오버라이드 있음)
-     파운데이션 Stage 2 승격 후보. 라이트 값은 여기, 다크는 themes.css. -------- */
-  --semantic-success-container:    #E6F4EA;  --on-semantic-success-container: #0E5223;
-  --semantic-error-container:      #FBEAE8;  --on-semantic-error-container:   #8C1D18;
-  --semantic-warning-container:    #FBF0D0;  --on-semantic-warning-container: #6B4E00;
-  --semantic-info-container:       #E5EDFB;  --on-semantic-info-container:    #0A458F;
-  --semantic-idle-container:       #ECEDEF;  --on-semantic-idle-container:    #3B4147;
-
   /* -------- Scrim + Dialog 폭 (테마 무관 폭; scrim은 다크 오버라이드 있음) -------- */
   --scrim: rgba(27, 27, 31, 0.45);
   --dialog-max-sm: 360px;
