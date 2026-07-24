@@ -17,7 +17,14 @@ jobs:
   check:
     runs-on: ubuntu-latest
     steps:
+      # persist-credentials 기본값(true)은 체크아웃 로컬 config 에 http.https://github.com/.extraheader
+      # (이 리포 전용 GITHUB_TOKEN Basic 헤더)를 남긴다. 이 헤더는 리포 루트 cwd 에서 실행되는 git 의
+      # github.com 요청 전부에 우선 적용되어, 아래 verify 스텝이 insteadOf 로 주입하는 FOUNDATION_PAT 을
+      # 무력화한다 — 무권한 GITHUB_TOKEN 이 전송되어 파운데이션(private) 접근이 404 로 실패한다
+      # (PR #29 CI 실측, 이슈 #3 후속). 이 리포는 public 이라 아래 익명 git fetch 는 영향 없다. 끄지 말 것.
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: '24'

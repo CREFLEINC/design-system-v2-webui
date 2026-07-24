@@ -16,7 +16,11 @@ jobs:
   upstream:
     runs-on: ubuntu-latest
     steps:
+      # persist-credentials: false — GITHUB_TOKEN extraheader 가 FOUNDATION_PAT(insteadOf)을
+      # 무력화하는 것을 차단한다 (ci.yml 의 동일 주석 참조, PR #29 CI 실측). 끄지 말 것.
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: '24'
