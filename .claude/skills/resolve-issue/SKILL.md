@@ -62,7 +62,7 @@ GitHub 이슈를 분석 → 구현 → 검증 → PR 생성으로 이어지는 �
 
 1. wave 내 태스크들의 실무자를 **한 메시지에서 동시에** Agent 호출한다(병렬). 등급에 따라 `issue-worker-senior`(model `opus`) / `issue-worker-junior`(model `sonnet`).
 2. 전원 완료 대기 → 보고서 파일(`02_task-{ID}_report.md`) 확인(반환값은 완료 신호로만 취급).
-3. 분석가에게 SendMessage: "wave-{i} 보고서(`02_task-*_report.md`)를 검토하고 태스크별 승인/재작업을 판정해 `04_wave{i}_verdict.md`에 기록하라". 완료 알림 후 판정 파일을 읽어 진행한다.
+3. 분석가에게 SendMessage: "wave-{i} 보고서(`02_task-*_report.md`)를 검토하고 태스크별 승인/재작업을 판정해 `04_wave{i}_verdict.md`에 기록하라". 완료 알림 후 판정 파일을 읽어 진행한다(유효 판정은 파일의 마지막 판정 블록의 `- **판정**:` 앵커 — 재판정이 하단에 이어쓰기됨).
 4. 재작업 판정 시: 해당 실무자에게 SendMessage로 수정 지시를 전달(같은 실무자 재사용, 컨텍스트 유지). 태스크당 최대 2회. 초과 시 사용자에게 보고하고 지시를 기다린다.
 5. 실무자 보고서가 `BLOCKED`이면: 분석가에게 중계하고, 계획 수정 또는 중단 판정은 `04_wave{i}_verdict.md`에서 읽는다.
 6. 전 태스크 승인 후 다음 wave로.
@@ -70,7 +70,7 @@ GitHub 이슈를 분석 → 구현 → 검증 → PR 생성으로 이어지는 �
 ### Phase 4: 검증
 
 1. Agent 호출: `subagent_type: "issue-tester"`, `model: "sonnet"`. 프롬프트: "`01_analysis.md`의 검증 계획을 그대로 실행하고 `03_test_report.md`를 작성하라".
-2. 분석가에게 SendMessage: "검증 보고서를 판정(PASS/FAIL)해 `04_final_verdict.md`에 기록하라 — PASS 시 PR 본문 초안(수용 기준 대비 충족 현황 포함)도 함께". 완료 알림 후 판정 파일을 읽어 진행한다.
+2. 분석가에게 SendMessage: "검증 보고서를 판정(PASS/FAIL)해 `04_final_verdict.md`에 기록하라 — PASS 시 PR 본문 초안(수용 기준 대비 충족 현황 포함)도 함께". 완료 알림 후 판정 파일을 읽어 진행한다(유효 판정은 파일의 마지막 판정 블록의 `- **판정**:` 앵커).
 3. `FAIL` → `04_final_verdict.md`에 기록된 수정 태스크로 Phase 3 재진입(재검증 시 검증자는 `03_test_report_r{회차}.md` 작성). 검증 사이클 최대 2회. 초과 시 실패 내용 전체를 사용자에게 보고하고 중단.
 4. `PASS` → Phase 5로.
 
