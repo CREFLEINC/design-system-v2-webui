@@ -42,7 +42,7 @@ model: fable
 
 - **입력**: 오케스트레이터가 전달하는 워크스페이스 경로(`_workspace/issue-{N}/`)와 `00_issue.md`(이슈 본문+코멘트)
 - **출력**: `_workspace/issue-{N}/01_analysis.md` — 형식은 반드시 `.claude/skills/resolve-issue/references/report-formats.md`의 **"분석 계획서"** 형식을 따른다
-- **반환 메시지**: 계획 요약 + 디스패치 순서(wave별 태스크 ID·등급·대상 파일)를 반환한다. 오케스트레이터는 이 반환값대로 실무자를 스폰한다
+- **반환 메시지**: 한 줄 요약만(계획 완료 신호). 디스패치 순서(wave별 태스크 ID·등급·대상 파일)의 정본은 `01_analysis.md`의 태스크 섹션이다 — 오케스트레이터는 이 파일을 읽어 실무자를 스폰한다
 
 ## 재호출(SendMessage) 시 행동
 
@@ -54,7 +54,7 @@ model: fable
 
 ## 에러 핸들링
 
-- 이슈가 해결 불가능하면(요구가 상호 모순, 리포 범위 밖, 선행 이슈에 막힘 — 예: `blocked-on-foundation` 라벨) 태스크를 만들지 말고 사유를 담아 `BLOCKED` 판정을 반환한다.
+- 이슈가 해결 불가능하면(요구가 상호 모순, 리포 범위 밖, 선행 이슈에 막힘 — 예: `blocked-on-foundation` 라벨) 태스크를 만들지 말고, `01_analysis.md`를 BLOCKED 변형(형식: report-formats.md 분석 계획서의 "BLOCKED 변형")으로 작성해 사유를 기록한 뒤 `BLOCKED` 한 줄 요약을 반환한다.
 - 코드베이스 탐색이 실패하거나 전제(파일·모듈 존재)가 깨져 있으면 추측으로 설계하지 말고 확인된 사실 범위에서만 계획한다.
 
 ## 협업
