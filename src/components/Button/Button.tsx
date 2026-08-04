@@ -3,7 +3,7 @@ import { cx } from '../../utils/cx'
 import styles from './Button.module.css'
 
 export type ButtonVariant = 'filled' | 'tonal' | 'outlined' | 'text'
-export type ButtonSize = 'sm' | 'md' | 'lg'
+export type ButtonSize = 'sm' | 'md' | 'lg' | 'xl'
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: ButtonVariant

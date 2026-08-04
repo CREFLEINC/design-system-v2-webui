@@ -45,7 +45,7 @@
 - props `ButtonProps`: variant, size, loading, leadingIcon, trailingIcon _(+ 네이티브 HTML 속성)_
 
 - `ButtonVariant`: `filled` `tonal` `outlined` `text`
-- `ButtonSize`: `sm` `md` `lg`
+- `ButtonSize`: `sm` `md` `lg` `xl`
 
 ## Phase 2 — Tier 1 components
 
@@ -57,7 +57,7 @@
 - props `IconButtonProps`: icon, selectedIcon, variant, size, toggle, pressed, defaultPressed, onPressedChange, 'aria-label' _(+ 네이티브 HTML 속성)_
 
 - `IconButtonVariant`: `standard` `filled` `tonal`
-- `IconButtonSize`: `sm` `md` `lg`
+- `IconButtonSize`: `sm` `md` `lg` `xl`
 
 ### TextField
 
@@ -66,7 +66,7 @@
 **TextField**
 - props `TextFieldProps`: label, helperText, error, disabledReason, size, leadingIcon, trailingIcon, fullWidth, containerClassName _(+ 네이티브 HTML 속성)_
 
-- `TextFieldSize`: `sm` `md` `lg`
+- `TextFieldSize`: `sm` `md` `lg` `xl`
 
 ### Select
 
@@ -75,7 +75,7 @@
 **Select**
 - props `SelectProps`: options, value, defaultValue, onChange, placeholder, size, disabled, invalid, name, id, leadingIcon, 'aria-label', 'aria-labelledby' _(+ 네이티브 HTML 속성)_
 
-- `SelectSize`: `sm` `md` `lg`
+- `SelectSize`: `sm` `md` `lg` `xl`
 - 기타 타입: `SelectOption`, `SelectOptionGroup`, `SelectItems`
 
 ### Checkbox
@@ -295,7 +295,7 @@
 **SearchInput**
 - props `SearchInputProps`: label, helperText, error, size, fullWidth, loading, value, defaultValue, onSearch, onClear, clearLabel, containerClassName _(+ 네이티브 HTML 속성)_
 
-- `SearchInputSize`: `sm` `md` `lg`
+- `SearchInputSize`: `sm` `md` `lg` `xl`
 
 ### Stepper
 

@@ -29,6 +29,7 @@
 .sm { width: var(--control-height-sm); height: var(--control-height-sm); }
 .md { width: var(--control-height-md); height: var(--control-height-md); }
 .lg { width: var(--control-height-lg); height: var(--control-height-lg); }
+.xl { width: var(--control-height-xl); height: var(--control-height-xl); }
 
 /* -------- variants (기본/토글 selected 룩) -------- */
 .standard { background: transparent; color: var(--on-surface-variant); }

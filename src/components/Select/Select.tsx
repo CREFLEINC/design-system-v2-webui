@@ -13,7 +13,7 @@ import { cx } from '../../utils/cx'
 import { Icon } from '../Icon/Icon'
 import styles from './Select.module.css'
 
-export type SelectSize = 'sm' | 'md' | 'lg'
+export type SelectSize = 'sm' | 'md' | 'lg' | 'xl'
 
 export interface SelectOption {
   value: string
@@ -329,7 +329,7 @@ export const Select = forwardRef<HTMLButtonElement, SelectProps>(function Select
         <div
           role="listbox"
           id={listboxId}
-          className={styles.listbox}
+          className={cx(styles.listbox, size === 'xl' && styles.listboxXl)}
           aria-label={ariaLabel}
           aria-labelledby={ariaLabelledby}
         >

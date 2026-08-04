@@ -42,7 +42,7 @@ export const WithIcons: Story = {
 export const Matrix: Story = {
   render: () => (
     <div style={{ display: 'grid', gap: 16 }}>
-      {(['sm', 'md', 'lg'] as const).map((s) => (
+      {(['sm', 'md', 'lg', 'xl'] as const).map((s) => (
         <div key={s} style={{ display: 'flex', gap: 16, alignItems: 'flex-end' }}>
           <TextField label="이름" size={s} placeholder="홍길동" helperText="표시 이름을 입력하세요" />
           <TextField label="이름" size={s} placeholder="홍길동" defaultValue="홍길동" />

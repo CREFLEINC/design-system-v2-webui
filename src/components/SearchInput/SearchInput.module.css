@@ -34,6 +34,7 @@
 .sm { height: var(--control-height-sm); padding: 0 var(--space-3) }
 .md { height: var(--control-height-md); padding: 0 var(--space-3) }
 .lg { height: var(--control-height-lg); padding: 0 var(--space-4) }
+.xl { height: var(--control-height-xl); padding: 0 var(--space-5) }
 
 .sm .input {
   font: var(--type-body-sm);

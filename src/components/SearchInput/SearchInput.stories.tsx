@@ -52,7 +52,7 @@ export const Controlled: Story = {
 export const Matrix: Story = {
   render: () => (
     <div style={{ display: 'grid', gap: 16 }}>
-      {(['sm', 'md', 'lg'] as const).map((s) => (
+      {(['sm', 'md', 'lg', 'xl'] as const).map((s) => (
         <div key={s} style={{ display: 'flex', gap: 16, alignItems: 'flex-end' }}>
           <SearchInput aria-label="검색" size={s} placeholder="제품, 로트, 설비 검색" />
           <SearchInput aria-label="검색" size={s} placeholder="제품, 로트, 설비 검색" defaultValue="스마트폰 조립" />

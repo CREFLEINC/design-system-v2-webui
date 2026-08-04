@@ -146,3 +146,25 @@ test('disabled Select는 클릭해도 열리지 않는다', async () => {
   await user.click(screen.getByRole('combobox'))
   expect(screen.queryByRole('listbox')).toBeNull()
 })
+
+test('size="xl"이면 트리거 className에 xl 클래스가 포함된다', () => {
+  render(<Select options={OPTS} size="xl" aria-label="도시" />)
+  const trigger = screen.getByRole('combobox')
+  expect(trigger.className).toContain(styles.xl)
+})
+
+test('size="xl"로 열면 listbox className에 listboxXl 클래스가 포함된다', async () => {
+  const user = userEvent.setup()
+  render(<Select options={OPTS} size="xl" aria-label="도시" />)
+  await user.click(screen.getByRole('combobox'))
+  const listbox = screen.getByRole('listbox')
+  expect(listbox.className).toContain(styles.listboxXl)
+})
+
+test('size 미지정(md)으로 열면 listbox className에 listboxXl 클래스가 없다', async () => {
+  const user = userEvent.setup()
+  render(<Select options={OPTS} aria-label="도시" />)
+  await user.click(screen.getByRole('combobox'))
+  const listbox = screen.getByRole('listbox')
+  expect(listbox.className).not.toContain(styles.listboxXl)
+})

@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event'
 import { createRef, useState } from 'react'
 import { SearchInput } from './SearchInput'
 import styles from './SearchInput.module.css'
+import ibStyles from '../IconButton/IconButton.module.css'
 
 test('타이핑하면 clear 버튼이 나타나고 onChange가 발화한다', async () => {
   const onChange = vi.fn()
@@ -83,4 +84,17 @@ test('disabled면 입력이 차단되고 clear 버튼이 없다', async () => {
   expect(screen.queryByRole('button', { name: '지우기' })).toBeNull()
   await userEvent.type(input, '변경')
   expect(onChange).not.toHaveBeenCalled()
+})
+
+test('size="xl"이면 inputWrap에 xl 클래스가 적용된다', () => {
+  render(<SearchInput aria-label="검색" size="xl" />)
+  const input = screen.getByRole('searchbox')
+  expect(input.parentElement?.className).toContain(styles.xl)
+})
+
+test('size="xl"이면 clear 버튼이 IconButton md 크기로 확대되고, 기본(md)에서는 sm 그대로다', () => {
+  const { rerender } = render(<SearchInput aria-label="검색" defaultValue="키워드" />)
+  expect(screen.getByRole('button', { name: '지우기' }).className).toContain(ibStyles.sm)
+  rerender(<SearchInput aria-label="검색" size="xl" defaultValue="키워드" />)
+  expect(screen.getByRole('button', { name: '지우기' }).className).toContain(ibStyles.md)
 })
