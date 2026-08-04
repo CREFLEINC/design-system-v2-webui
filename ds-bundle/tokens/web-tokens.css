@@ -101,6 +101,8 @@
 
   /* -------- Semantic 성공 텍스트 (--semantic-error-text 형제) -------- */
   --semantic-success-text: #0E5223;  /* light #FBF8FD 대비 8.87:1 */
+  /* -------- Semantic 대기/중립 텍스트 (--semantic-error-text 형제) -------- */
+  --semantic-idle-text: #5B6570;  /* light #FBF8FD 대비 5.63:1 */
   /* -------- Z-index -------- */
   --z-toast: 1100;
   /* -------- Layout -------- */

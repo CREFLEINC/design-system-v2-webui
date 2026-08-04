@@ -55,6 +55,7 @@
   --outline: #8E9099;                            /* 5.30:1 on #1B1D21 (Step 4 검증 완료) */
   /* Semantic 텍스트 — 다크에서 밝은 톤 */
   --semantic-error-text: #F2B8B5;                /* 9.88:1 on #1B1D21 */
+  --semantic-idle-text: #99A3AD;                 /* 6.59:1 on #1B1D21 */
   /* Scrim — 다크는 더 짙게 */
   --scrim: rgba(0, 0, 0, 0.60);
 

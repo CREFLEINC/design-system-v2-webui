@@ -3,7 +3,7 @@
 <!-- 이 파일은 scripts/gen-components.mjs 가 생성합니다. 직접 수정하지 마세요. -->
 <!-- 갱신: npm run docs:components -->
 
-`@crefle/web-ui` v0.1.0 — 모듈 35개에서 컴포넌트 42개 · 훅 3 · 유틸 1
+`@crefle/web-ui` v0.1.0 — 모듈 36개에서 컴포넌트 43개 · 훅 3 · 유틸 1
 
 와이어프레임을 이 목록과 대조하는 방법, 없는 것을 어디에 어떻게 요청하는지는
 [컴포넌트 요청 가이드](./component-requests.md)를 보세요.
@@ -308,6 +308,13 @@
 - `StepperOrientation`: `horizontal` `vertical`
 - `StepperSize`: `sm` `md`
 - 기타 타입: `StepperItem`
+
+### DiffRow
+
+`src/components/DiffRow/DiffRow.tsx` · 스토리 ✓
+
+**DiffRow**
+- props `DiffRowProps`: label, before, after, emptyText, changed _(+ 네이티브 HTML 속성)_
 
 ## Phase 4 — Tier 3 (composition + visualization)
 

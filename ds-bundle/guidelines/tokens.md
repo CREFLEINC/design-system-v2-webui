@@ -20,7 +20,7 @@ CREFLE Web UI의 유일한 스타일 언어는 **CSS custom property 토큰**이
 - **전경 텍스트**: `--on-surface` · `--on-surface-variant` · `--on-surface-muted`
 - **보더**: `--outline` (폼 컨트롤 실보더) · `--outline-variant` (1px 카드 보더)
 - **시맨틱 채움**: `--semantic-success` · `--semantic-error` · `--semantic-warning` · `--semantic-info` · `--semantic-idle`
-- **시맨틱 텍스트**: `--semantic-error-text` · `--semantic-success-text`
+- **시맨틱 텍스트**: `--semantic-error-text` · `--semantic-success-text` · `--semantic-idle-text`
 - **시맨틱 컨테이너 (배경+텍스트 쌍)**: `--semantic-{success,error,warning,info,idle}-container` + `--on-semantic-{…}-container`
 - **스크림**: `--scrim` (Dialog/Toast 뒷막)
 

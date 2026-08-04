@@ -60,6 +60,8 @@ export { SearchInput } from './components/SearchInput/SearchInput'
 export type { SearchInputProps, SearchInputSize } from './components/SearchInput/SearchInput'
 export { Stepper } from './components/Stepper/Stepper'
 export type { StepperProps, StepperItem, StepStatus, StepperOrientation, StepperSize } from './components/Stepper/Stepper'
+export { DiffRow } from './components/DiffRow/DiffRow'
+export type { DiffRowProps } from './components/DiffRow/DiffRow'
 
 // Phase 4 — Tier 3 (composition + visualization)
 export { AppShell, useAppShell } from './components/AppShell/AppShell'

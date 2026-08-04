@@ -36,6 +36,7 @@ const { onClick, ...rest } = props
 - 표면 위 **레드 텍스트/아이콘** → `var(--primary-text)` (다크 AA 안전). 채움/보더 레드는 `var(--primary)`.
 - 에러 **메시지 텍스트/아이콘** → `var(--semantic-error-text)`. 에러 **보더** → `var(--semantic-error)`.
 - tonal/컨테이너 위 텍스트 → 대응 `--on-*-container` 토큰.
+- 지난 값/중립 텍스트(예: 변경 이력의 이전 값) → `var(--semantic-idle-text)`. **이전 값에 `--semantic-error`·취소선(`line-through`)을 쓰지 않는다** — 잘못된 값이 아니라 지난 값이다.
 - `.module.css`는 토큰만: raw 색상 금지, px는 0/1/2만. `npm run lint:tokens`가 강제(미정의 토큰 참조도 검출).
 
 ## reduced-motion
