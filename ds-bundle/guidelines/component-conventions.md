@@ -45,6 +45,8 @@ const { onClick, ...rest } = props
 ## 접근성
 완전한 키보드 조작, 올바른 ARIA 롤/상태, WCAG AA 대비, 폼 컨트롤 라벨 연결(htmlFor/id 또는 aria-label). 네이티브 요소를 우선 사용(예: Radio는 네이티브 라디오 그룹).
 
+**disabled 컨트롤의 부가 정보**: disabled 인풋은 포커스를 받지 못하므로, 잠금 사유 같은 부가 정보를 `Tooltip` 단독으로 전달하면 키보드·스크린리더 사용자가 도달할 수 없다. 항상 보이는 DOM 텍스트로 렌더하고 `aria-describedby`로 인풋에 연결한다. 기준 구현은 `TextField`의 `disabledReason`. 포커스 가능한 `readOnly`는 해당 없음 — `helperText`로 충분하다.
+
 ## 기타
 - forwardRef를 실제 포커스 대상(input·인터랙티브 루트)에 전달.
 - 런타임 의존성 0 — 위치 계산·포커스 트랩 등은 네이티브 API 또는 자체 구현.

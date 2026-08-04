@@ -64,3 +64,68 @@ test('trailingIcon이 렌더되고 장식용으로 aria-hidden 처리된다', ()
   expect(iconText).toBeInTheDocument()
   expect(iconText).toHaveAttribute('aria-hidden', 'true')
 })
+
+test('disabled + disabledReason이면 사유가 DOM에 렌더되고 aria-describedby로 연결된다', () => {
+  render(<TextField label="이름" disabled disabledReason="외부 시스템 원본 값이라 수정할 수 없습니다" />)
+  const input = screen.getByLabelText('이름')
+  expect(screen.getByText('외부 시스템 원본 값이라 수정할 수 없습니다')).toBeInTheDocument()
+  const describedBy = input.getAttribute('aria-describedby')
+  expect(describedBy).toBeTruthy()
+  expect(document.getElementById(describedBy!)).toHaveTextContent('외부 시스템 원본 값이라 수정할 수 없습니다')
+})
+
+test('disabled + disabledReason + error면 error만 표시되고 사유는 렌더되지 않는다', () => {
+  render(
+    <TextField
+      label="이름"
+      disabled
+      disabledReason="외부 시스템 원본 값이라 수정할 수 없습니다"
+      error="필수 항목입니다"
+    />
+  )
+  const input = screen.getByLabelText('이름')
+  expect(screen.getByText('필수 항목입니다')).toBeInTheDocument()
+  expect(screen.queryByText('외부 시스템 원본 값이라 수정할 수 없습니다')).not.toBeInTheDocument()
+  const describedBy = input.getAttribute('aria-describedby')!
+  expect(document.getElementById(describedBy)).toHaveTextContent('필수 항목입니다')
+})
+
+test('disabled + disabledReason + helperText면 사유만 표시되고 helperText는 렌더되지 않는다', () => {
+  render(
+    <TextField
+      label="이름"
+      disabled
+      disabledReason="외부 시스템 원본 값이라 수정할 수 없습니다"
+      helperText="도움말"
+    />
+  )
+  expect(screen.getByText('외부 시스템 원본 값이라 수정할 수 없습니다')).toBeInTheDocument()
+  expect(screen.queryByText('도움말')).not.toBeInTheDocument()
+})
+
+test('disabled가 아니면 disabledReason은 무시되고 helperText가 대신 표시된다', () => {
+  render(<TextField label="이름" disabledReason="외부 시스템 원본 값이라 수정할 수 없습니다" helperText="도움말" />)
+  const input = screen.getByLabelText('이름')
+  expect(screen.queryByText('외부 시스템 원본 값이라 수정할 수 없습니다')).not.toBeInTheDocument()
+  expect(screen.getByText('도움말')).toBeInTheDocument()
+  const describedBy = input.getAttribute('aria-describedby')!
+  expect(document.getElementById(describedBy)).toHaveTextContent('도움말')
+})
+
+test('소비자가 넘긴 aria-describedby와 disabledReason의 id가 함께 병합된다', () => {
+  render(
+    <TextField
+      label="이름"
+      disabled
+      disabledReason="외부 시스템 원본 값이라 수정할 수 없습니다"
+      aria-describedby="ext"
+    />
+  )
+  const input = screen.getByLabelText('이름')
+  const describedBy = input.getAttribute('aria-describedby')!
+  const ids = describedBy.split(' ')
+  expect(ids).toContain('ext')
+  const reasonId = ids.find((i) => i !== 'ext')
+  expect(reasonId).toBeTruthy()
+  expect(document.getElementById(reasonId!)).toHaveTextContent('외부 시스템 원본 값이라 수정할 수 없습니다')
+})

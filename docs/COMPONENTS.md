@@ -64,7 +64,7 @@
 `src/components/TextField/TextField.tsx` · 스토리 ✓
 
 **TextField**
-- props `TextFieldProps`: label, helperText, error, size, leadingIcon, trailingIcon, fullWidth, containerClassName _(+ 네이티브 HTML 속성)_
+- props `TextFieldProps`: label, helperText, error, disabledReason, size, leadingIcon, trailingIcon, fullWidth, containerClassName _(+ 네이티브 HTML 속성)_
 
 - `TextFieldSize`: `sm` `md` `lg`
 

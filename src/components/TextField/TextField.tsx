@@ -8,10 +8,13 @@ export type TextFieldSize = 'sm' | 'md' | 'lg'
 export interface TextFieldProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'size'> {
   /** 시각적 라벨. 없으면 반드시 aria-label을 rest로 넘겨야 함 */
   label?: string
-  /** 도움말 — error가 있으면 대체됨 */
+  /** 도움말 — error나 (disabled 시) disabledReason이 있으면 대체됨 */
   helperText?: ReactNode
   /** truthy면 invalid 상태(aria-invalid) + 이 텍스트를 error 메시지로 표시 */
   error?: ReactNode
+  /** disabled일 때만 렌더 — 잠금 사유를 항상 보이는 DOM 텍스트로 노출하고 aria-describedby로 연결.
+   *  error가 있으면 error가 우선. readOnly에는 적용되지 않음(포커스 가능하므로 helperText 사용) */
+  disabledReason?: ReactNode
   size?: TextFieldSize
   leadingIcon?: ReactNode
   trailingIcon?: ReactNode
@@ -22,7 +25,7 @@ export interface TextFieldProps extends Omit<InputHTMLAttributes<HTMLInputElemen
 }
 
 export const TextField = forwardRef<HTMLInputElement, TextFieldProps>(function TextField(
-  { label, helperText, error, size = 'md', leadingIcon, trailingIcon, fullWidth = false,
+  { label, helperText, error, disabledReason, size = 'md', leadingIcon, trailingIcon, fullWidth = false,
     containerClassName, className, id: idProp, disabled, required,
     'aria-describedby': describedByProp, ...rest },
   ref
@@ -31,9 +34,12 @@ export const TextField = forwardRef<HTMLInputElement, TextFieldProps>(function T
   const id = idProp ?? reactId
   const helperId = `${id}-helper`
   const errorId = `${id}-error`
+  const reasonId = `${id}-reason`
   const invalid = Boolean(error)
+  const showReason = Boolean(disabled && disabledReason) && !invalid
   const describedBy =
-    cx(describedByProp, invalid ? errorId : helperText ? helperId : undefined) || undefined
+    cx(describedByProp, invalid ? errorId : showReason ? reasonId : helperText ? helperId : undefined) ||
+    undefined
 
   return (
     <div
@@ -60,6 +66,8 @@ export const TextField = forwardRef<HTMLInputElement, TextFieldProps>(function T
       </div>
       {invalid ? (
         <p id={errorId} className={styles.error}>{error}</p>
+      ) : showReason ? (
+        <p id={reasonId} className={styles.reason}>{disabledReason}</p>
       ) : helperText ? (
         <p id={helperId} className={styles.helper}>{helperText}</p>
       ) : null}

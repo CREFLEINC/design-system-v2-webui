@@ -24,6 +24,14 @@ export const Disabled: Story = {
   args: { disabled: true, value: '수정 불가' }
 }
 
+export const DisabledWithReason: Story = {
+  args: {
+    disabled: true,
+    value: '수정 불가',
+    disabledReason: '외부 시스템 원본 값이라 수정할 수 없습니다'
+  }
+}
+
 export const WithIcons: Story = {
   args: {
     leadingIcon: <Icon name="mail" size={20} />,
@@ -40,6 +48,14 @@ export const Matrix: Story = {
           <TextField label="이름" size={s} placeholder="홍길동" defaultValue="홍길동" />
           <TextField label="이름" size={s} placeholder="홍길동" error="필수 항목입니다" />
           <TextField label="이름" size={s} placeholder="홍길동" disabled defaultValue="수정 불가" />
+          <TextField
+            label="이름"
+            size={s}
+            placeholder="홍길동"
+            disabled
+            defaultValue="수정 불가"
+            disabledReason="외부 시스템 원본 값이라 수정할 수 없습니다"
+          />
         </div>
       ))}
       <div style={{ display: 'flex', gap: 16, alignItems: 'flex-end' }}>
