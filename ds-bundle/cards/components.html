@@ -189,6 +189,17 @@
   /* 요약행(tfoot) — 본문과 구분되는 밴드 */
   .mtx tfoot th, .mtx tfoot td { background: var(--surface-container-high); color: var(--on-surface); border-top: 2px solid var(--outline-variant); }
   .mtx-sumlabel { color: var(--on-surface); }
+
+  /* ---- DiffRow — 값 대비(전/후) ---- */
+  .dr { display: flex; flex-direction: column; gap: var(--space-3); }
+  .dr-row { display: flex; align-items: baseline; flex-wrap: wrap; gap: var(--space-3); }
+  .dr-label { flex: none; font: var(--type-label-lg); letter-spacing: var(--type-label-lg-tracking); color: var(--on-surface-muted); }
+  .dr-values { display: flex; align-items: baseline; flex-wrap: wrap; gap: var(--space-2); min-width: 0; }
+  .dr-before { font: var(--type-body-sm); letter-spacing: var(--type-body-sm-tracking); color: var(--semantic-idle-text); }
+  .dr .material-symbols-rounded { font-size: 16px; color: var(--on-surface-muted); }
+  .dr-after { font: var(--type-label-lg); letter-spacing: var(--type-label-lg-tracking); color: var(--on-surface); }
+  .dr-unchanged { font: var(--type-body-sm); letter-spacing: var(--type-body-sm-tracking); color: var(--on-surface-variant); }
+  .dr-empty { color: var(--on-surface-muted); }
 </style>
 
 <div class="head">
@@ -432,6 +443,42 @@
       </div>
     </div>
 
+    <div class="spec span2">
+      <h3>DiffRow — 값 대비</h3>
+      <div class="dr">
+        <div class="dr-row">
+          <span class="dr-label">표시명</span>
+          <span class="dr-values">
+            <span class="dr-before">구 명칭</span>
+            <span class="material-symbols-rounded dr-arrow" aria-hidden="true">arrow_forward</span>
+            <span class="dr-after">새 명칭</span>
+          </span>
+        </div>
+        <div class="dr-row">
+          <span class="dr-label">분류</span>
+          <span class="dr-values">
+            <span class="dr-before"><span class="dr-empty">(없음)</span></span>
+            <span class="material-symbols-rounded dr-arrow" aria-hidden="true">arrow_forward</span>
+            <span class="dr-after">표준</span>
+          </span>
+        </div>
+        <div class="dr-row">
+          <span class="dr-label">사용 여부</span>
+          <span class="dr-values">
+            <span class="dr-before">사용</span>
+            <span class="material-symbols-rounded dr-arrow" aria-hidden="true">arrow_forward</span>
+            <span class="dr-after">사용 중지</span>
+          </span>
+        </div>
+        <div class="dr-row">
+          <span class="dr-label">등록 유형</span>
+          <span class="dr-values">
+            <span class="dr-unchanged">일반</span>
+          </span>
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -668,6 +715,42 @@
             </tr>
           </tfoot>
         </table>
+      </div>
+    </div>
+
+    <div class="spec span2">
+      <h3>DiffRow — 값 대비</h3>
+      <div class="dr">
+        <div class="dr-row">
+          <span class="dr-label">표시명</span>
+          <span class="dr-values">
+            <span class="dr-before">구 명칭</span>
+            <span class="material-symbols-rounded dr-arrow" aria-hidden="true">arrow_forward</span>
+            <span class="dr-after">새 명칭</span>
+          </span>
+        </div>
+        <div class="dr-row">
+          <span class="dr-label">분류</span>
+          <span class="dr-values">
+            <span class="dr-before"><span class="dr-empty">(없음)</span></span>
+            <span class="material-symbols-rounded dr-arrow" aria-hidden="true">arrow_forward</span>
+            <span class="dr-after">표준</span>
+          </span>
+        </div>
+        <div class="dr-row">
+          <span class="dr-label">사용 여부</span>
+          <span class="dr-values">
+            <span class="dr-before">사용</span>
+            <span class="material-symbols-rounded dr-arrow" aria-hidden="true">arrow_forward</span>
+            <span class="dr-after">사용 중지</span>
+          </span>
+        </div>
+        <div class="dr-row">
+          <span class="dr-label">등록 유형</span>
+          <span class="dr-values">
+            <span class="dr-unchanged">일반</span>
+          </span>
+        </div>
       </div>
     </div>
 

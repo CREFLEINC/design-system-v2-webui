@@ -61,6 +61,7 @@ CREFLE Web UI는 **레드 단일 액센트(single-accent)** 시스템이다. 강
 
 - `--semantic-error-text` — light `#B3261E`(6.21:1) / dark `#F2B8B5`(9.88:1)
 - `--semantic-success-text` — light `#0E5223`(8.87:1) / dark `#A6D9B6`(10.63:1)
+- `--semantic-idle-text` — light `#5B6570`(5.63:1) / dark `#99A3AD`(6.59:1) — 지난 값/중립 텍스트(예: 변경 이력의 이전 값)
 - `--semantic-warning`은 흰 배경 텍스트로 쓰면 미달(2.09:1). **채움/아이콘/테두리로만**, 그 위 글자는 `--on-semantic-warning-container`.
 
 ### 컨테이너 역할 — 소프트 배경 + 그 위 텍스트 (상태 칩 / AlertBanner)
