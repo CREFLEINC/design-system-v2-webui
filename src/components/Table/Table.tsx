@@ -1,6 +1,8 @@
 import {
   forwardRef,
   useId,
+  useLayoutEffect,
+  useRef,
   useState,
   type HTMLAttributes,
   type ReactElement,
@@ -9,6 +11,7 @@ import {
 } from 'react'
 import { cx } from '../../utils/cx'
 import { Checkbox } from '../Checkbox/Checkbox'
+import { IconButton } from '../IconButton/IconButton'
 import styles from './Table.module.css'
 
 export type ColumnAlign = 'start' | 'center' | 'end' // 'end' = 우측정렬(수치)
@@ -86,6 +89,32 @@ export interface TableProps<T> extends Omit<HTMLAttributes<HTMLTableElement>, 'c
   groupBy?: (row: T) => string
   /** 그룹 헤더 셀 내용. groupRows는 렌더 순서의 그룹 행들. 미지정 시 groupKey 텍스트 */
   renderGroupHeader?: (groupKey: string, groupRows: readonly T[]) => ReactNode
+  // ----- 행 순서 재배치 (데이터 편집 — 정렬(sort)과 무관) -----
+  /**
+   * true면 각 데이터 행 끝에 순서 변경 열([↑][↓] 버튼)을 렌더한다.
+   * 정렬이 활성인 동안(제어·비제어 공통) 버튼은 비활성화된다 — 정렬은 보는 방식이고
+   * 재배치는 rows 순서를 바꾸는 편집이라, 정렬된 화면에서의 이동은 표시 결과와 어긋난다.
+   * groupBy와는 병용할 수 없다(지정 시 이 열을 렌더하지 않음) — 그룹 순서·소속이
+   * 데이터에서 파생되어 (from, to) 이동의 일관된 의미가 성립하지 않는다.
+   * reorderable에서는 안정적 getRowId 지정을 권장한다(선택 축과 같은 이유).
+   */
+  reorderable?: boolean
+  /**
+   * 행 이동 요청 — rows 배열 인덱스 기준. from의 행을 to로 옮긴 새 rows를 만들어
+   * 다시 내려주면 된다(제어형 — Table은 내부에서 순서를 바꾸지 않는다).
+   * 각 이동을 즉시 서버에 저장하는 훅이 아니다: 순서 컬럼에 유일 제약이 있으면
+   * 행 단위 저장은 중간 상태가 제약을 위반하므로, 저장은 편집 종료 시
+   * 최종 순서 전체를 한 번에 보내는 것을 전제로 한다.
+   */
+  onRowReorder?: (from: number, to: number) => void
+}
+
+type ReorderDirection = 'up' | 'down'
+
+/** 행 인덱스별 이동 버튼 노드 — 재정렬 커밋 직후 포커스를 복원할 대상 */
+interface ReorderButtons {
+  up: HTMLButtonElement | null
+  down: HTMLButtonElement | null
 }
 
 function alignAttr(align?: ColumnAlign): 'center' | 'end' | undefined {
@@ -127,6 +156,8 @@ function TableInner<T>(
     summaryRows,
     groupBy,
     renderGroupHeader,
+    reorderable = false,
+    onRowReorder,
     className,
     ...rest
   }: TableProps<T>,
@@ -212,7 +243,48 @@ function TableInner<T>(
     onSelectionChange?.(next)
   }
 
-  const colCount = columns.length + (selectable ? 1 : 0)
+  // 재배치는 rows 순서가 그대로 보이는 상태에서만 의미가 있다: groupBy면 열 자체를 렌더하지 않고,
+  // 정렬이 활성인 동안에는 열을 유지한 채(레이아웃 안정) 버튼만 잠근다
+  const showReorder = reorderable && !groupBy
+  const reorderLocked = activeSort != null
+
+  const reorderButtons = useRef(new Map<number, ReorderButtons>())
+  // 클릭 시점에 "이번 이동이 반영되면 어디에 포커스를 둘지"를 기록해 둔다
+  const pendingReorder = useRef<{ to: number; dir: ReorderDirection } | null>(null)
+  const [reorderMessage, setReorderMessage] = useState('')
+
+  const registerReorderButton =
+    (index: number, dir: ReorderDirection) => (node: HTMLButtonElement | null) => {
+      const map = reorderButtons.current
+      const entry = map.get(index) ?? { up: null, down: null }
+      entry[dir] = node
+      map.set(index, entry)
+    }
+
+  const moveRow = (index: number, dir: ReorderDirection) => {
+    const to = dir === 'up' ? index - 1 : index + 1
+    pendingReorder.current = { to, dir }
+    onRowReorder?.(index, to)
+  }
+
+  // rows가 실제로 바뀐 커밋 직후(페인트 전) 포커스를 복원한다 — 행 이동으로 DOM이 재정렬되면
+  // 눌렀던 버튼이 재삽입되며 포커스가 body로 떨어지기 때문. 부모가 콜백을 무시해 rows가
+  // 그대로면 이 effect는 돌지 않고 DOM도 움직이지 않으므로 포커스·알림 모두 그대로다.
+  useLayoutEffect(() => {
+    const pending = pendingReorder.current
+    if (!pending) return
+    // 무관한 rows 변경이 뒤늦게 포커스를 훔치지 않도록 1회 실행에 무조건 소비한다
+    pendingReorder.current = null
+    const entry = reorderButtons.current.get(pending.to)
+    const primary = entry?.[pending.dir] ?? null
+    // 경계에 닿아 방금 누른 방향이 비활성화됐으면 같은 행의 반대 방향 버튼으로 넘긴다
+    const target =
+      primary && !primary.disabled ? primary : (entry?.[pending.dir === 'up' ? 'down' : 'up'] ?? null)
+    target?.focus()
+    setReorderMessage(`행이 ${rows.length}개 중 ${pending.to + 1}번째로 이동했습니다`)
+  }, [rows])
+
+  const colCount = columns.length + (selectable ? 1 : 0) + (showReorder ? 1 : 0)
 
   const renderDataRow = (row: T, index: number, parity: 'odd' | 'even') => {
     const id = resolveRowId(row, index)
@@ -229,6 +301,28 @@ function TableInner<T>(
             {col.render ? col.render(row, index) : String((row as Record<string, unknown>)[col.key])}
           </td>
         ))}
+        {showReorder && (
+          <td className={styles.reorderCell}>
+            <span className={styles.reorderActions}>
+              <IconButton
+                ref={registerReorderButton(index, 'up')}
+                icon="arrow_upward"
+                size="sm"
+                aria-label="위로 이동"
+                disabled={reorderLocked || index === 0}
+                onClick={() => moveRow(index, 'up')}
+              />
+              <IconButton
+                ref={registerReorderButton(index, 'down')}
+                icon="arrow_downward"
+                size="sm"
+                aria-label="아래로 이동"
+                disabled={reorderLocked || index === rows.length - 1}
+                onClick={() => moveRow(index, 'down')}
+              />
+            </span>
+          </td>
+        )}
       </tr>
     )
   }
@@ -246,6 +340,7 @@ function TableInner<T>(
           {columns.map((col) => (
             <col key={col.key} style={col.width ? { width: col.width } : undefined} />
           ))}
+          {showReorder && <col className={styles.reorderCell} />}
         </colgroup>
         <thead>
           <tr>
@@ -285,6 +380,11 @@ function TableInner<T>(
                 </th>
               )
             })}
+            {showReorder && (
+              <th scope="col" className={styles.reorderCell}>
+                <span className={styles.srOnly}>순서 변경</span>
+              </th>
+            )}
           </tr>
         </thead>
         {rows.length === 0 ? (
@@ -333,12 +433,18 @@ function TableInner<T>(
                       </td>
                     )
                   })}
+                  {showReorder && <td className={styles.reorderCell} />}
                 </tr>
               )
             })}
           </tfoot>
         )}
       </table>
+      {showReorder && (
+        <div role="status" className={styles.srOnly}>
+          {reorderMessage}
+        </div>
+      )}
     </div>
   )
 }
