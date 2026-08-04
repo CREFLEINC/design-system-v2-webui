@@ -2,6 +2,7 @@ import { expect, test, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { Table } from './Table'
+import { useState } from 'react'
 
 test('caption·컬럼헤더·행을 렌더한다', () => {
   render(
@@ -557,4 +558,294 @@ test('renderGroupHeader에 groupKey와 렌더 순서의 groupRows가 전달된�
   const headers = container.querySelectorAll('tr[data-group-header] th')
   expect(headers[0].textContent).toBe('정상 (2)')
   expect(headers[1].textContent).toBe('점검 (1)')
+})
+
+// ----- 이슈 #39: reorderable(행 순서 재배치) -----
+
+function arrayMove<T>(list: T[], from: number, to: number): T[] {
+  const next = [...list]
+  const [moved] = next.splice(from, 1)
+  next.splice(to, 0, moved)
+  return next
+}
+
+test('reorderable이면 행마다 이동 버튼을 렌더하고 첫 행 위로·마지막 행 아래로가 비활성이며 순서 변경 헤더를 갖는다', () => {
+  render(
+    <Table
+      reorderable
+      getRowId={(r) => r.id}
+      columns={[{ key: 'name', header: '장비명' }]}
+      rows={[
+        { id: 'a', name: '가압기' },
+        { id: 'b', name: '냉각기' },
+        { id: 'c', name: '펌프' }
+      ]}
+    />
+  )
+  const upButtons = screen.getAllByRole('button', { name: '위로 이동' })
+  const downButtons = screen.getAllByRole('button', { name: '아래로 이동' })
+  expect(upButtons).toHaveLength(3)
+  expect(downButtons).toHaveLength(3)
+  expect(upButtons[0]).toBeDisabled() // 첫 행
+  expect(upButtons[1]).not.toBeDisabled()
+  expect(upButtons[2]).not.toBeDisabled()
+  expect(downButtons[2]).toBeDisabled() // 마지막 행
+  expect(downButtons[0]).not.toBeDisabled()
+  expect(downButtons[1]).not.toBeDisabled()
+  expect(screen.getByRole('columnheader', { name: '순서 변경' })).toBeInTheDocument()
+})
+
+test('중간 행 클릭이 rows 배열 인덱스 기준으로 onRowReorder를 방출한다', async () => {
+  const user = userEvent.setup()
+  const onRowReorder = vi.fn()
+  render(
+    <Table
+      reorderable
+      getRowId={(r) => r.id}
+      onRowReorder={onRowReorder}
+      columns={[{ key: 'name', header: '장비명' }]}
+      rows={[
+        { id: 'a', name: '가압기' },
+        { id: 'b', name: '냉각기' },
+        { id: 'c', name: '펌프' }
+      ]}
+    />
+  )
+  await user.click(screen.getAllByRole('button', { name: '위로 이동' })[1])
+  expect(onRowReorder).toHaveBeenLastCalledWith(1, 0)
+  await user.click(screen.getAllByRole('button', { name: '아래로 이동' })[1])
+  expect(onRowReorder).toHaveBeenLastCalledWith(1, 2)
+})
+
+test('이동 버튼에 키보드 포커스 후 Enter와 Space로 onRowReorder가 방출된다', async () => {
+  const user = userEvent.setup()
+  const onRowReorder = vi.fn()
+  render(
+    <Table
+      reorderable
+      getRowId={(r) => r.id}
+      onRowReorder={onRowReorder}
+      columns={[{ key: 'name', header: '장비명' }]}
+      rows={[
+        { id: 'a', name: '가압기' },
+        { id: 'b', name: '냉각기' },
+        { id: 'c', name: '펌프' }
+      ]}
+    />
+  )
+  const upMiddle = screen.getAllByRole('button', { name: '위로 이동' })[1]
+  upMiddle.focus()
+  expect(upMiddle).toHaveFocus()
+  await user.keyboard('{Enter}')
+  expect(onRowReorder).toHaveBeenLastCalledWith(1, 0)
+
+  const downMiddle = screen.getAllByRole('button', { name: '아래로 이동' })[1]
+  downMiddle.focus()
+  expect(downMiddle).toHaveFocus()
+  await user.keyboard(' ')
+  expect(onRowReorder).toHaveBeenLastCalledWith(1, 2)
+})
+
+test('첫 행 아래로 이동 후 이동한 행의 아래로 버튼에 포커스가 유지된다', async () => {
+  const user = userEvent.setup()
+  function Harness() {
+    const [rows, setRows] = useState([
+      { id: 'a', name: '가압기' },
+      { id: 'b', name: '냉각기' },
+      { id: 'c', name: '펌프' }
+    ])
+    return (
+      <Table
+        reorderable
+        getRowId={(r) => r.id}
+        columns={[{ key: 'name', header: '장비명' }]}
+        rows={rows}
+        onRowReorder={(from, to) => setRows((prev) => arrayMove(prev, from, to))}
+      />
+    )
+  }
+  render(<Harness />)
+  const downButtons = () => screen.getAllByRole('button', { name: '아래로 이동' })
+  await user.click(downButtons()[0]) // 첫 행(index 0) ↓ → index 1로 이동
+  expect(downButtons()[1]).toHaveFocus() // 이동한 행(now index 1)의 ↓ 버튼
+})
+
+test('경계에 도달해 버튼이 비활성화되면 같은 행의 반대 방향 버튼으로 포커스가 폴백된다', async () => {
+  const user = userEvent.setup()
+  function Harness() {
+    const [rows, setRows] = useState([
+      { id: 'a', name: '가압기' },
+      { id: 'b', name: '냉각기' },
+      { id: 'c', name: '펌프' }
+    ])
+    return (
+      <Table
+        reorderable
+        getRowId={(r) => r.id}
+        columns={[{ key: 'name', header: '장비명' }]}
+        rows={rows}
+        onRowReorder={(from, to) => setRows((prev) => arrayMove(prev, from, to))}
+      />
+    )
+  }
+  render(<Harness />)
+  const upButtons = () => screen.getAllByRole('button', { name: '위로 이동' })
+  const downButtons = () => screen.getAllByRole('button', { name: '아래로 이동' })
+  await user.click(upButtons()[1]) // index 1 → index 0(첫 행 도달)
+  expect(upButtons()[0]).toBeDisabled() // 방금 누른 방향(↑)이 경계로 비활성화
+  expect(downButtons()[0]).toHaveFocus() // 같은 행의 반대 방향(↓)으로 포커스 폴백
+})
+
+test('행 이동이 반영되면 상태 메시지가 갱신되고 반영되지 않으면 빈 채로 유지된다', async () => {
+  const user = userEvent.setup()
+  function Harness() {
+    const [rows, setRows] = useState([
+      { id: 'a', name: '가압기' },
+      { id: 'b', name: '냉각기' },
+      { id: 'c', name: '펌프' }
+    ])
+    return (
+      <Table
+        reorderable
+        getRowId={(r) => r.id}
+        columns={[{ key: 'name', header: '장비명' }]}
+        rows={rows}
+        onRowReorder={(from, to) => setRows((prev) => arrayMove(prev, from, to))}
+      />
+    )
+  }
+  const { unmount } = render(<Harness />)
+  expect(screen.getByRole('status')).toHaveTextContent('')
+  await user.click(screen.getAllByRole('button', { name: '위로 이동' })[1]) // index 1 → index 0
+  expect(screen.getByRole('status')).toHaveTextContent('행이 3개 중 1번째로 이동했습니다')
+  unmount()
+
+  // 콜백이 rows를 반영하지 않는 고정 렌더 — 클릭해도 상태 메시지는 갱신되지 않는다
+  render(
+    <Table
+      reorderable
+      getRowId={(r) => r.id}
+      columns={[{ key: 'name', header: '장비명' }]}
+      rows={[
+        { id: 'a', name: '가압기' },
+        { id: 'b', name: '냉각기' }
+      ]}
+    />
+  )
+  await user.click(screen.getAllByRole('button', { name: '위로 이동' })[1])
+  expect(screen.getByRole('status')).toHaveTextContent('')
+})
+
+test('정렬이 활성이면 모든 이동 버튼이 비활성화되고 정렬 해제 시 재활성화된다', async () => {
+  const user = userEvent.setup()
+  render(
+    <Table
+      reorderable
+      getRowId={(r) => r.id}
+      defaultSort={{ key: 'name', direction: 'ascending' }}
+      columns={[{ key: 'name', header: '장비명', sortable: true }]}
+      rows={[
+        { id: 'a', name: '가압기' },
+        { id: 'b', name: '냉각기' }
+      ]}
+    />
+  )
+  const upButtons = () => screen.getAllByRole('button', { name: '위로 이동' })
+  const downButtons = () => screen.getAllByRole('button', { name: '아래로 이동' })
+  upButtons().forEach((b) => expect(b).toBeDisabled())
+  downButtons().forEach((b) => expect(b).toBeDisabled())
+
+  await user.click(screen.getByRole('button', { name: /장비명/ })) // asc → desc
+  upButtons().forEach((b) => expect(b).toBeDisabled()) // 정렬 중에는 방향 무관 계속 잠김
+
+  await user.click(screen.getByRole('button', { name: /장비명/ })) // desc → none(해제)
+  expect(screen.getByRole('columnheader', { name: /장비명/ })).toHaveAttribute('aria-sort', 'none')
+  expect(upButtons()[0]).toBeDisabled() // 경계상 첫 행 ↑는 여전히 비활성
+  expect(upButtons()[1]).not.toBeDisabled() // 잠금 해제로 재활성
+  expect(downButtons()[0]).not.toBeDisabled()
+  expect(downButtons()[1]).toBeDisabled() // 경계상 마지막 행 ↓는 여전히 비활성
+})
+
+test('groupBy와 reorderable을 함께 쓰면 이동 버튼과 순서 변경 헤더를 렌더하지 않는다', () => {
+  render(
+    <Table
+      reorderable
+      getRowId={(r) => r.id}
+      groupBy={(r) => r.status}
+      columns={[
+        { key: 'name', header: '장비명' },
+        { key: 'status', header: '상태' }
+      ]}
+      rows={[
+        { id: 'a', name: '가압기', status: '정상' },
+        { id: 'b', name: '냉각기', status: '점검' }
+      ]}
+    />
+  )
+  expect(screen.queryByRole('button', { name: '위로 이동' })).toBeNull()
+  expect(screen.queryByRole('button', { name: '아래로 이동' })).toBeNull()
+  expect(screen.queryByRole('columnheader', { name: '순서 변경' })).toBeNull()
+  expect(screen.queryByRole('status')).toBeNull() // groupBy 배제 시 live region도 렌더되지 않는다
+})
+
+test('summaryRows가 있어도 마지막 데이터 행 기준으로 아래로 버튼이 비활성화되고 tfoot에 빈 셀이 패딩된다', () => {
+  const { container } = render(
+    <Table
+      reorderable
+      getRowId={(r) => r.id}
+      columns={[
+        { key: 'name', header: '장비명' },
+        { key: 'temp', header: '온도', align: 'end' }
+      ]}
+      rows={[
+        { id: 'a', name: '가압기', temp: 40 },
+        { id: 'b', name: '냉각기', temp: 12 }
+      ]}
+      summaryRows={[
+        [
+          { key: 'label', content: '합계' },
+          { key: 'value', content: '52', align: 'end' }
+        ]
+      ]}
+    />
+  )
+  const downButtons = screen.getAllByRole('button', { name: '아래로 이동' })
+  expect(downButtons).toHaveLength(2) // tfoot(summaryRows)은 세지 않음 — 데이터 행 2개 기준
+  expect(downButtons[0]).not.toBeDisabled()
+  expect(downButtons[1]).toBeDisabled() // 마지막 데이터 행 기준(요약 행 아님)
+
+  const tfoot = container.querySelector('tfoot')!
+  const footerCells = tfoot.querySelectorAll('td')
+  expect(footerCells).toHaveLength(3) // 요약 셀 2개 + 재배치 패딩 1개
+  expect(footerCells[footerCells.length - 1]).toBeEmptyDOMElement()
+})
+
+test('selectable + reorderable 공존에서 헤더 양끝이 선택·순서 변경이고 empty colSpan에 재배치 열이 반영된다', () => {
+  const { rerender } = render(
+    <Table
+      selectable
+      reorderable
+      selectedIds={[]}
+      getRowId={(r) => r.id}
+      columns={[{ key: 'name', header: '장비명' }]}
+      rows={[{ id: 'a', name: '가압기' }]}
+    />
+  )
+  const headers = screen.getAllByRole('columnheader')
+  expect(headers[0].querySelector('input[type="checkbox"]')).not.toBeNull() // 첫 헤더 셀 = 선택 체크박스
+  expect(headers[headers.length - 1]).toHaveAccessibleName('순서 변경') // 마지막 헤더 셀 = 순서 변경
+
+  rerender(
+    <Table
+      selectable
+      reorderable
+      selectedIds={[]}
+      getRowId={(r) => r.id}
+      columns={[{ key: 'name', header: '장비명' }]}
+      rows={[] as { id: string; name: string }[]}
+      empty={<span>표시할 이벤트가 없습니다</span>}
+    />
+  )
+  const emptyCell = screen.getByText('표시할 이벤트가 없습니다').closest('td')!
+  expect(emptyCell).toHaveAttribute('colspan', String(1 + 2)) // columns.length(1) + selectable(1) + reorder(1)
 })

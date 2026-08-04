@@ -228,3 +228,30 @@ export const Matrix: Story = {
     </div>
   )
 }
+
+// from 위치의 원소를 to 위치로 옮긴 새 배열을 만든다 (원본 불변)
+function arrayMove<T>(list: T[], from: number, to: number): T[] {
+  const next = [...list]
+  const [moved] = next.splice(from, 1)
+  next.splice(to, 0, moved)
+  return next
+}
+
+// 순서 재배치 — controlled 하네스(useState + arrayMove). ↑/↓ 클릭마다 로컬 rows 순서만
+// 바뀐다: onRowReorder는 로컬 순서 상태 변경용 콜백이지 즉시 저장 콜백이 아니다 — 저장은
+// 편집 종료 시 최종 순서 전체를 한 번에 보낸다(순서 컬럼 유일 제약 대응 — 행 단위로 저장하면
+// 중간 상태가 그 제약을 위반한다). 첫 행 ↑·마지막 행 ↓ 비활성과 연속 이동 후 포커스 유지를
+// 확인할 수 있다
+export const Reorderable: Story = {
+  render: (args) => {
+    const [orderedRows, setOrderedRows] = useState<Equipment[]>(rows)
+    return (
+      <Table
+        {...args}
+        rows={orderedRows}
+        reorderable
+        onRowReorder={(from, to) => setOrderedRows((prev) => arrayMove(prev, from, to))}
+      />
+    )
+  }
+}
