@@ -62,7 +62,7 @@ npm run build-storybook  # 정적 빌드 (storybook-static/)
 
 최근 확장: **DiffRow**(변경 이력의 값 대비 — before→after 잎 컴포넌트, 빈값/삭제/미변경 표기, `--semantic-idle-text`),
 **Stepper**(순차 단계 — 상태별 노드·커넥터), **MatrixGrid**(항목×기간 밀집 상태 매트릭스 — 상태 셀·관통 강조 열·요약행),
-그리고 기존 컴포넌트 확장 — Tabs `badge` 슬롯, Table `summaryRows`(tfoot 요약행·colSpan)·`groupBy`(행 그룹 헤더), LineChart `referenceLines`(축 고정 기준선).
+그리고 기존 컴포넌트 확장 — Tabs `badge` 슬롯, Table `summaryRows`(tfoot 요약행·colSpan)·`groupBy`(행 그룹 헤더), LineChart `referenceLines`(축 고정 기준선), TextField `disabledReason`(disabled 잠금 사유 — 항상 보이는 DOM 텍스트 + aria-describedby).
 
 ## 서드파티 폰트 라이선스
 

@@ -97,6 +97,11 @@
   letter-spacing: var(--type-body-sm-tracking);
   color: var(--on-surface-variant);
 }
+.reason {
+  font: var(--type-body-sm);
+  letter-spacing: var(--type-body-sm-tracking);
+  color: var(--on-surface-variant);
+}
 .error {
   font: var(--type-body-sm);
   letter-spacing: var(--type-body-sm-tracking);
