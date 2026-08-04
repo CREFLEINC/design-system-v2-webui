@@ -14,3 +14,4 @@
 | 2026-07-22 | 분석가 원칙 추가: 파생 산출물 재생성은 입력 확정 후 마지막 wave 배치 + 생성기 입력을 바꾸는 태스크에 드리프트 검사 포함 | agents/issue-analyst.md | 이슈 #12에서 문서 재생성을 스토리 생성 전에 배치해 인벤토리 드리프트 발생, 검증 사이클 1회 낭비 — 계획 결함 재발 방지 |
 | 2026-07-24 | "파일이 공식 채널" 원칙을 Phase 2·읽기 측까지 전면 적용 (분석가 반환=한 줄 요약, 초기 BLOCKED는 `01_analysis.md` BLOCKED 변형으로 기록, SKILL 읽기 측 "반환"→판정 파일 참조로 정정) | skills/resolve-issue, agents/issue-analyst.md | 이슈 #30 — PR #19 후속: 지시 충돌 해소 및 초기 BLOCKED 무폴백 경로 제거 |
 | 2026-07-31 | 판정 파일 회차 규약·고정 앵커 도입 (재판정은 하단 이어쓰기, 판정/회차 앵커 필드, 유효 판정=마지막 판정 블록) | skills/resolve-issue, agents/issue-analyst.md | 이슈 #31 — PR #19 후속: 가변 판정 제목·회차 규약 부재로 재판정 시 stale FAIL 오독 위험 (issue-12 실측) |
+| 2026-08-04 | `direct`(분석가 직접 처리) 등급 폐지 — 등급은 senior/junior 둘뿐, 분석가 구현 금지 명문화, 오케스트레이터에 검출·되돌리기·재디스패치 절차 추가 | agents/issue-analyst.md, skills/resolve-issue(SKILL·report-formats) | 이슈 #42 실행에서 분석가가 `direct` 지시대로 태스크를 직접 구현 — 자기 구현물을 자기가 판정하는 상태가 되어 판정 파일의 승인이 자기 검토로 전락. 만든 사람 ≠ 판정하는 사람이 이 파이프라인의 유일한 신뢰 근거 |
