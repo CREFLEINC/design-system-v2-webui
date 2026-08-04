@@ -18,6 +18,13 @@ test('variant/size 클래스가 적용된다', () => {
   expect(el.className).toContain(styles.lg)
 })
 
+test('xl 크기 클래스와 글리프 28px가 적용된다', () => {
+  render(<IconButton icon="add" aria-label="추가" size="xl" />)
+  const el = screen.getByRole('button')
+  expect(el.className).toContain(styles.xl)
+  expect(el.querySelector('[aria-hidden="true"]')).toHaveStyle({ fontSize: '28px' })
+})
+
 test('내부 아이콘은 장식용(aria-hidden)이고 이름은 aria-label에서만 온다', () => {
   render(<IconButton icon="delete" aria-label="삭제" />)
   const btn = screen.getByRole('button', { name: '삭제' })

@@ -4,7 +4,7 @@ import { Icon } from '../Icon/Icon'
 import styles from './IconButton.module.css'
 
 export type IconButtonVariant = 'standard' | 'filled' | 'tonal'
-export type IconButtonSize = 'sm' | 'md' | 'lg'
+export type IconButtonSize = 'sm' | 'md' | 'lg' | 'xl'
 
 export interface IconButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   /** Material Symbols 아이콘 이름 (리가처). 예: 'settings', 'close' */
@@ -29,7 +29,7 @@ export interface IconButtonProps extends ButtonHTMLAttributes<HTMLButtonElement>
   'aria-label': string
 }
 
-const ICON_SIZE = { sm: 20, md: 24, lg: 24 } as const
+const ICON_SIZE = { sm: 20, md: 24, lg: 24, xl: 28 } as const
 
 export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(function IconButton(
   {

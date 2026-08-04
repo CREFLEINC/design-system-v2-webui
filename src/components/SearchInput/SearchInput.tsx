@@ -22,7 +22,7 @@ import { Icon } from '../Icon/Icon'
 import { IconButton } from '../IconButton/IconButton'
 import styles from './SearchInput.module.css'
 
-export type SearchInputSize = 'sm' | 'md' | 'lg'
+export type SearchInputSize = 'sm' | 'md' | 'lg' | 'xl'
 
 // Omit native 'size' (number, collides with design size) and 'type' (we force type="search").
 export interface SearchInputProps
@@ -164,7 +164,8 @@ export const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(functi
           <IconButton
             className={styles.clear}
             icon="close"
-            size="sm"
+            /* xl은 터치 전용 — clear도 실제 터치 타겟이므로 40px로 확대. sm/md/lg는 기존 유지 */
+            size={size === 'xl' ? 'md' : 'sm'}
             variant="standard"
             aria-label={clearLabel}
             onClick={handleClear}

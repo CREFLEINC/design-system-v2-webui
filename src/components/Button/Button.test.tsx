@@ -18,6 +18,12 @@ test('variant/size 클래스가 적용된다 (기본 filled/md)', () => {
   expect(el.className).toContain(styles.lg)
 })
 
+test('size="xl" 클래스가 적용된다', () => {
+  render(<Button size="xl">버튼</Button>)
+  const el = screen.getByRole('button')
+  expect(el.className).toContain(styles.xl)
+})
+
 test('disabled면 클릭이 차단된다', async () => {
   const onClick = vi.fn()
   render(<Button disabled onClick={onClick}>버튼</Button>)

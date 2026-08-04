@@ -17,7 +17,7 @@ export const Matrix: Story = {
     <div style={{ display: 'grid', gap: 16 }}>
       {(['filled', 'tonal', 'outlined', 'text'] as const).map((v) => (
         <div key={v} style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
-          {(['sm', 'md', 'lg'] as const).map((s) => (
+          {(['sm', 'md', 'lg', 'xl'] as const).map((s) => (
             <Button key={s} variant={v} size={s}>버튼</Button>
           ))}
           <Button variant={v} leadingIcon={<Icon name="add" size={20} />}>추가</Button>

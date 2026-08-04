@@ -97,7 +97,7 @@ export const Controlled: Story = {
 
 export const Matrix: Story = {
   render: () => {
-    const sizes = ['sm', 'md', 'lg'] as const
+    const sizes = ['sm', 'md', 'lg', 'xl'] as const
     const cell = { width: 200 }
     return (
       <div style={{ display: 'grid', gap: 16 }}>

@@ -45,6 +45,7 @@
   --control-height-sm: 32px;
   --control-height-md: 40px;
   --control-height-lg: 48px;
+  --control-height-xl: 60px; /* 터치 전용 단말용 — 장갑 조작 등 저정밀 입력 대응 */
 
   /* -------- Radius -------- */
   --radius-sm: 8px;

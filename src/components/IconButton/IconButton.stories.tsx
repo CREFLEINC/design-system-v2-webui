@@ -7,7 +7,7 @@ const meta = {
   args: { icon: 'settings', 'aria-label': '설정', variant: 'standard', size: 'md' },
   argTypes: {
     variant: { control: 'inline-radio', options: ['standard', 'filled', 'tonal'] },
-    size: { control: 'inline-radio', options: ['sm', 'md', 'lg'] },
+    size: { control: 'inline-radio', options: ['sm', 'md', 'lg', 'xl'] },
     toggle: { control: 'boolean' }
   }
 } satisfies Meta<typeof IconButton>
@@ -21,7 +21,7 @@ export const Matrix: Story = {
     <div style={{ display: 'grid', gap: 16 }}>
       {(['standard', 'filled', 'tonal'] as const).map((v) => (
         <div key={v} style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
-          {(['sm', 'md', 'lg'] as const).map((s) => (
+          {(['sm', 'md', 'lg', 'xl'] as const).map((s) => (
             <IconButton key={s} icon="settings" aria-label={`설정 ${s}`} variant={v} size={s} />
           ))}
           <IconButton icon="settings" aria-label="비활성" variant={v} disabled />

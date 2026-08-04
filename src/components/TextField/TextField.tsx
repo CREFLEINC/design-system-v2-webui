@@ -2,7 +2,7 @@ import { forwardRef, useId, type InputHTMLAttributes, type ReactNode } from 'rea
 import { cx } from '../../utils/cx'
 import styles from './TextField.module.css'
 
-export type TextFieldSize = 'sm' | 'md' | 'lg'
+export type TextFieldSize = 'sm' | 'md' | 'lg' | 'xl'
 
 // Omit 'size' — native input.size is a number and collides with our design size.
 export interface TextFieldProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'size'> {

@@ -56,6 +56,8 @@ test('size 클래스가 적용된다 (기본 md, lg 지정)', () => {
   expect(screen.getByLabelText('이름').parentElement?.className).toContain(styles.md)
   rerender(<TextField label="이름" size="lg" />)
   expect(screen.getByLabelText('이름').parentElement?.className).toContain(styles.lg)
+  rerender(<TextField label="이름" size="xl" />)
+  expect(screen.getByLabelText('이름').parentElement?.className).toContain(styles.xl)
 })
 
 test('trailingIcon이 렌더되고 장식용으로 aria-hidden 처리된다', () => {
