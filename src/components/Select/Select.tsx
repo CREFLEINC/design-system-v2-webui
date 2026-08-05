@@ -10,6 +10,7 @@ import {
   type KeyboardEvent as ReactKeyboardEvent,
 } from 'react'
 import { cx } from '../../utils/cx'
+import { useFlipPlacement } from '../../utils/useFlipPlacement'
 import { Icon } from '../Icon/Icon'
 import styles from './Select.module.css'
 
@@ -103,6 +104,8 @@ export const Select = forwardRef<HTMLButtonElement, SelectProps>(function Select
     if (typeof ref === 'function') ref(node)
     else if (ref) ref.current = node
   }
+  const listboxRef = useRef<HTMLDivElement>(null)
+  const placement = useFlipPlacement(open, triggerRef, listboxRef)
 
   const typeBuffer = useRef('')
   const typeTs = useRef(0)
@@ -327,9 +330,14 @@ export const Select = forwardRef<HTMLButtonElement, SelectProps>(function Select
 
       {open && (
         <div
+          ref={listboxRef}
           role="listbox"
           id={listboxId}
-          className={cx(styles.listbox, size === 'xl' && styles.listboxXl)}
+          className={cx(
+            styles.listbox,
+            size === 'xl' && styles.listboxXl,
+            placement === 'up' && styles.flipUp
+          )}
           aria-label={ariaLabel}
           aria-labelledby={ariaLabelledby}
         >

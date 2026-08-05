@@ -95,6 +95,9 @@
 .listboxXl { max-height: calc(var(--control-height-xl) * 6) }
 .listboxXl .option { min-height: var(--control-height-xl) }
 
+/* 뷰포트 아래 공간이 부족하고 위가 충분할 때만 부착 (useFlipPlacement) */
+.listbox.flipUp { top: auto; bottom: calc(100% + var(--space-1)) }
+
 /* -------- option -------- */
 .option {
   position: relative;
