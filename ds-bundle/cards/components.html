@@ -201,6 +201,20 @@
   .dr-after { font: var(--type-label-lg); letter-spacing: var(--type-label-lg-tracking); color: var(--on-surface); }
   .dr-unchanged { font: var(--type-body-sm); letter-spacing: var(--type-body-sm-tracking); color: var(--on-surface-variant); }
   .dr-empty { color: var(--on-surface-muted); }
+
+  /* ---- DatePicker — 달력 팝업(6행 고정 그리드, 일요일 시작) ---- */
+  .dp { display: inline-flex; flex-direction: column; gap: var(--space-2); background: var(--surface-container-high); border-radius: var(--radius-md); box-shadow: var(--elevation-3); padding: var(--space-2); }
+  .dp-header { display: flex; align-items: center; gap: var(--space-1); }
+  .dp-nav { flex: none; display: inline-flex; align-items: center; justify-content: center; width: var(--control-height-sm); height: var(--control-height-sm); border-radius: var(--radius-full); color: var(--on-surface); }
+  .dp-nav .material-symbols-rounded { font-size: 20px; }
+  .dp-month { flex: 1 1 auto; text-align: center; font: var(--type-label-lg); letter-spacing: var(--type-label-lg-tracking); color: var(--on-surface); }
+  .dp-grid { border-collapse: separate; border-spacing: 0; table-layout: fixed; width: calc(var(--control-height-md) * 7); }
+  .dp-grid th { width: var(--control-height-md); padding: var(--space-1) 0; font: var(--type-label-sm); letter-spacing: var(--type-label-sm-tracking); color: var(--on-surface-muted); font-weight: normal; }
+  .dp-cell { width: var(--control-height-md); height: var(--control-height-md); text-align: center; vertical-align: middle; font: var(--type-body-sm); letter-spacing: var(--type-body-sm-tracking); color: var(--on-surface); border-radius: var(--radius-full); }
+  .dp-cell.dp-empty { visibility: hidden; }
+  .dp-cell.dp-today { box-shadow: inset 0 0 0 1px var(--primary); }
+  .dp-cell.dp-inrange { background: var(--primary-container); color: var(--on-primary-container); border-radius: 0; }
+  .dp-cell.dp-selected { background: var(--primary); color: var(--on-primary); }
 </style>
 
 <div class="head">
@@ -482,6 +496,42 @@
       </div>
     </div>
 
+    <div class="spec">
+      <h3>DatePicker — 달력 팝업</h3>
+      <div class="dp">
+        <div class="dp-header">
+          <span class="dp-nav"><span class="material-symbols-rounded" aria-hidden="true">chevron_left</span></span>
+          <span class="dp-month">2026년 8월</span>
+          <span class="dp-nav"><span class="material-symbols-rounded" aria-hidden="true">chevron_right</span></span>
+        </div>
+        <table class="dp-grid">
+          <thead>
+            <tr><th>일</th><th>월</th><th>화</th><th>수</th><th>목</th><th>금</th><th>토</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="dp-cell dp-empty"></td><td class="dp-cell dp-empty"></td><td class="dp-cell dp-empty"></td><td class="dp-cell dp-empty"></td><td class="dp-cell dp-empty"></td><td class="dp-cell dp-empty"></td><td class="dp-cell">1</td>
+            </tr>
+            <tr>
+              <td class="dp-cell">2</td><td class="dp-cell">3</td><td class="dp-cell">4</td><td class="dp-cell">5</td><td class="dp-cell">6</td><td class="dp-cell">7</td><td class="dp-cell">8</td>
+            </tr>
+            <tr>
+              <td class="dp-cell">9</td><td class="dp-cell dp-selected">10</td><td class="dp-cell dp-inrange">11</td><td class="dp-cell dp-inrange">12</td><td class="dp-cell dp-selected">13</td><td class="dp-cell">14</td><td class="dp-cell dp-today">15</td>
+            </tr>
+            <tr>
+              <td class="dp-cell">16</td><td class="dp-cell">17</td><td class="dp-cell">18</td><td class="dp-cell">19</td><td class="dp-cell">20</td><td class="dp-cell">21</td><td class="dp-cell">22</td>
+            </tr>
+            <tr>
+              <td class="dp-cell">23</td><td class="dp-cell">24</td><td class="dp-cell">25</td><td class="dp-cell">26</td><td class="dp-cell">27</td><td class="dp-cell">28</td><td class="dp-cell">29</td>
+            </tr>
+            <tr>
+              <td class="dp-cell">30</td><td class="dp-cell">31</td><td class="dp-cell dp-empty"></td><td class="dp-cell dp-empty"></td><td class="dp-cell dp-empty"></td><td class="dp-cell dp-empty"></td><td class="dp-cell dp-empty"></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -756,6 +806,42 @@
             <span class="dr-unchanged">일반</span>
           </span>
         </div>
+      </div>
+    </div>
+
+    <div class="spec">
+      <h3>DatePicker — 달력 팝업</h3>
+      <div class="dp">
+        <div class="dp-header">
+          <span class="dp-nav"><span class="material-symbols-rounded" aria-hidden="true">chevron_left</span></span>
+          <span class="dp-month">2026년 8월</span>
+          <span class="dp-nav"><span class="material-symbols-rounded" aria-hidden="true">chevron_right</span></span>
+        </div>
+        <table class="dp-grid">
+          <thead>
+            <tr><th>일</th><th>월</th><th>화</th><th>수</th><th>목</th><th>금</th><th>토</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="dp-cell dp-empty"></td><td class="dp-cell dp-empty"></td><td class="dp-cell dp-empty"></td><td class="dp-cell dp-empty"></td><td class="dp-cell dp-empty"></td><td class="dp-cell dp-empty"></td><td class="dp-cell">1</td>
+            </tr>
+            <tr>
+              <td class="dp-cell">2</td><td class="dp-cell">3</td><td class="dp-cell">4</td><td class="dp-cell">5</td><td class="dp-cell">6</td><td class="dp-cell">7</td><td class="dp-cell">8</td>
+            </tr>
+            <tr>
+              <td class="dp-cell">9</td><td class="dp-cell dp-selected">10</td><td class="dp-cell dp-inrange">11</td><td class="dp-cell dp-inrange">12</td><td class="dp-cell dp-selected">13</td><td class="dp-cell">14</td><td class="dp-cell dp-today">15</td>
+            </tr>
+            <tr>
+              <td class="dp-cell">16</td><td class="dp-cell">17</td><td class="dp-cell">18</td><td class="dp-cell">19</td><td class="dp-cell">20</td><td class="dp-cell">21</td><td class="dp-cell">22</td>
+            </tr>
+            <tr>
+              <td class="dp-cell">23</td><td class="dp-cell">24</td><td class="dp-cell">25</td><td class="dp-cell">26</td><td class="dp-cell">27</td><td class="dp-cell">28</td><td class="dp-cell">29</td>
+            </tr>
+            <tr>
+              <td class="dp-cell">30</td><td class="dp-cell">31</td><td class="dp-cell dp-empty"></td><td class="dp-cell dp-empty"></td><td class="dp-cell dp-empty"></td><td class="dp-cell dp-empty"></td><td class="dp-cell dp-empty"></td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
 

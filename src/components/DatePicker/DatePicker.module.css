@@ -1,0 +1,229 @@
+.root {
+  position: relative;
+  display: inline-block;
+}
+
+/* -------- trigger -------- */
+.trigger {
+  position: relative;
+  isolation: isolate;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--on-surface);
+  font: var(--type-body-lg);
+  letter-spacing: var(--type-body-lg-tracking);
+  cursor: pointer;
+  outline: none;
+  text-align: left;
+  box-shadow: inset 0 0 0 1px var(--outline);
+  transition: box-shadow var(--motion-fast) var(--ease-standard);
+}
+
+/* 상태 레이어 — 배경을 건드리지 않고 오버레이만 얹는다 (M3 규칙, 뉴트럴) */
+.trigger::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: transparent;
+  transition: background var(--motion-fast) var(--ease-standard);
+  pointer-events: none;
+}
+.trigger:hover::before { background: var(--state-hover-neutral) }
+.trigger:active::before { background: var(--state-press-neutral) }
+
+.trigger:focus-visible { box-shadow: inset 0 0 0 1px var(--outline), var(--focus-ring) }
+
+.trigger.open { box-shadow: inset 0 0 0 2px var(--primary) }
+.trigger.open:focus-visible { box-shadow: inset 0 0 0 2px var(--primary), var(--focus-ring) }
+
+.trigger.invalid { box-shadow: inset 0 0 0 1px var(--semantic-error) }
+.trigger.invalid:focus-visible { box-shadow: inset 0 0 0 1px var(--semantic-error), var(--focus-ring) }
+
+.trigger:disabled {
+  cursor: default;
+  color: var(--state-disabled-text);
+  box-shadow: inset 0 0 0 1px var(--state-disabled-fill);
+}
+.trigger:disabled::before { background: transparent }
+
+/* -------- trigger sizes -------- */
+/* size 축은 트리거와 날짜 셀 양쪽에 적용된다. 같은 클래스가 두 요소에 붙으므로 복합 셀렉터로 분리한다. */
+.trigger.sm {
+  height: var(--control-height-sm);
+  padding: 0 var(--space-3);
+  font: var(--type-label-lg);
+  letter-spacing: var(--type-label-lg-tracking);
+}
+.trigger.md { height: var(--control-height-md); padding: 0 var(--space-4) }
+.trigger.lg { height: var(--control-height-lg); padding: 0 var(--space-4) }
+.trigger.xl { height: var(--control-height-xl); padding: 0 var(--space-5) }
+
+/* -------- trigger value / placeholder / icon -------- */
+.value {
+  flex: 1 1 auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.placeholder { color: var(--on-surface-muted) }
+
+.calendarIcon {
+  flex: none;
+  margin-left: var(--space-1);
+  display: inline-flex;
+}
+
+/* -------- popup (달력 다이얼로그) -------- */
+/* Select의 listbox와 동일한 배치·표면. 6행 고정 그리드라 월을 넘겨도 높이가 변하지 않는다. */
+.popup {
+  position: absolute;
+  top: calc(100% + var(--space-1));
+  left: 0;
+  z-index: 20;
+  padding: var(--space-2);
+  background: var(--surface-container-high);
+  border-radius: var(--radius-md);
+  box-shadow: var(--elevation-3);
+}
+
+/* -------- month header -------- */
+.header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  margin-bottom: var(--space-1);
+}
+
+.monthLabel {
+  flex: 1 1 auto;
+  text-align: center;
+  color: var(--on-surface);
+  font: var(--type-label-lg);
+  letter-spacing: var(--type-label-lg-tracking);
+}
+
+.nav {
+  position: relative;
+  isolation: isolate;
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--control-height-sm);
+  height: var(--control-height-sm);
+  border: 0;
+  border-radius: var(--radius-full);
+  background: transparent;
+  color: var(--on-surface);
+  cursor: pointer;
+  outline: none;
+}
+.nav::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: transparent;
+  transition: background var(--motion-fast) var(--ease-standard);
+  pointer-events: none;
+}
+.nav:hover::before { background: var(--state-hover-neutral) }
+.nav:active::before { background: var(--state-press-neutral) }
+.nav:focus-visible { box-shadow: var(--focus-ring) }
+.nav:disabled { color: var(--state-disabled-text); cursor: default; pointer-events: none }
+
+/* -------- grid -------- */
+/* 폭을 셀 크기 × 7로 못 박는다 — 열 폭 계산을 엔진에 맡기지 않아야 셸이 달라도 같은 그리드가 나온다. */
+.grid {
+  width: calc(var(--control-height-md) * 7);
+  border-collapse: separate;
+  border-spacing: 0;
+  table-layout: fixed;
+}
+.grid.xl { width: calc(var(--control-height-lg) * 7) }
+
+.weekday {
+  width: var(--control-height-md);
+  padding: var(--space-1) 0;
+  color: var(--on-surface-muted);
+  font: var(--type-label-sm);
+  letter-spacing: var(--type-label-sm-tracking);
+}
+
+.cell {
+  position: relative;
+  isolation: isolate;
+  width: var(--control-height-md);
+  height: var(--control-height-md);
+  padding: 0;
+  text-align: center;
+  vertical-align: middle;
+  color: var(--on-surface);
+  font: var(--type-body-sm);
+  letter-spacing: var(--type-body-sm-tracking);
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  outline: none;
+  transition: background var(--motion-fast) var(--ease-standard);
+}
+
+/* xl(터치 단말)에서는 트리거만이 아니라 실제로 손가락이 누르는 날짜 셀도 함께 커진다.
+   48px는 터치 타겟 권고(WCAG 2.5.5, >=44px)를 넘고, 7열 그리드 폭도 과대해지지 않는다.
+   sm/md/lg는 셀 크기가 같다(40px) — size 클래스는 붙지만 트리거 높이만 달라진다. */
+.cell.xl,
+.weekday.xl {
+  width: var(--control-height-lg);
+}
+.cell.xl {
+  height: var(--control-height-lg);
+}
+
+.cell::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: transparent;
+  transition: background var(--motion-fast) var(--ease-standard);
+  pointer-events: none;
+}
+.cell:hover::before { background: var(--state-hover-neutral) }
+.cell:focus-visible { box-shadow: var(--focus-ring) }
+
+/* 이웃 달 자리 — 6행 고정 그리드의 빈 칸. 렌더는 하되 상호작용은 없다. */
+.cellEmpty { cursor: default; pointer-events: none }
+
+/* min/max 밖 — 클릭·키보드 모두 도달하지 않는다(JS에서도 막는다) */
+.cellDisabled { color: var(--state-disabled-text); cursor: default; pointer-events: none }
+
+/* 오늘 — 링만. 선택 색을 덮지 않는다 */
+.today { box-shadow: inset 0 0 0 1px var(--primary) }
+.today:focus-visible { box-shadow: inset 0 0 0 1px var(--primary), var(--focus-ring) }
+
+/* 기간 사이 — tonal 밴드. 양 끝(.selected)은 원형이라 밴드는 각지게 이어 붙인다 */
+.inRange {
+  background: var(--primary-container);
+  color: var(--on-primary-container);
+  border-radius: 0;
+}
+
+/* 선택(단일) / 기간 양 끝 */
+.selected { background: var(--primary); color: var(--on-primary) }
+.selected.today { box-shadow: inset 0 0 0 1px var(--on-primary) }
+.selected.today:focus-visible { box-shadow: inset 0 0 0 1px var(--on-primary), var(--focus-ring) }
+
+@media (prefers-reduced-motion: reduce) {
+  .trigger,
+  .trigger::before,
+  .nav::before,
+  .cell,
+  .cell::before {
+    transition: none;
+  }
+}
