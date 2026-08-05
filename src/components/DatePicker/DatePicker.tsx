@@ -9,6 +9,7 @@ import {
   type KeyboardEvent as ReactKeyboardEvent,
 } from 'react'
 import { cx } from '../../utils/cx'
+import { useFlipPlacement } from '../../utils/useFlipPlacement'
 import { Icon } from '../Icon/Icon'
 import {
   addDaysISO,
@@ -154,6 +155,9 @@ export const DatePicker = forwardRef<HTMLButtonElement, DatePickerProps>(functio
   }
   /** true면 다음 렌더에서 활성 셀로 포커스를 옮긴다. 월 이동 버튼은 포커스를 버튼에 남긴다(APG). */
   const wantsCellFocus = useRef(false)
+
+  // 아래 자리가 부족하고 위가 충분할 때만 'up' — 열릴 때 1회 실측(useFlipPlacement.ts 참고).
+  const placement = useFlipPlacement(open, triggerRef, popupRef)
 
   const today = todayISO()
   const { year: viewYear, month: viewMonth, day: activeDay } = parseISO(activeISO)
@@ -461,7 +465,7 @@ export const DatePicker = forwardRef<HTMLButtonElement, DatePickerProps>(functio
           role="dialog"
           aria-modal="true"
           aria-label={isRange ? '기간 선택' : '날짜 선택'}
-          className={styles.popup}
+          className={cx(styles.popup, placement === 'up' && styles.flipUp)}
           onKeyDown={handleDialogKeyDown}
         >
           <div className={styles.header}>

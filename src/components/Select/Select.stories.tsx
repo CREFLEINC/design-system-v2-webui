@@ -81,6 +81,24 @@ export const OpenState: Story = {
   },
 }
 
+export const FlipUp: Story = {
+  name: '위로 뒤집힘 (화면 하단)',
+  render: (args) => (
+    <div style={{ paddingTop: '80vh' }}>
+      <p style={{ marginBottom: 8, font: 'var(--type-body-md)', color: 'var(--on-surface-muted)' }}>
+        화면 하단에서 열면 아래로 펼칠 자리가 없어 listbox가 트리거 위로 뒤집힌다.
+      </p>
+      <div style={{ width: 240 }}>
+        <Select {...args} />
+      </div>
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await userEvent.click(canvas.getByRole('combobox'))
+  },
+}
+
 export const Controlled: Story = {
   render: (args) => {
     const [value, setValue] = useState<string | null>('seoul')

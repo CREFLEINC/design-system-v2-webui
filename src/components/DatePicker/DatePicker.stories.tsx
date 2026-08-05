@@ -148,6 +148,23 @@ export const XL: Story = {
   }
 }
 
+/** 화면 하단에서 열면 위로 뒤집힌다 — xl은 달력이 커서 하단 배치 시 잘림이 잘 드러난다. */
+export const FlipUp: Story = {
+  args: { size: 'xl', defaultValue: '2026-03-14', placeholder: '발행일 선택' },
+  render: (args) => (
+    <div style={{ paddingTop: '80vh' }}>
+      <div style={{ width: 260 }}>
+        <DatePicker {...args} />
+      </div>
+      <p style={helpText}>화면 하단에서 열면 위로 뒤집힘</p>
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await userEvent.click(canvas.getByRole('button'))
+  }
+}
+
 export const Matrix: Story = {
   render: () => {
     const sizes = ['sm', 'md', 'lg', 'xl'] as const

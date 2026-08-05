@@ -92,6 +92,9 @@
   box-shadow: var(--elevation-3);
 }
 
+/* 뷰포트 아래 자리가 부족하고 위가 충분할 때만 붙는다(useFlipPlacement) — 기본 배치는 그대로 위 규칙을 쓴다 */
+.popup.flipUp { top: auto; bottom: calc(100% + var(--space-1)) }
+
 /* -------- month header -------- */
 .header {
   display: flex;

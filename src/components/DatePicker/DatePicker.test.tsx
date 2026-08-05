@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, expect, test, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 import { fireEvent, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { DatePicker } from './DatePicker'
@@ -426,4 +426,102 @@ test('월 이동 버튼 클릭 후 포커스는 버튼에 남는다', async () =
   await user.click(nextBtn)
   expect(nextBtn).toHaveFocus() // 반복 클릭이 가능해야 하므로 포커스가 옮겨가지 않는다
   expect(document.querySelector('td[data-date="2026-09-15"]')).not.toBeNull() // 그리드는 다음 달로 전환됨
+})
+
+// ── flip 배치 — 뷰포트 아래 자리 부족 시 위로 뒤집기 ─────────
+// jsdom은 레이아웃을 계산하지 않아 getBoundingClientRect()가 전부 0을 반환한다.
+// 프로토타입 스파이 + role 판별 디스패치로 트리거/팝업의 rect만 갈아끼운다
+// (src/utils/useFlipPlacement.test.ts와 공유하는 표준 레시피 — 계획서 결정 6).
+// 스파이·afterEach를 이 describe 안에 격리해 다른 테스트에 영향이 없게 한다.
+describe('flip 배치 — 뷰포트 아래 자리 부족 시 위로 뒤집기', () => {
+  type RectInit = { top: number; bottom: number; left?: number; right?: number }
+
+  const makeRect = ({ top, bottom, left = 0, right = 200 }: RectInit): DOMRect =>
+    ({
+      top,
+      bottom,
+      left,
+      right,
+      width: right - left,
+      height: bottom - top,
+      x: left,
+      y: top,
+      toJSON: () => ({}),
+    }) as DOMRect
+
+  const setViewportHeight = (h: number) =>
+    Object.defineProperty(window, 'innerHeight', { value: h, configurable: true, writable: true })
+
+  // 요소 판별: 팝업은 role=dialog, 트리거는 aria-haspopup=dialog. 그 외는 제로-rect(판정에 안 쓰임).
+  function mockRects({ trigger, popup }: { trigger: RectInit; popup: RectInit }) {
+    vi.spyOn(Element.prototype, 'getBoundingClientRect').mockImplementation(function (
+      this: Element
+    ) {
+      if (this.getAttribute('role') === 'dialog') return makeRect(popup)
+      if (this.getAttribute('aria-haspopup') === 'dialog') return makeRect(trigger)
+      return makeRect({ top: 0, bottom: 0 })
+    })
+  }
+
+  // 표준 시나리오 수치 (훅·Select 테스트와 공유 — 뷰포트 높이 800 기준)
+  const S1 = { trigger: { top: 100, bottom: 140 }, popup: { top: 144, bottom: 444 } } // 아래 충분
+  const S2 = { trigger: { top: 600, bottom: 640 }, popup: { top: 644, bottom: 944 } } // 아래 부족·위 충분
+  const S3 = { trigger: { top: 100, bottom: 140 }, popup: { top: 144, bottom: 894 } } // 둘 다 부족
+
+  afterEach(() => {
+    vi.restoreAllMocks()
+    setViewportHeight(768)
+  })
+
+  test('S1 — 아래 공간이 충분하면 down 유지(flipUp 클래스 없음)', async () => {
+    const user = setupUser()
+    setViewportHeight(800)
+    mockRects(S1)
+    render(<DatePicker aria-label="발행일" placeholder="날짜 선택" />)
+    await user.click(screen.getByRole('button', { name: '발행일' }))
+    expect(screen.getByRole('dialog').classList.contains(styles.flipUp)).toBe(false)
+  })
+
+  test('S2 — 아래가 부족하고 위가 충분하면 flipUp 클래스가 붙는다', async () => {
+    const user = setupUser()
+    setViewportHeight(800)
+    mockRects(S2)
+    render(<DatePicker aria-label="발행일" placeholder="날짜 선택" />)
+    await user.click(screen.getByRole('button', { name: '발행일' }))
+    expect(screen.getByRole('dialog').classList.contains(styles.flipUp)).toBe(true)
+  })
+
+  test('S3 — 위·아래 둘 다 부족하면 down을 유지한다(flipUp 클래스 없음)', async () => {
+    const user = setupUser()
+    setViewportHeight(800)
+    mockRects(S3)
+    render(<DatePicker aria-label="발행일" placeholder="날짜 선택" />)
+    await user.click(screen.getByRole('button', { name: '발행일' }))
+    expect(screen.getByRole('dialog').classList.contains(styles.flipUp)).toBe(false)
+  })
+
+  test('S4 — 닫으면 리셋되고 재오픈 시 바뀐 배치 조건으로 다시 판정한다', async () => {
+    const user = setupUser()
+    setViewportHeight(800)
+    mockRects(S2)
+    render(<DatePicker aria-label="발행일" placeholder="날짜 선택" />)
+    const trigger = screen.getByRole('button', { name: '발행일' })
+
+    await user.click(trigger)
+    expect(screen.getByRole('dialog').classList.contains(styles.flipUp)).toBe(true)
+
+    await user.click(trigger) // 닫기
+    expect(screen.queryByRole('dialog')).toBeNull()
+
+    mockRects(S1) // 트리거가 화면 위쪽으로 이동한 상황
+    await user.click(trigger) // 재오픈
+    expect(screen.getByRole('dialog').classList.contains(styles.flipUp)).toBe(false)
+  })
+
+  test('모킹 없이(제로-rect) 열면 down — jsdom 안전성 고정', async () => {
+    const user = setupUser()
+    render(<DatePicker aria-label="발행일" placeholder="날짜 선택" />)
+    await user.click(screen.getByRole('button', { name: '발행일' }))
+    expect(screen.getByRole('dialog').classList.contains(styles.flipUp)).toBe(false)
+  })
 })

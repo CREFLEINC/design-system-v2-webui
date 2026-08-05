@@ -1,4 +1,4 @@
-import { expect, test, vi } from 'vitest'
+import { afterEach, describe, expect, test, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { Select } from './Select'
@@ -167,4 +167,109 @@ test('size 미지정(md)으로 열면 listbox className에 listboxXl 클래스�
   await user.click(screen.getByRole('combobox'))
   const listbox = screen.getByRole('listbox')
   expect(listbox.className).not.toContain(styles.listboxXl)
+})
+
+// --- flip 배치 (useFlipPlacement 통합) ---
+// jsdom은 getBoundingClientRect()가 전부 0을 반환한다. 프로토타입 스파이 + role 기반
+// 디스패치로 트리거/listbox의 rect만 갈아끼운다 (계획서 결정 6 표준 레시피).
+describe('flip 배치 (listbox flipUp)', () => {
+  type RectInit = { top: number; bottom: number; left?: number; right?: number }
+
+  const makeRect = ({ top, bottom, left = 0, right = 200 }: RectInit): DOMRect =>
+    ({
+      top,
+      bottom,
+      left,
+      right,
+      width: right - left,
+      height: bottom - top,
+      x: left,
+      y: top,
+      toJSON: () => ({}),
+    }) as DOMRect
+
+  const setViewportHeight = (h: number) =>
+    Object.defineProperty(window, 'innerHeight', { value: h, configurable: true, writable: true })
+
+  function mockRects({ trigger, popup }: { trigger: RectInit; popup: RectInit }) {
+    vi.spyOn(Element.prototype, 'getBoundingClientRect').mockImplementation(function (
+      this: Element
+    ) {
+      const role = this.getAttribute('role')
+      if (role === 'listbox') return makeRect(popup)
+      if (role === 'combobox') return makeRect(trigger)
+      return makeRect({ top: 0, bottom: 0 })
+    })
+  }
+
+  afterEach(() => {
+    vi.restoreAllMocks()
+    setViewportHeight(768) // jsdom 기본값으로 복원
+  })
+
+  // 표준 시나리오 수치 (훅 테스트와 공유 — 뷰포트 높이 800 기준)
+  const S1 = { trigger: { top: 100, bottom: 140 }, popup: { top: 144, bottom: 444 } } // 아래 충분
+  const S2 = { trigger: { top: 600, bottom: 640 }, popup: { top: 644, bottom: 944 } } // 아래 부족·위 충분
+  const S3 = { trigger: { top: 100, bottom: 140 }, popup: { top: 144, bottom: 894 } } // 둘 다 부족
+
+  test('S1 — 아래 공간이 충분하면 down (flipUp 클래스 없음, 기존 동작)', async () => {
+    const user = userEvent.setup()
+    setViewportHeight(800)
+    mockRects(S1)
+    render(<Select options={OPTS} aria-label="도시" />)
+
+    await user.click(screen.getByRole('combobox'))
+
+    expect(screen.getByRole('listbox').classList.contains(styles.flipUp)).toBe(false)
+  })
+
+  test('S2 — 아래가 부족하고 위가 충분하면 flipUp 클래스가 붙는다', async () => {
+    const user = userEvent.setup()
+    setViewportHeight(800)
+    mockRects(S2)
+    render(<Select options={OPTS} aria-label="도시" />)
+
+    await user.click(screen.getByRole('combobox'))
+
+    expect(screen.getByRole('listbox').classList.contains(styles.flipUp)).toBe(true)
+  })
+
+  test('S3 — 위·아래 둘 다 부족하면 down을 유지한다 (flipUp 클래스 없음)', async () => {
+    const user = userEvent.setup()
+    setViewportHeight(800)
+    mockRects(S3)
+    render(<Select options={OPTS} aria-label="도시" />)
+
+    await user.click(screen.getByRole('combobox'))
+
+    expect(screen.getByRole('listbox').classList.contains(styles.flipUp)).toBe(false)
+  })
+
+  test('S4 — 닫고 재오픈하면 바뀐 배치 조건으로 다시 판정한다', async () => {
+    const user = userEvent.setup()
+    setViewportHeight(800)
+    mockRects(S2)
+    render(<Select options={OPTS} aria-label="도시" />)
+
+    const trigger = screen.getByRole('combobox')
+    await user.click(trigger) // 열기 — up
+    expect(screen.getByRole('listbox').classList.contains(styles.flipUp)).toBe(true)
+
+    await user.click(trigger) // 닫기
+    expect(screen.queryByRole('listbox')).toBeNull()
+
+    mockRects(S1) // 트리거가 화면 위쪽으로 이동한 상황
+    await user.click(trigger) // 재오픈 — down
+    expect(screen.getByRole('listbox').classList.contains(styles.flipUp)).toBe(false)
+  })
+
+  test('모킹 없이(제로-rect) 열면 down — jsdom 안전성 고정', async () => {
+    const user = userEvent.setup()
+    render(<Select options={OPTS} aria-label="도시" />)
+
+    await user.click(screen.getByRole('combobox'))
+
+    // rect가 전부 0 → overflowsBelow = 0 > innerHeight = false → 기존 동작과 동일
+    expect(screen.getByRole('listbox').classList.contains(styles.flipUp)).toBe(false)
+  })
 })
