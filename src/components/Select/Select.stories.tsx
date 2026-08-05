@@ -85,7 +85,7 @@ export const FlipUp: Story = {
   name: '위로 뒤집힘 (화면 하단)',
   render: (args) => (
     <div style={{ paddingTop: '80vh' }}>
-      <p style={{ marginBottom: 8, font: 'var(--type-body-md)', color: 'var(--on-surface-muted)' }}>
+      <p style={{ marginBottom: 8, font: 'var(--type-body-sm)', color: 'var(--on-surface-muted)' }}>
         화면 하단에서 열면 아래로 펼칠 자리가 없어 listbox가 트리거 위로 뒤집힌다.
       </p>
       <div style={{ width: 240 }}>
@@ -105,7 +105,7 @@ export const Controlled: Story = {
     return (
       <div style={{ width: 240 }}>
         <Select {...args} value={value} onChange={setValue} />
-        <p style={{ marginTop: 8, font: 'var(--type-body-md)', color: 'var(--on-surface-muted)' }}>
+        <p style={{ marginTop: 8, font: 'var(--type-body-sm)', color: 'var(--on-surface-muted)' }}>
           선택된 값: {value ?? '없음'}
         </p>
       </div>
