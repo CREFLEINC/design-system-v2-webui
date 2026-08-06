@@ -28,6 +28,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "lint:tokens": "node scripts/check-tokens.mjs",
+    "lint:box-sizing": "node scripts/check-box-sizing.mjs",
     "docs:components": "node scripts/gen-components.mjs",
     "check:components": "node scripts/gen-components.mjs --check",
     "check:foundation": "node scripts/check-foundation.mjs",
@@ -38,7 +39,7 @@
     "shoot": "bash scripts/shoot.sh",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
-    "check": "npm run check:foundation && npm run typecheck && npm test && npm run lint:tokens && npm run check:components && npm run build && npm run build-storybook"
+    "check": "npm run check:foundation && npm run typecheck && npm test && npm run lint:tokens && npm run lint:box-sizing && npm run check:components && npm run build && npm run build-storybook"
   },
   "engines": {
     "node": ">=20.19"
