@@ -60,3 +60,4 @@ const { onClick, ...rest } = props
 - forwardRef를 실제 포커스 대상(input·인터랙티브 루트)에 전달.
 - 런타임 의존성 0 — 위치 계산·포커스 트랩 등은 네이티브 API 또는 자체 구현.
 - 스토리 카피는 한국어, 이름은 영어. `components-<name>--matrix` 스토리로 라이트/다크 전수 배열.
+- `width: 100%`와 padding 을 같은 규칙에 쓰면 `box-sizing: border-box` 를 함께 명시한다 — 전역 리셋이 없어 기본 content-box 는 컨테이너를 padding 만큼 넘친다. `npm run lint:box-sizing` 이 강제한다.
