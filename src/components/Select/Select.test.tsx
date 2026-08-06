@@ -109,11 +109,41 @@ test('선택된 옵션에 aria-selected=true, 나머지는 false', async () => {
   expect(screen.getByRole('option', { name: '서울' })).toHaveAttribute('aria-selected', 'false')
 })
 
-test('옵션은 title 로 전체 라벨을 제공한다 (max-width 상한 초과 잘림 대비)', async () => {
+test('title 은 마우스 진입 시에만 부여된다 (접근성 설명 중복 방지)', async () => {
   const user = userEvent.setup()
   render(<Select options={OPTS} aria-label="도시" />)
-  await user.click(screen.getByRole('combobox'))
-  expect(screen.getByRole('option', { name: '부산' })).toHaveAttribute('title', '부산')
+  const trigger = screen.getByRole('combobox')
+  await user.click(trigger)
+  const option = screen.getByRole('option', { name: '부산' })
+  expect(option).not.toHaveAttribute('title')
+  expect(option).not.toHaveAccessibleDescription()
+
+  await user.hover(option)
+  expect(option).toHaveAttribute('title', '부산')
+  expect(option).toHaveAccessibleDescription('부산')
+
+  await user.unhover(option)
+  expect(option).not.toHaveAttribute('title')
+
+  await user.hover(option)
+  await user.click(option) // hover 상태에서 선택 → 닫힘
+  await user.click(trigger) // 재오픈
+  expect(screen.getByRole('option', { name: '부산' })).not.toHaveAttribute('title')
+})
+
+test('키보드 탐색으로 활성화된 옵션에는 title·접근성 설명이 없다', async () => {
+  const user = userEvent.setup()
+  render(<Select options={OPTS} aria-label="도시" />)
+  const trigger = screen.getByRole('combobox')
+  trigger.focus()
+  await user.keyboard('{ArrowDown}') // open, active=서울(첫 enabled)
+  await user.keyboard('{ArrowDown}') // active=부산
+  const active = screen.getByRole('option', { name: '부산' })
+  expect(trigger).toHaveAttribute('aria-activedescendant', active.id)
+  for (const option of screen.getAllByRole('option')) {
+    expect(option).not.toHaveAttribute('title')
+  }
+  expect(active).not.toHaveAccessibleDescription()
 })
 
 test('invalid면 aria-invalid=true + invalid 클래스', () => {

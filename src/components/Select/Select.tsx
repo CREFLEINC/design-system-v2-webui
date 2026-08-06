@@ -96,6 +96,7 @@ export const Select = forwardRef<HTMLButtonElement, SelectProps>(function Select
 
   const [open, setOpen] = useState(false)
   const [activeIndex, setActiveIndex] = useState(-1)
+  const [titleIndex, setTitleIndex] = useState(-1) // 마우스가 올라가 있는 옵션 인덱스. 키보드는 절대 갱신하지 않는다
 
   const rootRef = useRef<HTMLDivElement>(null)
   const triggerRef = useRef<HTMLButtonElement | null>(null)
@@ -150,6 +151,7 @@ export const Select = forwardRef<HTMLButtonElement, SelectProps>(function Select
   const close = () => {
     setOpen(false)
     setActiveIndex(-1)
+    setTitleIndex(-1)
   }
 
   const selectIndex = (i: number) => {
@@ -266,7 +268,7 @@ export const Select = forwardRef<HTMLButtonElement, SelectProps>(function Select
         key={entry.id}
         id={entry.id}
         role="option"
-        title={opt.label}
+        title={i === titleIndex ? opt.label : undefined}
         aria-selected={isSel}
         aria-disabled={opt.disabled || undefined}
         className={cx(
@@ -280,6 +282,8 @@ export const Select = forwardRef<HTMLButtonElement, SelectProps>(function Select
         onMouseMove={() => {
           if (!opt.disabled && activeIndex !== i) setActiveIndex(i)
         }}
+        onMouseEnter={() => setTitleIndex(i)}
+        onMouseLeave={() => setTitleIndex(-1)}
       >
         <Icon name="check" size={20} className={styles.check} />
         <span className={styles.optionLabel}>{opt.label}</span>
