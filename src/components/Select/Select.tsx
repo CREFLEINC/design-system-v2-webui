@@ -266,6 +266,7 @@ export const Select = forwardRef<HTMLButtonElement, SelectProps>(function Select
         key={entry.id}
         id={entry.id}
         role="option"
+        title={opt.label}
         aria-selected={isSel}
         aria-disabled={opt.disabled || undefined}
         className={cx(

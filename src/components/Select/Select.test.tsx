@@ -109,6 +109,13 @@ test('선택된 옵션에 aria-selected=true, 나머지는 false', async () => {
   expect(screen.getByRole('option', { name: '서울' })).toHaveAttribute('aria-selected', 'false')
 })
 
+test('옵션은 title 로 전체 라벨을 제공한다 (max-width 상한 초과 잘림 대비)', async () => {
+  const user = userEvent.setup()
+  render(<Select options={OPTS} aria-label="도시" />)
+  await user.click(screen.getByRole('combobox'))
+  expect(screen.getByRole('option', { name: '부산' })).toHaveAttribute('title', '부산')
+})
+
 test('invalid면 aria-invalid=true + invalid 클래스', () => {
   render(<Select options={OPTS} invalid aria-label="도시" />)
   const trigger = screen.getByRole('combobox')
