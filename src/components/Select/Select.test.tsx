@@ -228,6 +228,9 @@ describe('flip 배치 (listbox flipUp)', () => {
   const setViewportHeight = (h: number) =>
     Object.defineProperty(window, 'innerHeight', { value: h, configurable: true, writable: true })
 
+  const setViewportWidth = (w: number) =>
+    Object.defineProperty(window, 'innerWidth', { value: w, configurable: true, writable: true })
+
   function mockRects({ trigger, popup }: { trigger: RectInit; popup: RectInit }) {
     vi.spyOn(Element.prototype, 'getBoundingClientRect').mockImplementation(function (
       this: Element
@@ -242,12 +245,23 @@ describe('flip 배치 (listbox flipUp)', () => {
   afterEach(() => {
     vi.restoreAllMocks()
     setViewportHeight(768) // jsdom 기본값으로 복원
+    setViewportWidth(1024) // jsdom 기본값으로 복원
   })
 
   // 표준 시나리오 수치 (훅 테스트와 공유 — 뷰포트 높이 800 기준)
   const S1 = { trigger: { top: 100, bottom: 140 }, popup: { top: 144, bottom: 444 } } // 아래 충분
   const S2 = { trigger: { top: 600, bottom: 640 }, popup: { top: 644, bottom: 944 } } // 아래 부족·위 충분
   const S3 = { trigger: { top: 100, bottom: 140 }, popup: { top: 144, bottom: 894 } } // 둘 다 부족
+
+  // 가로 표준 시나리오 (훅 테스트와 공유 — 뷰포트 800h × 1000w 기준, H3만 폭 300)
+  const H2 = {
+    trigger: { top: 100, bottom: 140, left: 700, right: 840 },
+    popup: { top: 144, bottom: 444, left: 700, right: 1060 },
+  } // 오른쪽 부족·왼쪽 충분
+  const H3 = {
+    trigger: { top: 100, bottom: 140, left: 10, right: 103 },
+    popup: { top: 144, bottom: 444, left: 10, right: 370 },
+  } // 양쪽 다 부족 (뷰포트 폭 300에서만 성립)
 
   test('S1 — 아래 공간이 충분하면 down (flipUp 클래스 없음, 기존 동작)', async () => {
     const user = userEvent.setup()
@@ -308,5 +322,29 @@ describe('flip 배치 (listbox flipUp)', () => {
 
     // rect가 전부 0 → overflowsBelow = 0 > innerHeight = false → 기존 동작과 동일
     expect(screen.getByRole('listbox').classList.contains(styles.flipUp)).toBe(false)
+  })
+
+  test('H2 — 오른쪽이 부족하고 왼쪽이 충분하면 flipLeft 클래스가 붙는다', async () => {
+    const user = userEvent.setup()
+    setViewportWidth(1000)
+    mockRects(H2)
+    render(<Select options={OPTS} aria-label="도시" />)
+
+    await user.click(screen.getByRole('combobox'))
+
+    // 1060 > 1000(넘침) · 840 − 360 = 480 ≥ 0(왼쪽 충분)
+    expect(screen.getByRole('listbox').classList.contains(styles.flipLeft)).toBe(true)
+  })
+
+  test('H3 — 양쪽 다 부족하면 flipLeft 클래스가 붙지 않는다 (기본 유지)', async () => {
+    const user = userEvent.setup()
+    setViewportWidth(300)
+    mockRects(H3)
+    render(<Select options={OPTS} aria-label="도시" />)
+
+    await user.click(screen.getByRole('combobox'))
+
+    // 370 > 300(넘침)이지만 103 − 360 < 0 — 왼쪽도 부족하므로 좌측 정렬 유지
+    expect(screen.getByRole('listbox').classList.contains(styles.flipLeft)).toBe(false)
   })
 })

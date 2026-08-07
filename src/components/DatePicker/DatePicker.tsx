@@ -156,7 +156,8 @@ export const DatePicker = forwardRef<HTMLButtonElement, DatePickerProps>(functio
   /** true면 다음 렌더에서 활성 셀로 포커스를 옮긴다. 월 이동 버튼은 포커스를 버튼에 남긴다(APG). */
   const wantsCellFocus = useRef(false)
 
-  // 아래 자리가 부족하고 위가 충분할 때만 'up' — 열릴 때 1회 실측(useFlipPlacement.ts 참고).
+  // 세로는 아래 자리가 부족하고 위가 충분할 때만 'up', 가로는 오른쪽이 넘치고 왼쪽이
+  // 충분할 때만 'left'(우측 모서리 정렬) — 열릴 때 1회 실측(useFlipPlacement.ts 참고).
   const placement = useFlipPlacement(open, triggerRef, popupRef)
 
   const today = todayISO()
@@ -465,7 +466,11 @@ export const DatePicker = forwardRef<HTMLButtonElement, DatePickerProps>(functio
           role="dialog"
           aria-modal="true"
           aria-label={isRange ? '기간 선택' : '날짜 선택'}
-          className={cx(styles.popup, placement === 'up' && styles.flipUp)}
+          className={cx(
+            styles.popup,
+            placement.vertical === 'up' && styles.flipUp,
+            placement.horizontal === 'left' && styles.flipLeft
+          )}
           onKeyDown={handleDialogKeyDown}
         >
           <div className={styles.header}>
