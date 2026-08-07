@@ -27,6 +27,13 @@ const LONG: SelectItems = [
   '울산', '수원', '고양', '용인', '창원', '성남', '청주', '전주',
 ].map((label, i) => ({ value: `c${i}`, label }))
 
+const CODES: SelectItems = [
+  { value: '', label: '전체' },
+  { value: 'FAILED', label: 'FAILED' },
+  { value: 'GOODS_RECEIPT', label: 'GOODS_RECEIPT' },
+  { value: 'WAITING_FOR_INBOUND_INSPECTION', label: 'WAITING_FOR_INBOUND_INSPECTION' },
+]
+
 const meta = {
   title: 'Components/Select',
   component: Select,
@@ -90,6 +97,24 @@ export const FlipUp: Story = {
       </p>
       <div style={{ width: 240 }}>
         <Select {...args} />
+      </div>
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await userEvent.click(canvas.getByRole('combobox'))
+  },
+}
+
+export const ListboxContentWidth: Story = {
+  name: '긴 선택지 — 목록은 내용 폭 (#62)',
+  render: (args) => (
+    <div>
+      <p style={{ marginBottom: 8, font: 'var(--type-body-sm)', color: 'var(--on-surface-muted)' }}>
+        93px 좁은 트리거 + 긴 코드값 선택지. 목록은 트리거 폭에 갇히지 않고 내용 폭만큼 넓어진다.
+      </p>
+      <div style={{ width: 93 }}>
+        <Select {...args} options={CODES} defaultValue="" aria-label="상태" />
       </div>
     </div>
   ),

@@ -76,12 +76,15 @@
 .open .chevron { transform: rotate(180deg) }
 
 /* -------- listbox -------- */
+/* 폭: 트리거가 하한(min-width), 내용이 실폭(max-content), --dialog-max-sm 이 상한 — 상한 초과분은 optionLabel ellipsis + title (#62) */
 .listbox {
   position: absolute;
   top: calc(100% + var(--space-1));
   left: 0;
-  right: 0;
   z-index: 20;
+  min-width: 100%;
+  width: max-content;
+  max-width: var(--dialog-max-sm);
   margin: 0;
   padding: var(--space-1) 0;
   list-style: none;
