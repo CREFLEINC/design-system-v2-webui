@@ -341,7 +341,8 @@ export const Select = forwardRef<HTMLButtonElement, SelectProps>(function Select
           className={cx(
             styles.listbox,
             size === 'xl' && styles.listboxXl,
-            placement === 'up' && styles.flipUp
+            placement.vertical === 'up' && styles.flipUp,
+            placement.horizontal === 'left' && styles.flipLeft
           )}
           aria-label={ariaLabel}
           aria-labelledby={ariaLabelledby}

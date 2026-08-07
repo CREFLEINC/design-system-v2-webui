@@ -165,6 +165,23 @@ export const FlipUp: Story = {
   }
 }
 
+/** 우하단 코너 — 아래·오른쪽 모두 부족하면 위로 뒤집힘과 우측 정렬이 동시에 걸린다 (#64). */
+export const FlipLeft: Story = {
+  name: '우하단 코너 — 위로 뒤집힘 + 우측 정렬 (#64)',
+  args: { defaultValue: '2026-03-14' },
+  render: (args) => (
+    <div style={{ paddingTop: '80vh', display: 'flex', justifyContent: 'flex-end' }}>
+      <div style={{ width: 160 }}>
+        <DatePicker {...args} />
+      </div>
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await userEvent.click(canvas.getByRole('button'))
+  }
+}
+
 export const Matrix: Story = {
   render: () => {
     const sizes = ['sm', 'md', 'lg', 'xl'] as const

@@ -124,6 +124,29 @@ export const ListboxContentWidth: Story = {
   },
 }
 
+export const FlipLeft: Story = {
+  name: '우측 정렬 전환 (화면 우측 끝, #64)',
+  render: (args) => (
+    // 메타 데코레이터가 모든 스토리를 240px 로 감싼다 — vw 는 부모 폭이 아니라
+    // 뷰포트 기준이라 240px 부모 안에서도 실폭이 나온다. 32px = 스토리북 캔버스 좌우 패딩 1rem×2.
+    // (vw 탈출 없이는 flex-end 가 240px 상자 안에서만 우측 정렬돼 우측 끝 조건이 재현되지 않는다, #64)
+    <div style={{ width: 'calc(100vw - 32px)' }}>
+      <p style={{ marginBottom: 8, font: 'var(--type-body-sm)', color: 'var(--on-surface-muted)' }}>
+        트리거가 화면 우측 끝이면 목록이 오른쪽으로 넘치는 대신 우측 모서리 정렬로 전환된다.
+      </p>
+      <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+        <div style={{ width: 93 }}>
+          <Select {...args} options={CODES} defaultValue="" aria-label="상태" />
+        </div>
+      </div>
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await userEvent.click(canvas.getByRole('combobox'))
+  },
+}
+
 export const Controlled: Story = {
   render: (args) => {
     const [value, setValue] = useState<string | null>('seoul')

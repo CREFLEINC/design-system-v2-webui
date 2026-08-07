@@ -452,6 +452,9 @@ describe('flip 배치 — 뷰포트 아래 자리 부족 시 위로 뒤집기', 
   const setViewportHeight = (h: number) =>
     Object.defineProperty(window, 'innerHeight', { value: h, configurable: true, writable: true })
 
+  const setViewportWidth = (w: number) =>
+    Object.defineProperty(window, 'innerWidth', { value: w, configurable: true, writable: true })
+
   // 요소 판별: 팝업은 role=dialog, 트리거는 aria-haspopup=dialog. 그 외는 제로-rect(판정에 안 쓰임).
   function mockRects({ trigger, popup }: { trigger: RectInit; popup: RectInit }) {
     vi.spyOn(Element.prototype, 'getBoundingClientRect').mockImplementation(function (
@@ -468,9 +471,20 @@ describe('flip 배치 — 뷰포트 아래 자리 부족 시 위로 뒤집기', 
   const S2 = { trigger: { top: 600, bottom: 640 }, popup: { top: 644, bottom: 944 } } // 아래 부족·위 충분
   const S3 = { trigger: { top: 100, bottom: 140 }, popup: { top: 144, bottom: 894 } } // 둘 다 부족
 
+  // 가로 표준 시나리오 수치 (훅·Select 테스트와 공유 — 뷰포트 폭 1000 기준, H3만 300)
+  const H2 = {
+    trigger: { top: 100, bottom: 140, left: 700, right: 840 },
+    popup: { top: 144, bottom: 444, left: 700, right: 1060 }
+  } // 오른쪽 부족(1060 > 1000)·왼쪽 충분(840 − 360 = 480 ≥ 0)
+  const H3 = {
+    trigger: { top: 100, bottom: 140, left: 10, right: 103 },
+    popup: { top: 144, bottom: 444, left: 10, right: 370 }
+  } // 뷰포트 폭 300 — 양쪽 다 부족(370 > 300 · 103 − 360 < 0)
+
   afterEach(() => {
     vi.restoreAllMocks()
     setViewportHeight(768)
+    setViewportWidth(1024)
   })
 
   test('S1 — 아래 공간이 충분하면 down 유지(flipUp 클래스 없음)', async () => {
@@ -523,5 +537,23 @@ describe('flip 배치 — 뷰포트 아래 자리 부족 시 위로 뒤집기', 
     render(<DatePicker aria-label="발행일" placeholder="날짜 선택" />)
     await user.click(screen.getByRole('button', { name: '발행일' }))
     expect(screen.getByRole('dialog').classList.contains(styles.flipUp)).toBe(false)
+  })
+
+  test('H2 — 오른쪽이 부족하고 왼쪽이 충분하면 flipLeft 클래스가 붙는다', async () => {
+    const user = setupUser()
+    setViewportWidth(1000)
+    mockRects(H2)
+    render(<DatePicker aria-label="발행일" placeholder="날짜 선택" />)
+    await user.click(screen.getByRole('button', { name: '발행일' }))
+    expect(screen.getByRole('dialog').classList.contains(styles.flipLeft)).toBe(true)
+  })
+
+  test('H3 — 양쪽 다 부족하면 flipLeft 클래스가 붙지 않는다 (기본 유지)', async () => {
+    const user = setupUser()
+    setViewportWidth(300)
+    mockRects(H3)
+    render(<DatePicker aria-label="발행일" placeholder="날짜 선택" />)
+    await user.click(screen.getByRole('button', { name: '발행일' }))
+    expect(screen.getByRole('dialog').classList.contains(styles.flipLeft)).toBe(false)
   })
 })
