@@ -101,6 +101,10 @@
 /* 뷰포트 아래 공간이 부족하고 위가 충분할 때만 부착 (useFlipPlacement) */
 .listbox.flipUp { top: auto; bottom: calc(100% + var(--space-1)) }
 
+/* 뷰포트 오른쪽 자리가 부족하고 왼쪽이 충분할 때만 우측 정렬 (useFlipPlacement, #64)
+   left: auto 필수 — 없으면 left:0 과 과잉제약되어 right 가 무시된다(폭 명시 상태, LTR) */
+.listbox.flipLeft { left: auto; right: 0 }
+
 /* -------- option -------- */
 .option {
   position: relative;
