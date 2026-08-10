@@ -1,8 +1,10 @@
 # CREFLE Web Design System (@crefle/web-ui) — 디자인 스펙
 
-- 날짜: 2026-07-08
-- 상태: 사용자 리뷰 대기
-- 위치: 파운데이션 repo에 임시 보관. 새 repo 스캐폴드 시 `docs/`로 복사.
+- 최초 작성: 2026-07-08
+- 최종 갱신: 2026-08-10
+- 현재 버전: v0.2.0
+- 상태: v0.1 구축 완료 · v0.2 운영 및 확장
+- 위치: `design-system-v2-web-ui` 저장소의 공식 설계 문서
 
 ## 1. 목적과 배경
 
@@ -13,11 +15,26 @@ CREFLE 파운데이션 디자인 시스템(Stage 1: 브랜드·색상·보이스
 - **화면 유형**: 모니터링 대시보드, 데이터 테이블/로그, 에이전트 제어/설정 폼, 인증/온보딩을 비롯한 웹 범용 화면 대부분.
 - **역할**: 여기서 처음 정의하는 형태 토큰(spacing/radius/type-scale/shadow/motion)은 다른 분야에서도 공통임이 입증되면 파운데이션 Stage 2로 승격한다.
 
-## 2. 완료 기준 (v0.1)
+## 2. 버전 기준과 현재 상태
+
+### v0.1 완료 기준 (완료)
 
 1. 토큰 + 컴포넌트 25종 + Storybook 문서가 빌드·테스트 통과 상태로 완성
 2. OnMyFactory 모니터링 대시보드 데모 1화면을 `@crefle/web-ui`를 import해서 실조립 — 라이트/다크 토글 동작
 3. 새 Claude Design 프로젝트 "CREFLE Web UI"에 동기화 완료
+
+세 기준은 2026-07-08 Phase 1~5 태그와 2026-07-09 `v0.1.0` 태그로 완료했다.
+
+### v0.2 범위
+
+v0.2는 v0.1의 공개 API를 유지하면서 실제 제품 사용에서 확인된 신규 요구와 배치·접근성·검증 품질을 보강한다.
+
+- **신규 컴포넌트:** DatePicker, Stepper, DiffRow, MatrixGrid
+- **기존 컴포넌트 확장:** Tabs badge, Table 요약행·행 그룹·행 재배치, LineChart 기준선, 폼 컨트롤 xl 크기, TextField `disabledReason`
+- **팝업 배치 안정성:** Select 내용 기반 너비, Select·DatePicker 수직/가로 flip
+- **품질 체계:** 컴포넌트 인벤토리 드리프트 검사, 토큰·box-sizing lint, 파운데이션 upstream 무결성 검증, GitHub 이슈 해결 하네스
+
+현재 공개 컴포넌트의 정확한 목록과 props는 생성 문서 [`docs/COMPONENTS.md`](../../COMPONENTS.md)를 단일 기준으로 삼는다. v0.2에는 의도된 breaking change가 없으며, 신규 API 추가와 기존 동작 보정으로 구성한다.
 
 ## 3. 아키텍처 (승인됨)
 
@@ -31,7 +48,7 @@ CREFLE 파운데이션 디자인 시스템(Stage 1: 브랜드·색상·보이스
 CREFLE Web Design System/
 ├── styles/
 │   ├── foundation/        # 파운데이션 tokens.css + fonts 복사본
-│   │   └── PIN            # 파운데이션 커밋 해시 기록 (최초: df6e6ed)
+│   │   └── foundation.lock.json # 파운데이션 커밋·파일 해시 기록
 │   ├── web-tokens.css     # 신규 형태 토큰 (Stage 2 승격 후보)
 │   ├── themes.css         # 라이트/다크 시맨틱 변수
 │   └── index.css          # 단일 진입점 (@import 묶음)
@@ -39,7 +56,7 @@ CREFLE Web Design System/
 │   ├── components/<Name>/ # <Name>.tsx + .module.css + .stories.tsx + .test.tsx
 │   ├── theme/             # ThemeProvider, useTheme (data-theme 토글)
 │   └── index.ts
-├── demo/                  # OnMyFactory 대시보드 데모 (Vite 앱, 라이브러리 소비자)
+├── src/demo/              # OnMyFactory 대시보드 Storybook 데모
 ├── ds-bundle/             # Claude Design 동기화 번들
 ├── .design-sync/          # "CREFLE Web UI" 프로젝트 핀
 └── docs/                  # 이 스펙 + 가이드
@@ -69,9 +86,11 @@ CREFLE Web Design System/
 - 다크에서도 레드 단일 액센트, 순수 검정·순수 흰색 금지(웜 뉴트럴)
 - **하드코딩 금지 원칙**: 컴포넌트 CSS는 시맨틱 토큰만 참조. hex/임의 px 금지 (lint로 강제)
 
-## 5. 컴포넌트 목록 (25종)
+## 5. 컴포넌트 목록 (v0.2 주요 29종)
 
-### Tier 1 · 기초 (12종)
+아래 수는 설계상 주요 컴포넌트 단위다. `CardHeader`, `SidebarItem`, 차트 하위 컴포넌트처럼 별도 export되는 구성 요소를 포함한 코드 실측은 컴포넌트 44개·훅 3개·유틸 1개이며, 정확한 현재값은 [`docs/COMPONENTS.md`](../../COMPONENTS.md)가 소유한다.
+
+### Tier 1 · 기초 (13종)
 
 | # | 컴포넌트 | 용도 | 주요 변형/기능 |
 |---|---|---|---|
@@ -87,29 +106,33 @@ CREFLE Web Design System/
 | 10 | Dialog | 모달 | sm/md/lg · focus trap · ESC/오버레이 닫기 |
 | 11 | Tooltip | 보조 설명 | 4방향 배치 · 지연 표시 |
 | 12 | Tabs | 뷰 전환 | 언더라인 스타일 · 키보드 탐색 |
+| 13 | DatePicker | 날짜 입력 | 단일·기간(from–to) 모드 · 자체 달력 · 키보드 탐색 · 뷰포트 배치 보정 |
 
-### Tier 2 · 제품 필수 (10종)
-
-| # | 컴포넌트 | 용도 | 주요 변형/기능 |
-|---|---|---|---|
-| 13 | Table | 이벤트 로그·설비 목록 | 고정 헤더 · 정렬 · 페이지네이션 · 행 선택 · 밀도 옵션 |
-| 14 | StatCard | KPI 현황 | 값+증감 표시(▲▼) · 스파크라인 슬롯 · 상태 컬러 |
-| 15 | Progress / Gauge | 가동률·진행률 | 선형 + 원형 게이지 · 임계값별 시맨틱 컬러 |
-| 16 | AlertBanner | 페이지 수준 알림 | 시맨틱 4종 · 닫기 · 액션 슬롯 |
-| 17 | Toast | 일시 알림 | ToastProvider + useToast 훅 · 자동 소멸 · 시맨틱 변형 |
-| 18 | Sidebar + Topbar | 앱 내비게이션 | 접이식 사이드바 · Material Symbols 아이콘 · active 상태 · 톱바(브레드크럼/사용자 영역) |
-| 19 | Breadcrumb | 위치 표시 | 말줄임 처리 |
-| 20 | EmptyState | 빈 화면 | 아이콘+제목+설명+액션 |
-| 21 | Skeleton | 로딩 자리표시 | text/rect/circle · 시머 애니메이션 |
-| 22 | SearchInput | 검색·필터 | 클리어 버튼 · 필터 드롭다운 패턴 |
-
-### Tier 3 · 조립 (3종)
+### Tier 2 · 제품 필수 (12종)
 
 | # | 컴포넌트 | 용도 | 주요 변형/기능 |
 |---|---|---|---|
-| 23 | AppShell | 앱 골격 | 사이드바+톱바+콘텐츠 그리드 · 반응형 |
-| 24 | Chart (Line/Bar/Pie) | 추이·분포·구성비 시각화 | 경량 SVG 자체 구현 · 원형은 파이/도넛 변형 · 차트 토큰 · 축/그리드/범례/툴팁 최소 구성 |
-| 25 | PageHeader | 페이지 머리 | 제목·설명·액션·탭 슬롯 |
+| 14 | Table | 이벤트 로그·설비 목록 | 고정 헤더 · 정렬 · 행 선택 · 밀도 · 요약행 · 행 그룹 · 행 재배치 |
+| 15 | StatCard | KPI 현황 | 값+증감 표시(▲▼) · 스파크라인 슬롯 · 상태 컬러 |
+| 16 | Progress / Gauge | 가동률·진행률 | 선형 + 원형 게이지 · 임계값별 시맨틱 컬러 |
+| 17 | AlertBanner | 페이지 수준 알림 | 시맨틱 4종 · 닫기 · 액션 슬롯 |
+| 18 | Toast | 일시 알림 | ToastProvider + useToast 훅 · 자동 소멸 · 시맨틱 변형 |
+| 19 | Sidebar + Topbar | 앱 내비게이션 | 접이식 사이드바 · Material Symbols 아이콘 · active 상태 · 톱바(브레드크럼/사용자 영역) |
+| 20 | Breadcrumb | 위치 표시 | 말줄임 처리 |
+| 21 | EmptyState | 빈 화면 | 아이콘+제목+설명+액션 |
+| 22 | Skeleton | 로딩 자리표시 | text/rect/circle · 시머 애니메이션 |
+| 23 | SearchInput | 검색·필터 | 클리어 버튼 · 로딩 · Enter 검색 |
+| 24 | Stepper | 순차 단계 표시 | 완료·현재·대기·반려 상태 · 가로/세로 배치 |
+| 25 | DiffRow | 변경 이력 값 대비 | before→after · 빈값·삭제·미변경 표기 |
+
+### Tier 3 · 조립 (4종)
+
+| # | 컴포넌트 | 용도 | 주요 변형/기능 |
+|---|---|---|---|
+| 26 | AppShell | 앱 골격 | 사이드바+톱바+콘텐츠 그리드 · 반응형 |
+| 27 | Chart (Line/Bar/Pie) | 추이·분포·구성비 시각화 | 경량 SVG 자체 구현 · 원형은 파이/도넛 변형 · 차트 토큰 · 축/그리드/범례/툴팁 최소 구성 |
+| 28 | PageHeader | 페이지 머리 | 제목·설명·액션·탭 슬롯 |
+| 29 | MatrixGrid | 항목×기간 상태 매트릭스 | 그룹 헤더 · 상태 셀 · 강조 열 · 요약행 |
 
 ### 공통 유틸
 
@@ -134,13 +157,13 @@ CREFLE Web Design System/
 
 AppShell + 사이드바 + StatCard 4개(가동률·활성 에이전트·경고·처리량) + 설비 이벤트 로그 Table + 차트 3개(Line 추이, Bar 분포, Donut 설비 상태 구성비) + AlertBanner/Toast. 라이트/다크 토글 동작. 가짜 데이터는 정적 fixture.
 
-## 8. Claude Design 동기화
+## 8. Claude Design 동기화 (완료)
 
-- 새 프로젝트 **"CREFLE Web UI"** 생성 (파운데이션 프로젝트와 별개)
-- `ds-bundle/`: styles 클로저(foundation+web-tokens+themes) + 컴포넌트 레퍼런스 + 가이드라인 → design-sync 절차로 업로드
+- 새 프로젝트 **"CREFLE Web UI"**를 파운데이션 프로젝트와 별도로 생성했다.
+- `ds-bundle/`의 styles 클로저(foundation+web-tokens+themes), 컴포넌트 레퍼런스, 가이드라인을 design-sync 절차로 업로드했다.
 - 이후 Claude Design에서 웹 화면 시안 제작 시 이 DS가 기준
 
-## 9. 구축 순서
+## 9. 구축 이력 (완료)
 
 1. repo 스캐폴드 (git, Vite, TS, Storybook, Vitest)
 2. `styles/` 토큰·테마 (+ 파운데이션 복사/PIN)
