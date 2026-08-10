@@ -85,7 +85,7 @@ npm run build-storybook  # 정적 빌드 (storybook-static/)
 ## 메타
 
 - 회사: 크레플 주식회사 / CREFLE Inc.
-- 패키지: **@crefle/web-ui** (`VERSION 0.1.0`)
+- 패키지: **@crefle/web-ui** (`VERSION 0.2.0`)
 - 기본 강조(primary): 브랜드 레드 `#C9252C`
 - 서체: Spoqa Han Sans Neo (100·300·400·500·700) + Material Symbols Rounded — 로컬 번들 woff2
 - 기반: Material Design 3 파생 · 공통 파운데이션(CREFLE Foundation) 상속
