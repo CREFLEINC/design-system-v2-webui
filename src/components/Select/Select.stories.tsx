@@ -2,6 +2,7 @@ import { useState } from 'react'
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { within, userEvent } from 'storybook/test'
 import { Select, type SelectItems } from './Select'
+import { Dialog } from '../Dialog/Dialog'
 import { Icon } from '../Icon/Icon'
 
 const CITIES: SelectItems = [
@@ -139,6 +140,29 @@ export const FlipLeft: Story = {
           <Select {...args} options={CODES} defaultValue="" aria-label="상태" />
         </div>
       </div>
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await userEvent.click(canvas.getByRole('combobox'))
+  },
+}
+
+export const InsideDialog: Story = {
+  name: 'Dialog 본문 하단 — 목록 클리핑 회귀 (#68)',
+  render: (args) => (
+    // meta decorator의 240px 폭을 벗어나 native Dialog가 viewport 기준으로 배치되게 한다.
+    <div style={{ width: 'calc(100vw - 32px)' }}>
+      <Dialog open onClose={() => {}} size="sm" title="도시 선택">
+        <div style={{ display: 'flex', flexDirection: 'column', minHeight: 180 }}>
+          <p style={{ margin: 0, font: 'var(--type-body-sm)', color: 'var(--on-surface-muted)' }}>
+            본문 마지막 필드에서 펼친 목록은 panel과 body의 클리핑 경계 밖에서도 모두 보여야 합니다.
+          </p>
+          <div style={{ width: 240, marginTop: 'auto' }}>
+            <Select {...args} options={CITIES} aria-label="Dialog 안 도시" />
+          </div>
+        </div>
+      </Dialog>
     </div>
   ),
   play: async ({ canvasElement }) => {

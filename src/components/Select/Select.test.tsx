@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, test, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { renderToString } from 'react-dom/server'
 import { Select } from './Select'
 import styles from './Select.module.css'
 
@@ -206,10 +207,59 @@ test('size 미지정(md)으로 열면 listbox className에 listboxXl 클래스�
   expect(listbox.className).not.toContain(styles.listboxXl)
 })
 
-// --- flip 배치 (useFlipPlacement 통합) ---
+test('일반 문서에서는 listbox를 body 직계 자식으로 포털하고 scoped theme를 전달한다', async () => {
+  const user = userEvent.setup()
+  const { container } = render(
+    <section data-theme="dark">
+      <Select options={OPTS} aria-label="도시" />
+    </section>
+  )
+
+  await user.click(screen.getByRole('combobox'))
+
+  const listbox = screen.getByRole('listbox')
+  expect(listbox.parentElement).toBe(document.body)
+  expect(container).not.toContainElement(listbox)
+  expect(listbox).toHaveAttribute('data-theme', 'dark')
+  expect(listbox).toHaveAttribute('data-placement-v', 'down')
+  expect(listbox).toHaveAttribute('data-placement-h', 'right')
+})
+
+test('native dialog 안에서는 listbox를 해당 dialog 직계 자식으로 포털한다', async () => {
+  const user = userEvent.setup()
+  render(
+    <dialog open data-testid="portal-host">
+      <div data-testid="panel">
+        <div data-testid="body">
+          <Select options={OPTS} aria-label="도시" />
+        </div>
+      </div>
+    </dialog>
+  )
+
+  await user.click(screen.getByRole('combobox'))
+
+  const host = screen.getByTestId('portal-host')
+  const listbox = screen.getByRole('listbox')
+  expect(listbox.parentElement).toBe(host)
+  expect(screen.getByTestId('panel')).not.toContainElement(listbox)
+  expect(screen.getByTestId('body')).not.toContainElement(listbox)
+})
+
+test('document가 없는 SSR 렌더에서 예외가 발생하지 않는다', () => {
+  const originalDocument = globalThis.document
+  Object.defineProperty(globalThis, 'document', { value: undefined, configurable: true })
+  try {
+    expect(() => renderToString(<Select options={OPTS} aria-label="도시" />)).not.toThrow()
+  } finally {
+    Object.defineProperty(globalThis, 'document', { value: originalDocument, configurable: true })
+  }
+})
+
+// --- 포털 좌표·flip 배치 (useFlipPlacement 통합) ---
 // jsdom은 getBoundingClientRect()가 전부 0을 반환한다. 프로토타입 스파이 + role 기반
 // 디스패치로 트리거/listbox의 rect만 갈아끼운다 (계획서 결정 6 표준 레시피).
-describe('flip 배치 (listbox flipUp)', () => {
+describe('포털 좌표·flip 배치', () => {
   type RectInit = { top: number; bottom: number; left?: number; right?: number }
 
   const makeRect = ({ top, bottom, left = 0, right = 200 }: RectInit): DOMRect =>
@@ -246,6 +296,8 @@ describe('flip 배치 (listbox flipUp)', () => {
     vi.restoreAllMocks()
     setViewportHeight(768) // jsdom 기본값으로 복원
     setViewportWidth(1024) // jsdom 기본값으로 복원
+    Object.defineProperty(window, 'scrollX', { value: 0, configurable: true })
+    Object.defineProperty(window, 'scrollY', { value: 0, configurable: true })
   })
 
   // 표준 시나리오 수치 (훅 테스트와 공유 — 뷰포트 높이 800 기준)
@@ -263,7 +315,7 @@ describe('flip 배치 (listbox flipUp)', () => {
     popup: { top: 144, bottom: 444, left: 10, right: 370 },
   } // 양쪽 다 부족 (뷰포트 폭 300에서만 성립)
 
-  test('S1 — 아래 공간이 충분하면 down (flipUp 클래스 없음, 기존 동작)', async () => {
+  test('S1 — 아래 공간이 충분하면 down을 노출한다', async () => {
     const user = userEvent.setup()
     setViewportHeight(800)
     mockRects(S1)
@@ -271,10 +323,10 @@ describe('flip 배치 (listbox flipUp)', () => {
 
     await user.click(screen.getByRole('combobox'))
 
-    expect(screen.getByRole('listbox').classList.contains(styles.flipUp)).toBe(false)
+    expect(screen.getByRole('listbox')).toHaveAttribute('data-placement-v', 'down')
   })
 
-  test('S2 — 아래가 부족하고 위가 충분하면 flipUp 클래스가 붙는다', async () => {
+  test('S2 — 아래가 부족하고 위가 충분하면 up을 노출한다', async () => {
     const user = userEvent.setup()
     setViewportHeight(800)
     mockRects(S2)
@@ -282,10 +334,10 @@ describe('flip 배치 (listbox flipUp)', () => {
 
     await user.click(screen.getByRole('combobox'))
 
-    expect(screen.getByRole('listbox').classList.contains(styles.flipUp)).toBe(true)
+    expect(screen.getByRole('listbox')).toHaveAttribute('data-placement-v', 'up')
   })
 
-  test('S3 — 위·아래 둘 다 부족하면 down을 유지한다 (flipUp 클래스 없음)', async () => {
+  test('S3 — 위·아래 둘 다 부족하면 down을 유지한다', async () => {
     const user = userEvent.setup()
     setViewportHeight(800)
     mockRects(S3)
@@ -293,7 +345,7 @@ describe('flip 배치 (listbox flipUp)', () => {
 
     await user.click(screen.getByRole('combobox'))
 
-    expect(screen.getByRole('listbox').classList.contains(styles.flipUp)).toBe(false)
+    expect(screen.getByRole('listbox')).toHaveAttribute('data-placement-v', 'down')
   })
 
   test('S4 — 닫고 재오픈하면 바뀐 배치 조건으로 다시 판정한다', async () => {
@@ -304,14 +356,14 @@ describe('flip 배치 (listbox flipUp)', () => {
 
     const trigger = screen.getByRole('combobox')
     await user.click(trigger) // 열기 — up
-    expect(screen.getByRole('listbox').classList.contains(styles.flipUp)).toBe(true)
+    expect(screen.getByRole('listbox')).toHaveAttribute('data-placement-v', 'up')
 
     await user.click(trigger) // 닫기
     expect(screen.queryByRole('listbox')).toBeNull()
 
     mockRects(S1) // 트리거가 화면 위쪽으로 이동한 상황
     await user.click(trigger) // 재오픈 — down
-    expect(screen.getByRole('listbox').classList.contains(styles.flipUp)).toBe(false)
+    expect(screen.getByRole('listbox')).toHaveAttribute('data-placement-v', 'down')
   })
 
   test('모킹 없이(제로-rect) 열면 down — jsdom 안전성 고정', async () => {
@@ -321,10 +373,10 @@ describe('flip 배치 (listbox flipUp)', () => {
     await user.click(screen.getByRole('combobox'))
 
     // rect가 전부 0 → overflowsBelow = 0 > innerHeight = false → 기존 동작과 동일
-    expect(screen.getByRole('listbox').classList.contains(styles.flipUp)).toBe(false)
+    expect(screen.getByRole('listbox')).toHaveAttribute('data-placement-v', 'down')
   })
 
-  test('H2 — 오른쪽이 부족하고 왼쪽이 충분하면 flipLeft 클래스가 붙는다', async () => {
+  test('H2 — 오른쪽이 부족하고 왼쪽이 충분하면 left를 노출한다', async () => {
     const user = userEvent.setup()
     setViewportWidth(1000)
     mockRects(H2)
@@ -333,10 +385,10 @@ describe('flip 배치 (listbox flipUp)', () => {
     await user.click(screen.getByRole('combobox'))
 
     // 1060 > 1000(넘침) · 840 − 360 = 480 ≥ 0(왼쪽 충분)
-    expect(screen.getByRole('listbox').classList.contains(styles.flipLeft)).toBe(true)
+    expect(screen.getByRole('listbox')).toHaveAttribute('data-placement-h', 'left')
   })
 
-  test('H3 — 양쪽 다 부족하면 flipLeft 클래스가 붙지 않는다 (기본 유지)', async () => {
+  test('H3 — 양쪽 다 부족하면 right를 유지한다', async () => {
     const user = userEvent.setup()
     setViewportWidth(300)
     mockRects(H3)
@@ -345,6 +397,30 @@ describe('flip 배치 (listbox flipUp)', () => {
     await user.click(screen.getByRole('combobox'))
 
     // 370 > 300(넘침)이지만 103 − 360 < 0 — 왼쪽도 부족하므로 좌측 정렬 유지
-    expect(screen.getByRole('listbox').classList.contains(styles.flipLeft)).toBe(false)
+    expect(screen.getByRole('listbox')).toHaveAttribute('data-placement-h', 'right')
+  })
+
+  test('body 좌표 style에 스크롤·간격과 트리거 폭 하한을 반영한다', async () => {
+    const user = userEvent.setup()
+    setViewportHeight(800)
+    setViewportWidth(1000)
+    Object.defineProperty(window, 'scrollX', { value: 10, configurable: true })
+    Object.defineProperty(window, 'scrollY', { value: 20, configurable: true })
+    vi.spyOn(window, 'getComputedStyle').mockReturnValue({
+      getPropertyValue: (name: string) => (name === '--space-1' ? '4px' : ''),
+    } as CSSStyleDeclaration)
+    mockRects({
+      trigger: { top: 100, bottom: 140, left: 100, right: 240 },
+      popup: { top: 0, bottom: 300, left: 0, right: 360 },
+    })
+    render(<Select options={OPTS} aria-label="도시" />)
+
+    await user.click(screen.getByRole('combobox'))
+
+    const listbox = screen.getByRole('listbox')
+    expect(listbox.style.top).toBe('164px')
+    expect(listbox.style.left).toBe('110px')
+    expect(listbox.style.minWidth).toBe('140px')
+    expect(listbox.style.visibility).toBe('visible')
   })
 })

@@ -79,10 +79,7 @@
 /* 폭: 트리거가 하한(min-width), 내용이 실폭(max-content), --dialog-max-sm 이 상한 — 상한 초과분은 optionLabel ellipsis + title (#62) */
 .listbox {
   position: absolute;
-  top: calc(100% + var(--space-1));
-  left: 0;
   z-index: 20;
-  min-width: 100%;
   width: max-content;
   max-width: var(--dialog-max-sm);
   margin: 0;
@@ -97,13 +94,6 @@
 
 .listboxXl { max-height: calc(var(--control-height-xl) * 6) }
 .listboxXl .option { min-height: var(--control-height-xl) }
-
-/* 뷰포트 아래 공간이 부족하고 위가 충분할 때만 부착 (useFlipPlacement) */
-.listbox.flipUp { top: auto; bottom: calc(100% + var(--space-1)) }
-
-/* 뷰포트 오른쪽 자리가 부족하고 왼쪽이 충분할 때만 우측 정렬 (useFlipPlacement, #64)
-   left: auto 필수 — 없으면 left:0 과 과잉제약되어 right 가 무시된다(폭 명시 상태, LTR) */
-.listbox.flipLeft { left: auto; right: 0 }
 
 /* -------- option -------- */
 .option {

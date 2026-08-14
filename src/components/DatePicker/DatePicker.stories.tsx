@@ -2,6 +2,7 @@ import { useState } from 'react'
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { within, userEvent } from 'storybook/test'
 import { DatePicker, type DateRangeValue } from './DatePicker'
+import { Dialog } from '../Dialog/Dialog'
 
 const helpText = { marginTop: 8, font: 'var(--type-body-sm)', color: 'var(--on-surface-muted)' } as const
 
@@ -179,6 +180,33 @@ export const FlipLeft: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     await userEvent.click(canvas.getByRole('button'))
+  }
+}
+
+/** Dialog 본문 하단의 달력은 panel/body 밖으로 포털되어도 전체가 보여야 한다 (#68). */
+function InsideDialogDemo() {
+  const [open, setOpen] = useState(true)
+
+  return (
+    <Dialog open={open} onClose={() => setOpen(false)} title="일정 설정">
+      <div style={{ minHeight: 240, display: 'flex', flexDirection: 'column' }}>
+        <p style={{ margin: 0 }}>
+          본문 하단에 있는 날짜 선택기를 열어 달력 전체가 보이는지 확인하세요.
+        </p>
+        <div style={{ width: 260, marginTop: 'auto' }}>
+          <DatePicker placeholder="일정 선택" aria-label="일정 선택" />
+        </div>
+      </div>
+    </Dialog>
+  )
+}
+
+export const InsideDialog: Story = {
+  name: 'Dialog 본문 하단 — 포털 달력 (#68)',
+  render: () => <InsideDialogDemo />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await userEvent.click(canvas.getByRole('button', { name: '일정 선택' }))
   }
 }
 

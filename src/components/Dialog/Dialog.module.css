@@ -7,6 +7,7 @@
   width: calc(100vw - var(--space-8));
   max-height: calc(100dvh - var(--space-8));
   margin: auto; /* native가 auto 마진으로 모달을 중앙 배치 */
+  overflow: visible; /* 직계 포털 팝업은 panel/body 클리핑 경계 밖에 표시 */
 }
 
 .sm { max-width: var(--dialog-max-sm) }
