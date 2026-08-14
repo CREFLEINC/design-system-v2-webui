@@ -27,7 +27,7 @@
 - `tokens/themes.css` — `[data-theme='dark']` 다크 오버라이드
 - `guidelines/colors.md` · `type.md` · `tokens.md` — 색/타이포/전체 토큰 카탈로그
 - `guidelines/component-conventions.md` · `reduced-motion.md` — 컴포넌트 작성 관례
-- `guidelines/patterns.md` — 조합 패턴 규범(검색·필터 바, 읽기 전용 구획)
+- `guidelines/patterns.md` — 조합 패턴 규범(검색·필터 바, 읽기 전용 구획, 목록 페이지 이동)
 
 핵심 규칙: 레드 **단일 액센트**(강조는 오직 `--primary`), 위계는 색이 아니라 **표면 사다리 + 차콜 명도**로.
 시맨틱은 개념 동등=색 동등(고정). 상태는 darken/lighten이 아니라 **M3 상태 레이어 오버레이**로.
