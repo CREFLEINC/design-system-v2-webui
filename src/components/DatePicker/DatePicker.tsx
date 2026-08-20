@@ -8,6 +8,7 @@ import {
   type ButtonHTMLAttributes,
   type KeyboardEvent as ReactKeyboardEvent,
 } from 'react'
+import { createPortal } from 'react-dom'
 import { cx } from '../../utils/cx'
 import { useFlipPlacement } from '../../utils/useFlipPlacement'
 import { Icon } from '../Icon/Icon'
@@ -156,8 +157,7 @@ export const DatePicker = forwardRef<HTMLButtonElement, DatePickerProps>(functio
   /** true면 다음 렌더에서 활성 셀로 포커스를 옮긴다. 월 이동 버튼은 포커스를 버튼에 남긴다(APG). */
   const wantsCellFocus = useRef(false)
 
-  // 세로는 아래 자리가 부족하고 위가 충분할 때만 'up', 가로는 오른쪽이 넘치고 왼쪽이
-  // 충분할 때만 'left'(우측 모서리 정렬) — 열릴 때 1회 실측(useFlipPlacement.ts 참고).
+  // 가장 가까운 native dialog 또는 body에 포털하고 열릴 때 1회 실측한다.
   const placement = useFlipPlacement(open, triggerRef, popupRef)
 
   const today = todayISO()
@@ -356,11 +356,12 @@ export const DatePicker = forwardRef<HTMLButtonElement, DatePickerProps>(functio
     }
   }
 
-  // 바깥 클릭 시 닫기 (Select와 동일 — portal 없이 pointerdown으로 판정)
+  // 바깥 클릭 시 닫기 — 포털 팝업도 내부 경계에 포함한다.
   useEffect(() => {
     if (!open) return
     const onPointerDown = (e: PointerEvent) => {
-      if (rootRef.current && !rootRef.current.contains(e.target as Node)) closePopup()
+      const target = e.target as Node
+      if (!rootRef.current?.contains(target) && !popupRef.current?.contains(target)) closePopup()
     }
     document.addEventListener('pointerdown', onPointerDown)
     return () => document.removeEventListener('pointerdown', onPointerDown)
@@ -459,84 +460,87 @@ export const DatePicker = forwardRef<HTMLButtonElement, DatePickerProps>(functio
         </span>
       </button>
 
-      {open && (
-        <div
-          ref={popupRef}
-          id={dialogId}
-          role="dialog"
-          aria-modal="true"
-          aria-label={isRange ? '기간 선택' : '날짜 선택'}
-          className={cx(
-            styles.popup,
-            placement.vertical === 'up' && styles.flipUp,
-            placement.horizontal === 'left' && styles.flipLeft
-          )}
-          onKeyDown={handleDialogKeyDown}
-        >
-          <div className={styles.header}>
-            <button
-              type="button"
-              className={styles.nav}
-              aria-label="이전 달"
-              disabled={prevDisabled}
-              onClick={() => shiftMonth(-1)}
-            >
-              <Icon name="chevron_left" size={20} />
-            </button>
-            <div id={monthLabelId} className={styles.monthLabel} aria-live="polite">
-              {monthLabel}
-            </div>
-            <button
-              type="button"
-              className={styles.nav}
-              aria-label="다음 달"
-              disabled={nextDisabled}
-              onClick={() => shiftMonth(1)}
-            >
-              <Icon name="chevron_right" size={20} />
-            </button>
-          </div>
-
-          <table
-            role="grid"
-            aria-labelledby={monthLabelId}
-            className={cx(styles.grid, styles[size])}
-            onKeyDown={handleGridKeyDown}
+      {open &&
+        placement.portalHost &&
+        createPortal(
+          <div
+            ref={popupRef}
+            id={dialogId}
+            role="dialog"
+            aria-modal="true"
+            aria-label={isRange ? '기간 선택' : '날짜 선택'}
+            className={styles.popup}
+            style={placement.style}
+            data-placement-v={placement.vertical}
+            data-placement-h={placement.horizontal}
+            data-theme={placement.theme}
+            onKeyDown={handleDialogKeyDown}
           >
-            <thead>
-              <tr>
-                {weekdayLabels.map((w) => (
-                  <th
-                    key={w.long}
-                    scope="col"
-                    abbr={w.long}
-                    className={cx(styles.weekday, styles[size])}
-                  >
-                    {w.short}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {grid.map((week, r) => (
-                <tr key={`week-${r}`}>
-                  {week.map((iso, c) =>
-                    iso === null ? (
-                      <td
-                        key={`empty-${r}-${c}`}
-                        role="gridcell"
-                        className={cx(styles.cell, styles[size], styles.cellEmpty)}
-                      />
-                    ) : (
-                      renderCell(iso)
-                    )
-                  )}
+            <div className={styles.header}>
+              <button
+                type="button"
+                className={styles.nav}
+                aria-label="이전 달"
+                disabled={prevDisabled}
+                onClick={() => shiftMonth(-1)}
+              >
+                <Icon name="chevron_left" size={20} />
+              </button>
+              <div id={monthLabelId} className={styles.monthLabel} aria-live="polite">
+                {monthLabel}
+              </div>
+              <button
+                type="button"
+                className={styles.nav}
+                aria-label="다음 달"
+                disabled={nextDisabled}
+                onClick={() => shiftMonth(1)}
+              >
+                <Icon name="chevron_right" size={20} />
+              </button>
+            </div>
+
+            <table
+              role="grid"
+              aria-labelledby={monthLabelId}
+              className={cx(styles.grid, styles[size])}
+              onKeyDown={handleGridKeyDown}
+            >
+              <thead>
+                <tr>
+                  {weekdayLabels.map((w) => (
+                    <th
+                      key={w.long}
+                      scope="col"
+                      abbr={w.long}
+                      className={cx(styles.weekday, styles[size])}
+                    >
+                      {w.short}
+                    </th>
+                  ))}
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+              </thead>
+              <tbody>
+                {grid.map((week, r) => (
+                  <tr key={`week-${r}`}>
+                    {week.map((iso, c) =>
+                      iso === null ? (
+                        <td
+                          key={`empty-${r}-${c}`}
+                          role="gridcell"
+                          className={cx(styles.cell, styles[size], styles.cellEmpty)}
+                        />
+                      ) : (
+                        renderCell(iso)
+                      )
+                    )}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>,
+          placement.portalHost
+        )}
 
       {!isRange && name && <input type="hidden" name={name} value={selFrom ?? ''} />}
     </div>

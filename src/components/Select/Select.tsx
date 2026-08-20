@@ -9,6 +9,7 @@ import {
   type ReactNode,
   type KeyboardEvent as ReactKeyboardEvent,
 } from 'react'
+import { createPortal } from 'react-dom'
 import { cx } from '../../utils/cx'
 import { useFlipPlacement } from '../../utils/useFlipPlacement'
 import { Icon } from '../Icon/Icon'
@@ -106,7 +107,7 @@ export const Select = forwardRef<HTMLButtonElement, SelectProps>(function Select
     else if (ref) ref.current = node
   }
   const listboxRef = useRef<HTMLDivElement>(null)
-  const placement = useFlipPlacement(open, triggerRef, listboxRef)
+  const placement = useFlipPlacement(open, triggerRef, listboxRef, { matchTriggerWidth: true })
 
   const typeBuffer = useRef('')
   const typeTs = useRef(0)
@@ -244,7 +245,8 @@ export const Select = forwardRef<HTMLButtonElement, SelectProps>(function Select
   useEffect(() => {
     if (!open) return
     const onPointerDown = (e: PointerEvent) => {
-      if (rootRef.current && !rootRef.current.contains(e.target as Node)) close()
+      const target = e.target as Node
+      if (!rootRef.current?.contains(target) && !listboxRef.current?.contains(target)) close()
     }
     document.addEventListener('pointerdown', onPointerDown)
     return () => document.removeEventListener('pointerdown', onPointerDown)
@@ -333,39 +335,41 @@ export const Select = forwardRef<HTMLButtonElement, SelectProps>(function Select
         </span>
       </button>
 
-      {open && (
-        <div
-          ref={listboxRef}
-          role="listbox"
-          id={listboxId}
-          className={cx(
-            styles.listbox,
-            size === 'xl' && styles.listboxXl,
-            placement.vertical === 'up' && styles.flipUp,
-            placement.horizontal === 'left' && styles.flipLeft
-          )}
-          aria-label={ariaLabel}
-          aria-labelledby={ariaLabelledby}
-        >
-          {options.map((item, gi) => {
-            if (isGroup(item)) {
-              return (
-                <div key={`group-${gi}`} role="group" aria-label={item.label}>
-                  <div className={styles.groupLabel} aria-hidden="true">
-                    {item.label}
+      {open &&
+        placement.portalHost &&
+        createPortal(
+          <div
+            ref={listboxRef}
+            role="listbox"
+            id={listboxId}
+            className={cx(styles.listbox, size === 'xl' && styles.listboxXl)}
+            style={placement.style}
+            data-placement-v={placement.vertical}
+            data-placement-h={placement.horizontal}
+            data-theme={placement.theme}
+            aria-label={ariaLabel}
+            aria-labelledby={ariaLabelledby}
+          >
+            {options.map((item, gi) => {
+              if (isGroup(item)) {
+                return (
+                  <div key={`group-${gi}`} role="group" aria-label={item.label}>
+                    <div className={styles.groupLabel} aria-hidden="true">
+                      {item.label}
+                    </div>
+                    {item.options.map((opt) => {
+                      counter += 1
+                      return renderOption(opt, counter)
+                    })}
                   </div>
-                  {item.options.map((opt) => {
-                    counter += 1
-                    return renderOption(opt, counter)
-                  })}
-                </div>
-              )
-            }
-            counter += 1
-            return renderOption(item, counter)
-          })}
-        </div>
-      )}
+                )
+              }
+              counter += 1
+              return renderOption(item, counter)
+            })}
+          </div>,
+          placement.portalHost
+        )}
 
       {name && <input type="hidden" name={name} value={selected ?? ''} />}
     </div>

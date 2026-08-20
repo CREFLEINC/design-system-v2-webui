@@ -83,21 +83,12 @@
 /* Select의 listbox와 동일한 배치·표면. 6행 고정 그리드라 월을 넘겨도 높이가 변하지 않는다. */
 .popup {
   position: absolute;
-  top: calc(100% + var(--space-1));
-  left: 0;
   z-index: 20;
   padding: var(--space-2);
   background: var(--surface-container-high);
   border-radius: var(--radius-md);
   box-shadow: var(--elevation-3);
 }
-
-/* 뷰포트 아래 자리가 부족하고 위가 충분할 때만 붙는다(useFlipPlacement) — 기본 배치는 그대로 위 규칙을 쓴다 */
-.popup.flipUp { top: auto; bottom: calc(100% + var(--space-1)) }
-
-/* 뷰포트 오른쪽 자리가 부족하고 왼쪽이 충분할 때만 우측 정렬 (useFlipPlacement, #64)
-   left: auto 필수 — 없으면 left:0 과 right:0 이 함께 걸려 팝업이 트리거 폭으로 스트레치된다(width 미지정) */
-.popup.flipLeft { left: auto; right: 0 }
 
 /* -------- month header -------- */
 .header {
