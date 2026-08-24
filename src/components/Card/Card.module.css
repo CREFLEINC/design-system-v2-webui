@@ -5,8 +5,11 @@
   flex-direction: column;
   border-radius: var(--radius-lg);
   color: var(--on-surface);
-  /* 로컬 커스텀 프로퍼티: elevation을 한 채널로 라우팅해 포커스 링이 그 위에 깔끔히 합성된다 */
-  --_elev: var(--elevation-0);
+  /* 로컬 커스텀 프로퍼티: elevation을 한 채널로 라우팅해 포커스 링이 그 위에 깔끔히 합성된다.
+     기본값은 var(--elevation-0)(=none)이 아니라 유효한 무해 항이어야 한다 — box-shadow
+     목록에 none 항이 섞이면 선언 전체가 computed-value time에 무효화돼 포커스 링이
+     사라지기 때문(#77). 시각적으로는 0 크기 투명 그림자라 resting 외관은 그대로다. */
+  --_elev: 0 0 0 0 transparent;
   box-shadow: var(--_elev);
   transition: box-shadow var(--motion-base) var(--ease-standard);
 }

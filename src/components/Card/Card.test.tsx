@@ -1,3 +1,10 @@
+// node: 빌트인은 이 프로젝트에 @types/node가 없어 타입 선언이 없다(vitest 런타임에서는 정상 동작)
+// @ts-expect-error - no @types/node in this project
+import { readFileSync } from 'node:fs'
+// @ts-expect-error - no @types/node in this project
+import { fileURLToPath } from 'node:url'
+// @ts-expect-error - no @types/node in this project
+import path from 'node:path'
 import { expect, test, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
@@ -70,4 +77,49 @@ test('Header/Body/Footer 서브컴포넌트가 각 클래스와 children을 렌�
   // 비-interactive Card(div) 안에 실제 button을 중첩하는 정상 케이스
   const footerBtn = screen.getByRole('button', { name: '확인' })
   expect(footerBtn.parentElement?.className).toContain(styles.footer)
+})
+
+test('#77 회귀: --_elev에 배정되는 모든 값이 box-shadow 목록 항으로 유효하다 (none 금지)', () => {
+  // jsdom은 CSS 캐스케이드/var() 해석을 지원하지 않아 computed box-shadow를 직접
+  // 단언할 수 없다(브라우저 실측은 회귀 스토리 FocusRingBordered가 담당). 대신 소스
+  // 원문을 읽어 --_elev에 배정되는 모든 값이 최종적으로 `none`으로 해석되지 않음을 정적으로 검사한다.
+  // 주의: `new URL('./x.css', import.meta.url)` 리터럴 패턴은 Vite의 import-analysis가
+  // 정적으로 가로채 dev-server 자산 URL(http://localhost:...)로 치환해 버려 이 환경에서는
+  // readFileSync에 쓸 수 없다(ERR_INVALID_URL_SCHEME 실측). fileURLToPath로 우회한다.
+  const here = path.dirname(fileURLToPath(import.meta.url))
+  const cardCss = readFileSync(path.join(here, 'Card.module.css'), 'utf-8')
+  const webTokensCss = readFileSync(path.join(here, '../../../styles/web-tokens.css'), 'utf-8')
+  const themesCss = readFileSync(path.join(here, '../../../styles/themes.css'), 'utf-8')
+
+  const stripComments = (css: string) => css.replace(/\/\*[\s\S]*?\*\//g, '')
+
+  const assignments = [...stripComments(cardCss).matchAll(/--_elev:\s*([^;}]+)/g)].map((m) => m[1].trim())
+  // 정규식이 헛돌면 테스트가 공허해지므로 추출 자체도 단언한다 (기본값 + elev1~5 + hover = 최소 7개)
+  expect(assignments.length).toBeGreaterThanOrEqual(7)
+
+  const findTokenDefinitions = (token: string): string[] => {
+    const pattern = new RegExp(`${token}:\\s*([^;}]+);`, 'g')
+    const values: string[] = []
+    for (const css of [webTokensCss, themesCss]) {
+      for (const m of stripComments(css).matchAll(pattern)) {
+        values.push(m[1].trim())
+      }
+    }
+    return values
+  }
+
+  for (const assignment of assignments) {
+    const varMatch = assignment.match(/^var\((--elevation-\d+)\)$/)
+    if (varMatch) {
+      const token = varMatch[1]
+      const defs = findTokenDefinitions(token)
+      // 라이트+다크 정의를 모두 검사 대상으로 삼는다 — 정의가 하나도 없으면 실패
+      expect(defs.length).toBeGreaterThan(0)
+      for (const def of defs) {
+        expect(def).not.toBe('none')
+      }
+    } else {
+      expect(assignment).not.toBe('none')
+    }
+  }
 })
