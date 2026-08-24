@@ -4,6 +4,7 @@ import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { Dialog } from './Dialog'
 import { Button } from '../Button/Button'
+import styles from './Dialog.module.css'
 
 // jsdom(29)에는 <dialog> 모달 API가 없다(showModal/close === undefined).
 // 컨트롤드 open→showModal/close 경로를 실제로 태우기 위한 최소 폴리필.
@@ -81,4 +82,26 @@ test('footer에 넘긴 Button 액션이 렌더된다', () => {
     </Dialog>
   )
   expect(screen.getByRole('button', { name: '확인' })).toBeInTheDocument()
+})
+
+test('placement 기본값은 center — right/left 클래스가 붙지 않는다', () => {
+  render(<Dialog open onClose={() => {}} title="설정">본문</Dialog>)
+  const dlg = screen.getByRole('dialog')
+  expect(dlg.className).not.toContain(styles.right)
+  expect(dlg.className).not.toContain(styles.left)
+})
+
+test('placement="right"면 right 클래스가 붙고 size(기본 md)와 공존한다', () => {
+  render(<Dialog open onClose={() => {}} title="설정" placement="right">본문</Dialog>)
+  const dlg = screen.getByRole('dialog')
+  expect(dlg.className).toContain(styles.dialog)
+  expect(dlg.className).toContain(styles.md)
+  expect(dlg.className).toContain(styles.right)
+})
+
+test('placement="left" + size="sm"이면 left·sm 클래스가 동시에 붙는다', () => {
+  render(<Dialog open onClose={() => {}} title="설정" placement="left" size="sm">본문</Dialog>)
+  const dlg = screen.getByRole('dialog')
+  expect(dlg.className).toContain(styles.left)
+  expect(dlg.className).toContain(styles.sm)
 })

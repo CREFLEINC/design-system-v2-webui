@@ -16,6 +16,24 @@
 .md { max-width: var(--dialog-max-md) }
 .lg { max-width: var(--dialog-max-lg) }
 
+/* -------- placement: 가장자리 부착 (#71) --------
+   셸의 margin: auto를 부착 면만 0으로 바꿔 native 중앙 배치를 가장자리 정렬로 전환.
+   폭은 기존 size(max-width)가 그대로 담당한다. */
+.right,
+.left {
+  height: 100dvh;
+  max-height: 100dvh; /* .dialog의 -space-8 여백 해제 (동일 특이성 — 후행이라 이긴다) */
+}
+.right { margin: 0 0 0 auto }
+.left { margin: 0 auto 0 0 }
+
+.right .panel,
+.left .panel {
+  height: 100%;
+}
+.right .panel { border-radius: var(--radius-lg) 0 0 var(--radius-lg) }
+.left .panel { border-radius: 0 var(--radius-lg) var(--radius-lg) 0 }
+
 .dialog::backdrop {
   background: var(--scrim);
 }
@@ -109,7 +127,37 @@
   to { opacity: 1 }
 }
 
+.dialog[open].right { animation: dialog-in-right var(--motion-slow) var(--ease-emphasized) }
+.dialog[open].left { animation: dialog-in-left var(--motion-slow) var(--ease-emphasized) }
+@keyframes dialog-in-right {
+  from { transform: translateX(100%) }
+  to { transform: translateX(0) }
+}
+@keyframes dialog-in-left {
+  from { transform: translateX(-100%) }
+  to { transform: translateX(0) }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .dialog[open], .dialog[open]::backdrop { animation: none }
+  .dialog[open], .dialog[open]::backdrop,
+  .dialog[open].right, .dialog[open].left { animation: none }
   .close, .close::before { transition: none }
+}
+
+/* -------- 좁은 화면: placement 무관 풀스크린 강제 (#71, 제품 결정) --------
+   768px = 리포 컴포넌트 레이어의 기존 브레이크포인트(AppShell.module.css).
+   동일 특이성 오버라이드(.dialog가 .sm/.md/.lg·.right/.left를 이긴다)는
+   이 블록이 파일 맨 끝이라는 순서에 의존한다 — 위로 옮기지 말 것. */
+@media (max-width: 768px) {
+  .dialog {
+    width: 100vw;
+    max-width: none;
+    height: 100dvh;
+    max-height: 100dvh;
+    margin: 0;
+  }
+  .dialog .panel {
+    height: 100%;
+    border-radius: 0; /* .right .panel(0-2-0)과 동률 — 후행이라 이긴다 */
+  }
 }

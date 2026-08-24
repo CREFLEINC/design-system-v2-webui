@@ -4,6 +4,7 @@ import { Icon } from '../Icon/Icon'
 import styles from './Dialog.module.css'
 
 export type DialogSize = 'sm' | 'md' | 'lg'
+export type DialogPlacement = 'center' | 'right' | 'left'
 
 // native title/onClose/onCancel 시그니처와 충돌하므로 걷어내고 우리 의미로 재정의한다.
 export interface DialogProps
@@ -17,6 +18,9 @@ export interface DialogProps
   title?: ReactNode
   /** max-width 프리셋. 기본 md. */
   size?: DialogSize
+  /** 화면 배치. 기본 center(중앙 모달). right/left는 해당 가장자리에 전체 높이로 부착되고
+   *  가로 폭에는 size가 그대로 적용된다. 오버레이·포커스 트랩·ESC·스크롤 잠금은 동일. */
+  placement?: DialogPlacement
   /** 스크림(백드롭) 클릭으로 닫기 허용. 기본 true. false면 스크림 클릭 무시(파괴적 확인 등). */
   closeOnBackdropClick?: boolean
   /** 우상단 X 닫기 버튼 표시. 기본 true. */
@@ -33,6 +37,7 @@ export const Dialog = forwardRef<HTMLDialogElement, DialogProps>(function Dialog
     onClose,
     title,
     size = 'md',
+    placement = 'center',
     closeOnBackdropClick = true,
     showCloseButton = true,
     footer,
@@ -85,7 +90,7 @@ export const Dialog = forwardRef<HTMLDialogElement, DialogProps>(function Dialog
       ref={innerRef}
       aria-labelledby={title ? titleId : undefined}
       aria-describedby={bodyId}
-      className={cx(styles.dialog, styles[size], className)}
+      className={cx(styles.dialog, styles[size], placement !== 'center' && styles[placement], className)}
       onClick={handleBackdrop}
       onCancel={handleCancel}
       {...rest}
