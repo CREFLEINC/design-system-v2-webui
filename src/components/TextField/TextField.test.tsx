@@ -131,3 +131,31 @@ test('소비자가 넘긴 aria-describedby와 disabledReason의 id가 함께 병
   expect(reasonId).toBeTruthy()
   expect(document.getElementById(reasonId!)).toHaveTextContent('외부 시스템 원본 값이라 수정할 수 없습니다')
 })
+
+test('required면 시각적 별표가 그려지고 접근 이름은 오염되지 않는다', () => {
+  render(<TextField label="이름" required />)
+  const input = screen.getByLabelText('이름')
+  expect(input).toBeRequired()
+  expect(input).toHaveAccessibleName('이름')
+  const mark = screen.getByText('*')
+  expect(mark).toBeInTheDocument()
+  expect(mark).toHaveAttribute('aria-hidden', 'true')
+})
+
+test('required + helperText여도 접근 설명은 helperText뿐이다', () => {
+  render(<TextField label="이름" required helperText="도움말" />)
+  const input = screen.getByLabelText('이름')
+  expect(input).toHaveAccessibleDescription('도움말')
+})
+
+test('required가 아니면 별표가 없다', () => {
+  render(<TextField label="이름" />)
+  expect(screen.queryByText('*')).not.toBeInTheDocument()
+})
+
+test('label이 없으면 required여도 별표를 그리지 않는다', () => {
+  render(<TextField aria-label="이름" required />)
+  expect(screen.queryByText('*')).not.toBeInTheDocument()
+  const input = screen.getByLabelText('이름')
+  expect(input).toBeRequired()
+})

@@ -20,6 +20,10 @@ export const ErrorState: Story = {
   args: { error: '올바른 이메일 형식이 아닙니다', value: 'not-an-email' }
 }
 
+export const Required: Story = {
+  args: { required: true, helperText: '필수 입력 항목' }
+}
+
 export const Disabled: Story = {
   args: { disabled: true, value: '수정 불가' }
 }
