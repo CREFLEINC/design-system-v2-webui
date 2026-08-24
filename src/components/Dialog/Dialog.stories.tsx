@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { Dialog, type DialogSize } from './Dialog'
 import { Button } from '../Button/Button'
+import { TextField } from '../TextField/TextField'
 
 const meta = {
   title: 'Components/Dialog',
@@ -104,6 +105,33 @@ export const OpenLg: Story = {
         <p>제3조 (약관의 효력 및 변경) 회사는 필요한 경우 관련 법령을 위배하지 않는 범위에서 이 약관을 변경할 수 있으며, 변경 시 사전에 공지합니다.</p>
         <p>제4조 (개인정보 보호) 회사는 이용자의 개인정보를 관련 법령에 따라 안전하게 관리하며, 별도의 개인정보 처리방침을 따릅니다.</p>
         <p>제5조 (책임의 한계) 회사는 천재지변 등 불가항력으로 인한 서비스 중단에 대해 책임을 지지 않습니다. 본문이 길어지면 이 영역만 내부 스크롤됩니다.</p>
+      </Dialog>
+    )
+  }
+}
+
+// #78 회귀 재현 스토리: 뷰포트 높이 900px 이하에서 본문만 내부 스크롤하고 헤더·푸터는 뷰포트 안에 보여야 한다.
+export const LongBody: Story = {
+  render: () => {
+    const [open, setOpen] = useState(false)
+    useEffect(() => setOpen(true), [])
+    return (
+      <Dialog
+        open={open}
+        onClose={() => setOpen(false)}
+        title="회원 정보 수정"
+        footer={
+          <>
+            <Button variant="text" onClick={() => setOpen(false)}>취소</Button>
+            <Button variant="filled" onClick={() => setOpen(false)}>저장</Button>
+          </>
+        }
+      >
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          {Array.from({ length: 14 }, (_, i) => i + 1).map((n) => (
+            <TextField key={n} label={`항목 ${n}`} placeholder={`항목 ${n} 입력`} />
+          ))}
+        </div>
       </Dialog>
     )
   }
