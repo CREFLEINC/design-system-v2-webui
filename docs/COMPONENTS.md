@@ -180,9 +180,11 @@
 `src/components/DatePicker/DatePicker.tsx` · 스토리 ✓
 
 **DatePicker**
-- props `DatePickerProps` = `DatePickerSingleProps` | `DatePickerRangeProps`
-  - `DatePickerSingleProps`: min, max, placeholder, size, disabled, invalid, id, locale, 'aria-label', 'aria-labelledby', mode, value, defaultValue, onChange, name _(+ 네이티브 HTML 속성)_
-  - `DatePickerRangeProps`: min, max, placeholder, size, disabled, invalid, id, locale, 'aria-label', 'aria-labelledby', mode, value, defaultValue, onChange _(+ 네이티브 HTML 속성)_
+- props `DatePickerProps` = `DatePickerSingleProps` | `DatePickerSingleClearableProps` | `DatePickerRangeProps` | `DatePickerRangeClearableProps`
+  - `DatePickerSingleProps`: min, max, placeholder, size, disabled, invalid, id, locale, 'aria-label', 'aria-labelledby', mode, value, defaultValue, name, clearable, onChange _(+ 네이티브 HTML 속성)_
+  - `DatePickerSingleClearableProps`: min, max, placeholder, size, disabled, invalid, id, locale, 'aria-label', 'aria-labelledby', mode, value, defaultValue, name, clearable, onChange _(+ 네이티브 HTML 속성)_
+  - `DatePickerRangeProps`: min, max, placeholder, size, disabled, invalid, id, locale, 'aria-label', 'aria-labelledby', mode, value, defaultValue, clearable, onChange _(+ 네이티브 HTML 속성)_
+  - `DatePickerRangeClearableProps`: min, max, placeholder, size, disabled, invalid, id, locale, 'aria-label', 'aria-labelledby', mode, value, defaultValue, clearable, onChange _(+ 네이티브 HTML 속성)_
 
 - `DatePickerSize`: `sm` `md` `lg` `xl`
 - 기타 타입: `DateRangeValue`

@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 import { fireEvent, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { renderToString } from 'react-dom/server'
-import { DatePicker } from './DatePicker'
+import { DatePicker, type DatePickerProps } from './DatePicker'
 import styles from './DatePicker.module.css'
 
 // "오늘" 고정 — 2026-08-15(토). 이 스위트의 모든 테스트가 이 시각 아래에서 실행된다.
@@ -474,6 +474,148 @@ test('월 이동 버튼 클릭 후 포커스는 버튼에 남는다', async () =
   expect(document.querySelector('td[data-date="2026-09-15"]')).not.toBeNull() // 그리드는 다음 달로 전환됨
 })
 
+// ── 지우기(clearable) ──────────────────────────────────────
+
+test('clearable 미지정 시 지우기 버튼이 렌더되지 않는다', async () => {
+  const user = setupUser()
+  render(<DatePicker aria-label="발행일" defaultValue="2026-08-10" />)
+  await user.click(screen.getByRole('button', { name: '발행일' }))
+  expect(screen.queryByRole('button', { name: '지우기' })).toBeNull()
+})
+
+test('single clearable: 지우기 클릭 시 onChange(null)·트리거 placeholder·닫힘·포커스 복귀 (uncontrolled)', async () => {
+  const user = setupUser()
+  const onChange = vi.fn()
+  render(
+    <DatePicker
+      aria-label="발행일"
+      placeholder="날짜 선택"
+      defaultValue="2026-08-10"
+      clearable
+      onChange={onChange}
+    />
+  )
+  const trigger = screen.getByRole('button', { name: '발행일' })
+  await user.click(trigger)
+  await user.click(screen.getByRole('button', { name: '지우기' }))
+  expect(onChange).toHaveBeenCalledTimes(1)
+  expect(onChange).toHaveBeenCalledWith(null)
+  expect(trigger).toHaveTextContent('날짜 선택')
+  expect(screen.queryByRole('dialog')).toBeNull()
+  expect(trigger).toHaveFocus()
+})
+
+test('single clearable: controlled — 지우기 클릭해도 표시는 value 그대로, onChange(null)만 호출', async () => {
+  const user = setupUser()
+  const onChange = vi.fn()
+  render(<DatePicker aria-label="발행일" value="2026-08-10" clearable onChange={onChange} />)
+  const trigger = screen.getByRole('button', { name: '발행일' })
+  await user.click(trigger)
+  await user.click(screen.getByRole('button', { name: '지우기' }))
+  expect(onChange).toHaveBeenCalledWith(null)
+  expect(trigger).toHaveTextContent('2026-08-10') // controlled — prop이 안 바뀌면 표시는 그대로
+})
+
+test('clearable: 값·pending 모두 없으면 지우기 버튼이 disabled', async () => {
+  const user = setupUser()
+  render(<DatePicker aria-label="발행일" placeholder="날짜 선택" clearable />)
+  await user.click(screen.getByRole('button', { name: '발행일' }))
+  expect(screen.getByRole('button', { name: '지우기' })).toBeDisabled()
+})
+
+test('range clearable: 지우기 클릭 시 onChange(null)·트리거 placeholder 복귀·닫힘', async () => {
+  const user = setupUser()
+  const onChange = vi.fn()
+  render(
+    <DatePicker
+      mode="range"
+      aria-label="조회 기간"
+      placeholder="기간 선택"
+      defaultValue={['2026-08-05', '2026-08-09']}
+      clearable
+      onChange={onChange}
+    />
+  )
+  const trigger = screen.getByRole('button', { name: '조회 기간' })
+  await user.click(trigger)
+  await user.click(screen.getByRole('button', { name: '지우기' }))
+  expect(onChange).toHaveBeenCalledWith(null)
+  expect(trigger).toHaveTextContent('기간 선택')
+  expect(screen.queryByRole('dialog')).toBeNull()
+})
+
+test('range clearable: pending만 있는 상태(첫 셀만 클릭)에서 지우면 onChange(null) 1회, pending 잔상 없이 닫힘', async () => {
+  const user = setupUser()
+  const onChange = vi.fn()
+  render(
+    <DatePicker
+      mode="range"
+      aria-label="조회 기간"
+      placeholder="기간 선택"
+      clearable
+      onChange={onChange}
+    />
+  )
+  const trigger = screen.getByRole('button', { name: '조회 기간' })
+  await user.click(trigger)
+  await user.click(cell('2026-08-10')) // 첫 확정 — pending만 생기고 완결 쌍은 아직 없음
+  await user.click(screen.getByRole('button', { name: '지우기' }))
+  expect(onChange).toHaveBeenCalledTimes(1)
+  expect(onChange).toHaveBeenCalledWith(null)
+  expect(screen.queryByRole('dialog')).toBeNull()
+  expect(trigger).toHaveTextContent('기간 선택') // pending 잔상 없음
+})
+
+test('키보드: clearable single의 Tab 순환에 지우기가 포함되고, 지우기에서 Enter로 지운다', async () => {
+  const user = setupUser()
+  const onChange = vi.fn()
+  render(<DatePicker aria-label="발행일" defaultValue="2026-08-10" clearable onChange={onChange} />)
+  await user.click(screen.getByRole('button', { name: '발행일' }))
+  const prevBtn = screen.getByRole('button', { name: '이전 달' })
+  const nextBtn = screen.getByRole('button', { name: '다음 달' })
+  const clearBtn = screen.getByRole('button', { name: '지우기' })
+  const active = activeCell()
+  expect(active).toHaveFocus() // 열리면 활성 셀부터
+
+  await user.keyboard('{Tab}')
+  expect(clearBtn).toHaveFocus()
+  await user.keyboard('{Tab}')
+  expect(prevBtn).toHaveFocus()
+  await user.keyboard('{Tab}')
+  expect(nextBtn).toHaveFocus()
+  await user.keyboard('{Tab}')
+  expect(active).toHaveFocus() // 순환 완료
+
+  await user.keyboard('{Tab}') // 다시 지우기로
+  expect(clearBtn).toHaveFocus()
+  await user.keyboard('{Enter}')
+  expect(onChange).toHaveBeenCalledWith(null)
+  expect(screen.queryByRole('dialog')).toBeNull()
+})
+
+test('name 지정(single) clearable: 지운 뒤 hidden input 값이 빈 문자열', async () => {
+  const user = setupUser()
+  const { container } = render(
+    <DatePicker aria-label="발행일" name="issuedAt" defaultValue="2026-08-10" clearable />
+  )
+  await user.click(screen.getByRole('button', { name: '발행일' }))
+  await user.click(screen.getByRole('button', { name: '지우기' }))
+  const hidden = container.querySelector(
+    'input[type="hidden"][name="issuedAt"]'
+  ) as HTMLInputElement
+  expect(hidden).not.toBeNull()
+  expect(hidden.value).toBe('')
+})
+
+test('접근성: 지우기 버튼의 접근 이름은 가시 텍스트이고 title 속성이 없다 (#62 재발 방지)', async () => {
+  const user = setupUser()
+  render(<DatePicker aria-label="발행일" defaultValue="2026-08-10" clearable />)
+  await user.click(screen.getByRole('button', { name: '발행일' }))
+  const clearBtn = screen.getByRole('button', { name: '지우기' })
+  expect(clearBtn).toHaveAccessibleName('지우기')
+  expect(clearBtn).not.toHaveAttribute('title')
+})
+
 // ── 포털 좌표·flip 배치 ─────────────────────────────────────
 // jsdom은 레이아웃을 계산하지 않아 getBoundingClientRect()가 전부 0을 반환한다.
 // 프로토타입 스파이 + role 판별 디스패치로 트리거/팝업의 rect만 갈아끼운다
@@ -629,3 +771,22 @@ describe('포털 좌표·flip 배치', () => {
     expect(popup.style.visibility).toBe('visible')
   })
 })
+
+// ── 타입 가드(컴파일 타임 전용 — tsc --noEmit이 검증. 런타임 단언 없음) ──
+
+// 타입 회귀 가드 — clearable 유무에 따른 onChange 시그니처 계약 (런타임 검증 아님)
+const _sigOk: DatePickerProps[] = [
+  { 'aria-label': 'd', onChange: (v: string) => void v }, // 기존 소비자 그대로
+  { 'aria-label': 'd', clearable: true, onChange: (v: string | null) => void v },
+  { 'aria-label': 'd', mode: 'range', onChange: (v: [string, string]) => void v }, // 기존 range 그대로
+  {
+    'aria-label': 'd',
+    mode: 'range',
+    clearable: true,
+    onChange: (v: [string, string] | null) => void v,
+  },
+]
+void _sigOk
+// @ts-expect-error — clearable이면 onChange는 null을 받을 수 있어야 한다
+const _sigBad: DatePickerProps = { 'aria-label': 'd', clearable: true, onChange: (v: string) => void v }
+void _sigBad
