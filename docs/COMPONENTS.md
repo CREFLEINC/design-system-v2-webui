@@ -45,7 +45,7 @@
 - props `ButtonProps`: variant, size, loading, leadingIcon, trailingIcon _(+ 네이티브 HTML 속성)_
 
 - `ButtonVariant`: `filled` `tonal` `outlined` `text`
-- `ButtonSize`: `sm` `md` `lg` `xl`
+- `ButtonSize`: `sm` `md` `lg` `xl` `2xl`
 
 ## Phase 2 — Tier 1 components
 
@@ -57,7 +57,7 @@
 - props `IconButtonProps`: icon, selectedIcon, variant, size, toggle, pressed, defaultPressed, onPressedChange, 'aria-label' _(+ 네이티브 HTML 속성)_
 
 - `IconButtonVariant`: `standard` `filled` `tonal`
-- `IconButtonSize`: `sm` `md` `lg` `xl`
+- `IconButtonSize`: `sm` `md` `lg` `xl` `2xl`
 
 ### TextField
 
