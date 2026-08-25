@@ -46,6 +46,7 @@
   --control-height-md: 40px;
   --control-height-lg: 48px;
   --control-height-xl: 60px; /* 터치 전용 단말용 — 장갑 조작 등 저정밀 입력 대응 */
+  --control-height-2xl: 72px; /* 주 액션 버튼용 — 하단 액션 영역, 되돌리기 어려운 조작 대응 */
 
   /* -------- Radius -------- */
   --radius-sm: 8px;

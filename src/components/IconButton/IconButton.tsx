@@ -4,7 +4,7 @@ import { Icon } from '../Icon/Icon'
 import styles from './IconButton.module.css'
 
 export type IconButtonVariant = 'standard' | 'filled' | 'tonal'
-export type IconButtonSize = 'sm' | 'md' | 'lg' | 'xl'
+export type IconButtonSize = 'sm' | 'md' | 'lg' | 'xl' | '2xl'
 
 export interface IconButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   /** Material Symbols 아이콘 이름 (리가처). 예: 'settings', 'close' */
@@ -29,7 +29,16 @@ export interface IconButtonProps extends ButtonHTMLAttributes<HTMLButtonElement>
   'aria-label': string
 }
 
-const ICON_SIZE = { sm: 20, md: 24, lg: 24, xl: 28 } as const
+const ICON_SIZE = { sm: 20, md: 24, lg: 24, xl: 28, '2xl': 32 } as const
+
+/* '2xl'은 CSS 식별자로 쓸 수 없어(숫자 시작) 클래스명은 xxl */
+const SIZE_CLASS: Record<IconButtonSize, string> = {
+  sm: styles.sm,
+  md: styles.md,
+  lg: styles.lg,
+  xl: styles.xl,
+  '2xl': styles.xxl
+}
 
 export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(function IconButton(
   {
@@ -68,7 +77,7 @@ export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(functio
     <button
       ref={ref}
       type={type}
-      className={cx(styles.root, styles[variant], styles[size], className)}
+      className={cx(styles.root, styles[variant], SIZE_CLASS[size], className)}
       disabled={disabled}
       aria-pressed={toggle ? isPressed : undefined}
       onClick={handleClick}

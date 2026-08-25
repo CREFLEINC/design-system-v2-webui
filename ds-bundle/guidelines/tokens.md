@@ -34,7 +34,7 @@ CREFLE Web UI의 유일한 스타일 언어는 **CSS custom property 토큰**이
 
 `--space-1`(4) · `-2`(8) · `-3`(12) · `-4`(16) · `-5`(20) · `-6`(24) · `-7`(32) · `-8`(40) · `-9`(48) · `-10`(64) · `-11`(80) · `-12`(96)
 
-- **컨트롤 높이**: `--control-height-sm`(32) · `--control-height-md`(40) · `--control-height-lg`(48) · `--control-height-xl`(60, 터치 전용 단말)
+- **컨트롤 높이**: `--control-height-sm`(32) · `--control-height-md`(40) · `--control-height-lg`(48) · `--control-height-xl`(60, 터치 전용 단말) · `--control-height-2xl`(72, 주 액션 버튼)
 
 ## Radius — 모서리
 
