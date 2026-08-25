@@ -35,7 +35,7 @@ export type { TooltipProps, TooltipPlacement } from './components/Tooltip/Toolti
 export { Tabs } from './components/Tabs/Tabs'
 export type { TabsProps, TabItem, TabsSize } from './components/Tabs/Tabs'
 export { DatePicker } from './components/DatePicker/DatePicker'
-export type { DatePickerProps, DatePickerSingleProps, DatePickerRangeProps, DatePickerSize, DateRangeValue } from './components/DatePicker/DatePicker'
+export type { DatePickerProps, DatePickerSingleProps, DatePickerSingleClearableProps, DatePickerRangeProps, DatePickerRangeClearableProps, DatePickerSize, DateRangeValue } from './components/DatePicker/DatePicker'
 
 // Phase 3 — Tier 2 components
 export { Table } from './components/Table/Table'

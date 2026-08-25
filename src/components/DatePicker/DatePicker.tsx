@@ -52,27 +52,55 @@ interface DatePickerBaseProps
   'aria-labelledby'?: string
 }
 
-export interface DatePickerSingleProps extends DatePickerBaseProps {
+/** 단일 모드 공통 필드 — clearable 유무로 onChange 시그니처만 갈린다. */
+interface DatePickerSingleCommon extends DatePickerBaseProps {
   mode?: 'single'
   /** controlled 선택값. undefined면 uncontrolled */
   value?: string | null
   /** uncontrolled 초기값 */
   defaultValue?: string | null
-  onChange?: (value: string) => void
   /** 지정 시 폼 제출용 hidden input 렌더 (단일 모드 전용) */
   name?: string
 }
 
-export interface DatePickerRangeProps extends DatePickerBaseProps {
+export interface DatePickerSingleProps extends DatePickerSingleCommon {
+  /** 팝업 푸터에 지우기 버튼 — true면 onChange가 null(값 제거)을 방출할 수 있다 */
+  clearable?: false
+  onChange?: (value: string) => void
+}
+
+export interface DatePickerSingleClearableProps extends DatePickerSingleCommon {
+  clearable: true
+  /** 지우기 시 null 방출 — 값이 제거되었다는 뜻 */
+  onChange?: (value: string | null) => void
+}
+
+/** 기간 모드 공통 필드 — clearable 유무로 onChange 시그니처만 갈린다. */
+interface DatePickerRangeCommon extends DatePickerBaseProps {
   mode: 'range'
   /** controlled 기간 값. 반쪽([from, null])도 표시할 수 있다 */
   value?: DateRangeValue | null
   defaultValue?: DateRangeValue | null
+}
+
+export interface DatePickerRangeProps extends DatePickerRangeCommon {
+  /** 팝업 푸터에 지우기 버튼 — true면 onChange가 null(기간 제거)을 방출할 수 있다 */
+  clearable?: false
   /** 완결 쌍만 방출한다 — from <= to는 컴포넌트가 보장한다(어떤 조작 순서에서도) */
   onChange?: (value: [from: string, to: string]) => void
 }
 
-export type DatePickerProps = DatePickerSingleProps | DatePickerRangeProps
+export interface DatePickerRangeClearableProps extends DatePickerRangeCommon {
+  clearable: true
+  /** 완결 쌍 또는 null(기간 제거) */
+  onChange?: (value: [from: string, to: string] | null) => void
+}
+
+export type DatePickerProps =
+  | DatePickerSingleProps
+  | DatePickerSingleClearableProps
+  | DatePickerRangeProps
+  | DatePickerRangeClearableProps
 
 /** 요일 헤더 라벨의 기준 주 — 2024-01-07(일요일)부터 7일. 값 연산이 아니라 라벨 렌더 전용이다. */
 const WEEKDAY_REF_YEAR = 2024
@@ -114,6 +142,8 @@ export const DatePicker = forwardRef<HTMLButtonElement, DatePickerProps>(functio
     mode,
     value,
     defaultValue,
+    // rest로 새면 트리거 <button>의 DOM 속성이 된다 — 반드시 여기서 걷어낸다.
+    clearable = false,
     // 판별 유니온이라 여기서 꺼낸 onChange를 직접 호출하면 시그니처 내로잉이 풀린다.
     // 방출은 commitSingle/commitRange에서 props.mode로 좁혀 호출한다. 여기선 rest에서 걷어내기만 한다.
     onChange: _onChange,
@@ -232,6 +262,14 @@ export const DatePicker = forwardRef<HTMLButtonElement, DatePickerProps>(functio
     focusTrigger()
   }
 
+  /** 값 제거 — clearable일 때만 도달한다(푸터 버튼이 그때만 렌더된다). */
+  const commitClear = () => {
+    if (!isControlled) setInner(null)
+    if (props.clearable) props.onChange?.(null)
+    closePopup() // pending도 여기서 리셋된다
+    focusTrigger()
+  }
+
   /**
    * 날짜 확정 — 기간 불변식(from <= to)을 강제하는 **유일한** 지점.
    * 두 번째 확정이 첫 번째보다 이르면 방출하지 않고 그 날짜를 새 from으로 삼아 재시작한다.
@@ -279,7 +317,7 @@ export const DatePicker = forwardRef<HTMLButtonElement, DatePickerProps>(functio
     }
   }
 
-  /** 다이얼로그 안에서 Tab이 도달할 요소 — 문서 순서: 이전 달 → 다음 달 → 활성 셀. */
+  /** 다이얼로그 안에서 Tab이 도달할 요소 — 문서 순서: 이전 달 → 다음 달 → 활성 셀 → 지우기(clearable). */
   const focusableItems = (): HTMLElement[] => {
     const root = popupRef.current
     if (!root) return []
@@ -538,6 +576,20 @@ export const DatePicker = forwardRef<HTMLButtonElement, DatePickerProps>(functio
                 ))}
               </tbody>
             </table>
+
+            {clearable && (
+              <div className={styles.footer}>
+                {/* 가시 텍스트가 곧 접근 이름이다 — title·aria-label을 붙이면 접근성 설명이 이름과 중복된다(#62). */}
+                <button
+                  type="button"
+                  className={styles.clear}
+                  disabled={selFrom === null && pending === null}
+                  onClick={commitClear}
+                >
+                  지우기
+                </button>
+              </div>
+            )}
           </div>,
           placement.portalHost
         )}

@@ -216,12 +216,53 @@
 .selected.today { box-shadow: inset 0 0 0 1px var(--on-primary) }
 .selected.today:focus-visible { box-shadow: inset 0 0 0 1px var(--on-primary), var(--focus-ring) }
 
+/* -------- footer (지우기) -------- */
+/* clearable일 때만 렌더된다. 값이 없으면 버튼은 사라지지 않고 disabled — 레이아웃이 흔들리지 않는다. */
+.footer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: var(--space-1);
+}
+
+/* 텍스트 버튼 — .nav와 같은 상태 레이어 레시피(오버레이만 얹고 배경은 건드리지 않는다) */
+.clear {
+  position: relative;
+  isolation: isolate;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: var(--control-height-sm);
+  padding: 0 var(--space-3);
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--primary);
+  font: var(--type-label-lg);
+  letter-spacing: var(--type-label-lg-tracking);
+  cursor: pointer;
+  outline: none;
+}
+.clear::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: transparent;
+  transition: background var(--motion-fast) var(--ease-standard);
+  pointer-events: none;
+}
+.clear:hover::before { background: var(--state-hover-neutral) }
+.clear:active::before { background: var(--state-press-neutral) }
+.clear:focus-visible { box-shadow: var(--focus-ring) }
+.clear:disabled { color: var(--state-disabled-text); cursor: default; pointer-events: none }
+
 @media (prefers-reduced-motion: reduce) {
   .trigger,
   .trigger::before,
   .nav::before,
   .cell,
-  .cell::before {
+  .cell::before,
+  .clear::before {
     transition: none;
   }
 }

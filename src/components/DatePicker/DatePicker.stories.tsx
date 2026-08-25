@@ -85,6 +85,60 @@ export const Range: Story = {
   render: () => <RangeDemo />
 }
 
+/**
+ * 지우기(clearable) 컨트롤드 데모 — 단일 모드.
+ * 지우기 버튼 클릭 시 onChange(null)이 방출되어 value가 null이 된다.
+ */
+function ClearableDemo() {
+  const [value, setValue] = useState<string | null>('2026-03-14')
+  return (
+    <div style={{ width: 260 }}>
+      <DatePicker
+        clearable
+        value={value}
+        onChange={setValue}
+        placeholder="발행일 선택"
+        aria-label="발행일"
+      />
+      <p style={helpText}>선택된 값: {value ?? '없음'}</p>
+    </div>
+  )
+}
+
+export const Clearable: Story = {
+  render: () => <ClearableDemo />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await userEvent.click(canvas.getByRole('button'))
+  }
+}
+
+/**
+ * 지우기(clearable) 컨트롤드 데모 — 기간 모드.
+ * 지우기 버튼 클릭 시 onChange(null)이 방출되어 기간 전체가 제거된다(반쪽 제거 통로 없음).
+ */
+function ClearableRangeDemo() {
+  const [value, setValue] = useState<[string, string] | null>(['2026-03-01', '2026-03-10'])
+  const [from, to] = value ?? [null, null]
+  return (
+    <div style={{ width: 280 }}>
+      <DatePicker
+        mode="range"
+        clearable
+        value={value}
+        onChange={setValue}
+        placeholder="조회 기간 선택"
+        aria-label="조회 기간"
+      />
+      <p style={helpText}>선택된 기간: {from && to ? `${from} ~ ${to}` : '없음'}</p>
+    </div>
+  )
+}
+
+export const ClearableRange: Story = {
+  render: () => <ClearableRangeDemo />
+}
+
 export const MinMax: Story = {
   args: {
     min: '2026-08-01',
