@@ -21,8 +21,11 @@
    폭은 기존 size(max-width)가 그대로 담당한다. */
 .right,
 .left {
+  /* #81 리뷰: 전체 높이는 공유 변수로만 인코딩한다 — 변수를 재정의하면 셸(.dialog의
+     max-height: var(--dialog-max-h))과 .panel의 캡이 함께 100dvh가 된다. max-height만
+     직접 덮으면 .panel이 -space-8만큼 짧아진다. .dialog의 정의와 동일 특이성 — 후행이라 이긴다. */
+  --dialog-max-h: 100dvh;
   height: 100dvh;
-  max-height: 100dvh; /* .dialog의 -space-8 여백 해제 (동일 특이성 — 후행이라 이긴다) */
 }
 .right { margin: 0 0 0 auto }
 .left { margin: 0 auto 0 0 }
@@ -150,10 +153,11 @@
    이 블록이 파일 맨 끝이라는 순서에 의존한다 — 위로 옮기지 말 것. */
 @media (max-width: 768px) {
   .dialog {
+    /* #81: .panel 캡도 함께 전체 높이로 — 변수가 단일 진실원 */
+    --dialog-max-h: 100dvh;
     width: 100vw;
     max-width: none;
     height: 100dvh;
-    max-height: 100dvh;
     margin: 0;
   }
   .dialog .panel {
