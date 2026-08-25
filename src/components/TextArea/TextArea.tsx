@@ -52,7 +52,7 @@ export const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>(function 
   { label, helperText, error, disabledReason, size = 'md', fullWidth = false,
     containerClassName, className, id: idProp, disabled, required,
     rows = 3, maxRows, resize = 'vertical', maxLength, showCount,
-    value, defaultValue, onChange,
+    value, defaultValue, onChange, form: formProp,
     'aria-describedby': describedByProp, ...rest },
   ref
 ) {
@@ -113,27 +113,56 @@ export const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>(function 
     else if (ref) ref.current = node
   }
 
+  // 자동 높이가 소유한 인라인 height/overflow-y 추적 — 소비자가 style prop 으로 준 값을
+  // 침범하지 않기 위해, 우리가 마지막으로 쓴 값(written)과 덮기 직전의 값(saved)을 기억한다.
+  // DOM 값이 written 과 다르면 그 사이 소비자(React)가 새로 쓴 것이므로 소유권을 주장하지 않는다.
+  const autoSizeRef = useRef<{
+    written: { height: string; overflowY: string }
+    saved: { height: string; overflowY: string }
+  } | null>(null)
+
   // auto-resize — maxRows 지정 시에만 개입한다. 없으면 네이티브 rows 가 높이를, 네이티브
   // 스크롤이 넘침을 처리한다. line-height 를 측정할 수 없는 환경(jsdom 등)에서는 no-op.
   const syncHeight = useCallback(() => {
     const el = innerRef.current
     if (!el) return
     if (maxRows == null) {
-      // maxRows 가 해제되면 이전 실행이 쓴 인라인 높이/overflow 를 지워
-      // rows 속성·수동 리사이즈 계약을 복구한다. 설정된 적 없으면 no-op.
-      el.style.removeProperty('height')
-      el.style.removeProperty('overflow-y')
+      // maxRows 해제: 우리가 쓴 값이 그대로 남아 있는 속성만 소비자 값(saved)으로 복원한다.
+      // 소유한 적 없으면(마운트 직후 포함) no-op — 소비자의 style prop 을 침범하지 않는다.
+      const owned = autoSizeRef.current
+      if (owned) {
+        if (el.style.height === owned.written.height) {
+          if (owned.saved.height) el.style.height = owned.saved.height
+          else el.style.removeProperty('height')
+        }
+        if (el.style.overflowY === owned.written.overflowY) {
+          if (owned.saved.overflowY) el.style.overflowY = owned.saved.overflowY
+          else el.style.removeProperty('overflow-y')
+        }
+        autoSizeRef.current = null
+      }
       return
     }
     const cs = window.getComputedStyle(el)
     const line = parseFloat(cs.lineHeight)
     if (!Number.isFinite(line) || line <= 0) return
+    // 덮기 직전 인라인 값 포착 — 직전 written 과 같으면 이전 saved 를 승계(우리 값 위에 다시 쓰는 중),
+    // 다르면 소비자가 새로 쓴 값이므로 그것을 복원 대상으로 갱신한다. 반드시 height='auto' 리셋 *전*에 읽는다.
+    const prev = autoSizeRef.current
+    const saved = {
+      height: prev && el.style.height === prev.written.height ? prev.saved.height : el.style.height,
+      overflowY: prev && el.style.overflowY === prev.written.overflowY ? prev.saved.overflowY : el.style.overflowY
+    }
     const padding = (parseFloat(cs.paddingTop) || 0) + (parseFloat(cs.paddingBottom) || 0)
     const maxH = Math.round(line * Math.max(maxRows, rows) + padding) // border-box, 보더 0(box-shadow) 전제
     el.style.height = 'auto' // 줄어드는 경우 재측정을 위해 리셋
     const next = Math.min(el.scrollHeight, maxH) // scrollHeight = 내용 + 패딩 (border-box)
     el.style.height = `${next}px`
     el.style.overflowY = el.scrollHeight > maxH ? 'auto' : 'hidden'
+    autoSizeRef.current = {
+      written: { height: el.style.height, overflowY: el.style.overflowY },
+      saved
+    }
   }, [maxRows, rows])
 
   useLayoutEffect(() => {
@@ -142,6 +171,9 @@ export const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>(function 
 
   // 네이티브 form.reset() 은 change 이벤트를 내지 않는다 — owner form 의 'reset' 을 구독해
   // 리셋 후 실제 DOM 값으로 글자 수 state 를 재동기화한다. controlled 는 value prop 이 정본이므로 불필요.
+  // form 속성이 바뀌면 owner 가 바뀌므로 formProp 을 deps 에 두어 재구독한다 (effect 는 commit 후
+  // 실행되어 innerRef.current.form 이 새 owner 로 재해석된다). 조상 form 교체는 remount 를 동반해
+  // 어차피 재실행된다. unmount 후 microtask 는 콜백 ref 가 null 을 먼저 받으므로 아래 가드로 무해하다.
   useEffect(() => {
     if (isControlled) return
     const form = innerRef.current?.form
@@ -157,7 +189,7 @@ export const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>(function 
     }
     form.addEventListener('reset', handleReset)
     return () => form.removeEventListener('reset', handleReset)
-  }, [isControlled])
+  }, [isControlled, formProp])
 
   return (
     <div
@@ -180,6 +212,7 @@ export const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>(function 
           aria-required={required || undefined}
           value={value}
           defaultValue={defaultValue}
+          form={formProp}
           onChange={handleChange}
           {...rest}
         />

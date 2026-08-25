@@ -270,16 +270,128 @@ test('form reset 시 비어 있지 않은 defaultValue로 복귀한다', async (
   expect(screen.getByText('3/10')).toBeInTheDocument()
 })
 
-test('maxRows 해제 리렌더가 stale 인라인 높이/overflow를 제거한다', () => {
-  const { rerender } = render(<TextArea label="비고" maxRows={6} defaultValue={'줄1\n줄2'} />)
+test('maxRows 해제 시 컴포넌트가 쓴 인라인 높이/overflow만 제거된다 (소비자 style 미지정)', () => {
+  const spy = vi.spyOn(window, 'getComputedStyle').mockReturnValue({
+    lineHeight: '20px',
+    paddingTop: '8px',
+    paddingBottom: '8px'
+  } as unknown as CSSStyleDeclaration)
+  try {
+    const { rerender } = render(<TextArea label="비고" maxRows={6} defaultValue={'줄1\n줄2'} />)
+    const textarea = screen.getByLabelText('비고')
+    expect(textarea.style.height).toBe('0px')
+    expect(textarea.style.overflowY).toBe('hidden')
+    expect(textarea.className).not.toContain(styles.resizeVertical)
+
+    rerender(<TextArea label="비고" defaultValue={'줄1\n줄2'} />)
+
+    expect(textarea.style.height).toBe('')
+    expect(textarea.style.overflowY).toBe('')
+    expect(textarea.className).toContain(styles.resizeVertical)
+  } finally {
+    spy.mockRestore()
+  }
+})
+
+test('소비자가 style로 준 height/overflow는 마운트 시 제거되지 않는다 (maxRows 미지정)', () => {
+  render(<TextArea label="비고" style={{ height: '120px', overflowY: 'scroll' }} />)
   const textarea = screen.getByLabelText('비고')
-  textarea.style.height = '120px'
-  textarea.style.overflowY = 'hidden'
-  expect(textarea.className).not.toContain(styles.resizeVertical)
+  expect(textarea.style.height).toBe('120px')
+  expect(textarea.style.overflowY).toBe('scroll')
+})
 
-  rerender(<TextArea label="비고" defaultValue={'줄1\n줄2'} />)
+test('maxRows 해제 시 소비자 style이 유지되면 그 값으로 복원된다', () => {
+  const spy = vi.spyOn(window, 'getComputedStyle').mockReturnValue({
+    lineHeight: '20px',
+    paddingTop: '8px',
+    paddingBottom: '8px'
+  } as unknown as CSSStyleDeclaration)
+  try {
+    const { rerender } = render(
+      <TextArea label="비고" style={{ height: '120px', overflowY: 'scroll' }} maxRows={6} />
+    )
+    const textarea = screen.getByLabelText('비고')
+    expect(textarea.style.height).toBe('0px')
 
-  expect(textarea.style.height).toBe('')
-  expect(textarea.style.overflowY).toBe('')
-  expect(textarea.className).toContain(styles.resizeVertical)
+    rerender(<TextArea label="비고" style={{ height: '120px', overflowY: 'scroll' }} />)
+
+    expect(textarea.style.height).toBe('120px')
+    expect(textarea.style.overflowY).toBe('scroll')
+  } finally {
+    spy.mockRestore()
+  }
+})
+
+test('maxRows 해제와 동시에 새 style을 주면 새 값이 유지된다', () => {
+  const spy = vi.spyOn(window, 'getComputedStyle').mockReturnValue({
+    lineHeight: '20px',
+    paddingTop: '8px',
+    paddingBottom: '8px'
+  } as unknown as CSSStyleDeclaration)
+  try {
+    const { rerender } = render(
+      <TextArea label="비고" style={{ height: '120px', overflowY: 'scroll' }} maxRows={6} />
+    )
+    rerender(<TextArea label="비고" style={{ height: '150px', overflowY: 'scroll' }} />)
+    const textarea = screen.getByLabelText('비고')
+    expect(textarea.style.height).toBe('150px')
+    expect(textarea.style.overflowY).toBe('scroll')
+  } finally {
+    spy.mockRestore()
+  }
+})
+
+test('form 속성이 바뀌면 reset listener가 새 owner form으로 재구독된다', async () => {
+  const ui = (formId: string) => (
+    <>
+      <form data-testid="fa" id="ta-form-a" />
+      <form data-testid="fb" id="ta-form-b" />
+      <TextArea label="비고" form={formId} defaultValue="abc" maxLength={5} />
+    </>
+  )
+  const { container, rerender } = render(ui('ta-form-a'))
+  const textarea = screen.getByLabelText('비고')
+  const live = container.querySelector('[aria-live="polite"]')
+  await userEvent.type(textarea, 'def')
+
+  expect(screen.getByText('6/5')).toBeInTheDocument()
+  expect(textarea).toHaveAttribute('aria-invalid', 'true')
+
+  rerender(ui('ta-form-b'))
+
+  const fa = screen.getByTestId('fa') as HTMLFormElement
+  const fb = screen.getByTestId('fb') as HTMLFormElement
+
+  await act(async () => {
+    fa.reset()
+  })
+  expect(textarea).toHaveValue('abcdef')
+  expect(screen.getByText('6/5')).toBeInTheDocument()
+  expect(textarea).toHaveAttribute('aria-invalid', 'true')
+
+  await act(async () => {
+    fb.reset()
+  })
+  expect(textarea).toHaveValue('abc')
+  expect(screen.getByText('3/5')).toBeInTheDocument()
+  expect(textarea).not.toHaveAttribute('aria-invalid')
+  expect(live).toHaveTextContent('')
+})
+
+test('reset 직후 unmount되어도 예약된 microtask가 안전하다', async () => {
+  const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+  try {
+    const { unmount } = render(
+      <form data-testid="form">
+        <TextArea label="비고" defaultValue="abc" />
+      </form>
+    )
+    const form = screen.getByTestId('form') as HTMLFormElement
+    form.reset()
+    unmount()
+    await act(async () => {})
+    expect(errorSpy).not.toHaveBeenCalled()
+  } finally {
+    errorSpy.mockRestore()
+  }
 })
