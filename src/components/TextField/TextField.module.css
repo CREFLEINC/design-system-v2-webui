@@ -19,6 +19,22 @@
   color: var(--state-disabled-text);
 }
 
+.labelRow {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--space-1);
+}
+
+.requiredMark {
+  font: var(--type-label-sm);
+  letter-spacing: var(--type-label-sm-tracking);
+  color: var(--semantic-error-text);
+}
+
+.field[data-disabled] .requiredMark {
+  color: var(--state-disabled-text);
+}
+
 .inputWrap {
   position: relative;
   display: flex;

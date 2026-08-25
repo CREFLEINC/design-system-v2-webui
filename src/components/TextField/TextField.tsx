@@ -6,7 +6,7 @@ export type TextFieldSize = 'sm' | 'md' | 'lg' | 'xl'
 
 // Omit 'size' — native input.size is a number and collides with our design size.
 export interface TextFieldProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'size'> {
-  /** 시각적 라벨. 없으면 반드시 aria-label을 rest로 넘겨야 함 */
+  /** 시각적 라벨. required면 aria-hidden 별표가 함께 그려진다. 없으면 반드시 aria-label을 rest로 넘겨야 함 */
   label?: string
   /** 도움말 — error나 (disabled 시) disabledReason이 있으면 대체됨 */
   helperText?: ReactNode
@@ -47,7 +47,12 @@ export const TextField = forwardRef<HTMLInputElement, TextFieldProps>(function T
       data-disabled={disabled || undefined}
     >
       {label && (
-        <label htmlFor={id} className={styles.label}>{label}</label>
+        <span className={styles.labelRow}>
+          <label htmlFor={id} className={styles.label}>{label}</label>
+          {required && (
+            <span className={styles.requiredMark} aria-hidden="true">*</span>
+          )}
+        </span>
       )}
       <div className={cx(styles.inputWrap, styles[size], invalid && styles.invalid, disabled && styles.disabled)}>
         {leadingIcon && <span className={styles.leading} aria-hidden="true">{leadingIcon}</span>}
