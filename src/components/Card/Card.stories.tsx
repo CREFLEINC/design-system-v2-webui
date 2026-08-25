@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from 'react'
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { Card, CardHeader, CardBody, CardFooter, type CardSurface, type CardElevation } from './Card'
 import { Button } from '../Button/Button'
@@ -101,4 +102,93 @@ export const Matrix: Story = {
       </div>
     </div>
   )
+}
+
+type FocusRingProbeResult = {
+  focusVisible: string
+  ringOk: string
+  restingValid: string
+  focused: string
+  resting: string
+}
+
+const FOCUS_RING_PROBE_PENDING: FocusRingProbeResult = {
+  focusVisible: 'pending',
+  ringOk: 'pending',
+  restingValid: 'pending',
+  focused: 'pending',
+  resting: 'pending'
+}
+
+/** interactive+bordered(elevation 0) 카드를 스크립트로 포커스하고 computed box-shadow를 프로브한다 */
+function FocusRingProbe() {
+  const interactiveRef = useRef<HTMLElement>(null)
+  const restingRef = useRef<HTMLElement>(null)
+  const [result, setResult] = useState<FocusRingProbeResult>(FOCUS_RING_PROBE_PENDING)
+
+  useEffect(() => {
+    const interactiveEl = interactiveRef.current
+    const restingEl = restingRef.current
+    if (!interactiveEl || !restingEl) return
+
+    let measured = false
+    const measure = () => {
+      if (measured) return
+      measured = true
+      interactiveEl.removeEventListener('transitionend', onTransitionEnd)
+      const focusVisible = interactiveEl.matches(':focus-visible')
+      const focused = getComputedStyle(interactiveEl).boxShadow
+      const resting = getComputedStyle(restingEl).boxShadow
+      const ringOk =
+        focused !== 'none' && focused.includes('0px 0px 0px 2px') && focused.includes('0px 0px 0px 4px')
+      const restingValid = resting !== 'none'
+      setResult({
+        focusVisible: String(focusVisible),
+        ringOk: String(ringOk),
+        restingValid: String(restingValid),
+        focused,
+        resting
+      })
+    }
+    // `.card`에 `transition: box-shadow`가 걸려 있어 focus 직후 고정 지연으로 측정하면
+    // 전이 중간값을 잡을 수 있다(실측) — box-shadow transitionend를 기다려 최종 값이
+    // 안정된 뒤 측정한다. reduced-motion 등으로 이벤트가 안 뜨는 경우의 안전망으로
+    // --motion-base(200ms)보다 넉넉한 타임아웃을 병행한다.
+    const onTransitionEnd = (event: TransitionEvent) => {
+      if (event.propertyName === 'box-shadow') measure()
+    }
+    interactiveEl.addEventListener('transitionend', onTransitionEnd)
+    const fallback = setTimeout(measure, 1000)
+    interactiveEl.focus()
+
+    return () => {
+      clearTimeout(fallback)
+      interactiveEl.removeEventListener('transitionend', onTransitionEnd)
+    }
+  }, [])
+
+  return (
+    <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
+      <div style={{ width: 200 }}>
+        <Card ref={interactiveRef} interactive bordered aria-label="포커스 링 회귀 프로브 대상 카드">
+          <CardHeader>포커스 대상</CardHeader>
+          <CardBody>interactive + bordered, elevation 미지정(=0)</CardBody>
+        </Card>
+      </div>
+      <div style={{ width: 200 }}>
+        <Card ref={restingRef} bordered>
+          <CardHeader>대조군</CardHeader>
+          <CardBody>비-interactive resting bordered</CardBody>
+        </Card>
+      </div>
+      <pre data-testid="focus-ring-probe">
+        {`focusVisible=${result.focusVisible} ringOk=${result.ringOk} restingValid=${result.restingValid} focusedBoxShadow=${result.focused} restingBoxShadow=${result.resting}`}
+      </pre>
+    </div>
+  )
+}
+
+/** 회귀(#77): interactive+bordered(elevation 0)의 focus-visible 링 — computed box-shadow 프로브 */
+export const FocusRingBordered: Story = {
+  render: () => <FocusRingProbe />
 }
