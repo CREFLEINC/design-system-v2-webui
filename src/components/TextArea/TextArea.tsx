@@ -1,6 +1,7 @@
 import {
   forwardRef,
   useCallback,
+  useEffect,
   useId,
   useLayoutEffect,
   useRef,
@@ -116,7 +117,14 @@ export const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>(function 
   // 스크롤이 넘침을 처리한다. line-height 를 측정할 수 없는 환경(jsdom 등)에서는 no-op.
   const syncHeight = useCallback(() => {
     const el = innerRef.current
-    if (!el || maxRows == null) return
+    if (!el) return
+    if (maxRows == null) {
+      // maxRows 가 해제되면 이전 실행이 쓴 인라인 높이/overflow 를 지워
+      // rows 속성·수동 리사이즈 계약을 복구한다. 설정된 적 없으면 no-op.
+      el.style.removeProperty('height')
+      el.style.removeProperty('overflow-y')
+      return
+    }
     const cs = window.getComputedStyle(el)
     const line = parseFloat(cs.lineHeight)
     if (!Number.isFinite(line) || line <= 0) return
@@ -131,6 +139,25 @@ export const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>(function 
   useLayoutEffect(() => {
     syncHeight()
   }, [syncHeight, currentValue, size])
+
+  // 네이티브 form.reset() 은 change 이벤트를 내지 않는다 — owner form 의 'reset' 을 구독해
+  // 리셋 후 실제 DOM 값으로 글자 수 state 를 재동기화한다. controlled 는 value prop 이 정본이므로 불필요.
+  useEffect(() => {
+    if (isControlled) return
+    const form = innerRef.current?.form
+    if (!form) return
+    const handleReset = () => {
+      // reset 이벤트는 값 복귀 *전*에 발생한다(스펙·jsdom 실측 동일) — 동기로 읽으면 이전 값.
+      // microtask 로 미뤄 복귀 후의 실제 값을 읽는다. preventDefault 로 리셋이 취소된 경우에도
+      // "실제 DOM 값"과 동기화되므로 안전하다.
+      queueMicrotask(() => {
+        const el = innerRef.current
+        if (el) setInnerValue(el.value)
+      })
+    }
+    form.addEventListener('reset', handleReset)
+    return () => form.removeEventListener('reset', handleReset)
+  }, [isControlled])
 
   return (
     <div

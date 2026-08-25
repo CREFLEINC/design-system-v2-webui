@@ -1,5 +1,5 @@
 import { expect, test, vi } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { act, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { createRef } from 'react'
 import { TextArea } from './TextArea'
@@ -221,4 +221,65 @@ test('maxRows 지정 렌더가 크래시 없이 동작한다', async () => {
   const textarea = screen.getByLabelText('설명')
   await userEvent.type(textarea, '여러 줄\n텍스트\n입력')
   expect(textarea).toHaveValue('여러 줄\n텍스트\n입력')
+})
+
+test('form reset 시 uncontrolled 값·카운터·invalid·live 안내가 복귀한다', async () => {
+  const { container } = render(
+    <form data-testid="form">
+      <TextArea label="비고" maxLength={5} />
+    </form>
+  )
+  const textarea = screen.getByLabelText('비고')
+  const live = container.querySelector('[aria-live="polite"]')
+  await userEvent.type(textarea, '123456')
+
+  expect(textarea).toHaveValue('123456')
+  expect(screen.getByText('6/5')).toBeInTheDocument()
+  expect(textarea).toHaveAttribute('aria-invalid', 'true')
+  expect(screen.getByText('6/5').className).toContain(styles.countOver)
+  expect(live).toHaveTextContent('글자 수 상한 5자를 초과했습니다')
+
+  const form = screen.getByTestId('form') as HTMLFormElement
+  await act(async () => {
+    form.reset()
+  })
+
+  expect(textarea).toHaveValue('')
+  expect(screen.getByText('0/5')).toBeInTheDocument()
+  expect(textarea).not.toHaveAttribute('aria-invalid')
+  expect(screen.getByText('0/5').className).not.toContain(styles.countOver)
+  expect(live).toHaveTextContent('')
+})
+
+test('form reset 시 비어 있지 않은 defaultValue로 복귀한다', async () => {
+  render(
+    <form data-testid="form">
+      <TextArea label="비고" defaultValue="abc" maxLength={10} />
+    </form>
+  )
+  const textarea = screen.getByLabelText('비고')
+  await userEvent.type(textarea, 'def')
+  expect(screen.getByText('6/10')).toBeInTheDocument()
+
+  const form = screen.getByTestId('form') as HTMLFormElement
+  await act(async () => {
+    form.reset()
+  })
+
+  expect(textarea).toHaveValue('abc')
+  expect(screen.getByText('3/10')).toBeInTheDocument()
+})
+
+test('maxRows 해제 리렌더가 stale 인라인 높이/overflow를 제거한다', () => {
+  const { rerender } = render(<TextArea label="비고" maxRows={6} defaultValue={'줄1\n줄2'} />)
+  const textarea = screen.getByLabelText('비고')
+  textarea.style.height = '120px'
+  textarea.style.overflowY = 'hidden'
+  expect(textarea.className).not.toContain(styles.resizeVertical)
+
+  rerender(<TextArea label="비고" defaultValue={'줄1\n줄2'} />)
+
+  expect(textarea.style.height).toBe('')
+  expect(textarea.style.overflowY).toBe('')
+  expect(textarea.className).toContain(styles.resizeVertical)
 })
