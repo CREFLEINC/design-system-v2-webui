@@ -162,6 +162,54 @@ export const ConfirmDestructive: Story = {
   }
 }
 
+export const PlacementRight: Story = {
+  render: () => {
+    const [open, setOpen] = useState(false)
+    useEffect(() => setOpen(true), [])
+    return (
+      <Dialog
+        open={open}
+        onClose={() => setOpen(false)}
+        size="md"
+        placement="right"
+        title="필터"
+        footer={
+          <>
+            <Button variant="text" onClick={() => setOpen(false)}>취소</Button>
+            <Button variant="filled" onClick={() => setOpen(false)}>적용</Button>
+          </>
+        }
+      >
+        오른쪽 가장자리에 전체 높이로 부착됩니다. 가로 폭은 size(md)를 그대로 따릅니다. 768px 이하 화면에서는 placement와 무관하게 풀스크린으로 강제됩니다.
+      </Dialog>
+    )
+  }
+}
+
+export const PlacementLeft: Story = {
+  render: () => {
+    const [open, setOpen] = useState(false)
+    useEffect(() => setOpen(true), [])
+    return (
+      <Dialog
+        open={open}
+        onClose={() => setOpen(false)}
+        size="md"
+        placement="left"
+        title="탐색"
+        footer={
+          <>
+            <Button variant="text" onClick={() => setOpen(false)}>취소</Button>
+            <Button variant="filled" onClick={() => setOpen(false)}>확인</Button>
+          </>
+        }
+      >
+        왼쪽 가장자리에 전체 높이로 부착됩니다. 가로 폭은 size(md)를 그대로 따릅니다. 768px 이하 화면에서는 placement와 무관하게 풀스크린으로 강제됩니다.
+      </Dialog>
+    )
+  }
+}
+
 // 사이즈 "매트릭스"는 한 화면에 세 모달을 겹칠 수 없어(top layer는 하나만) 트리거로 하나씩 연다.
 export const Matrix: Story = {
   render: () => {

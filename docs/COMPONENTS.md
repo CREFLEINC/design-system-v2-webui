@@ -152,8 +152,9 @@
 `src/components/Dialog/Dialog.tsx` · 스토리 ✓
 
 **Dialog**
-- props `DialogProps`: open, onClose, title, size, closeOnBackdropClick, showCloseButton, footer, children _(+ 네이티브 HTML 속성)_
+- props `DialogProps`: open, onClose, title, size, placement, closeOnBackdropClick, showCloseButton, footer, children _(+ 네이티브 HTML 속성)_
 
+- `DialogPlacement`: `center` `right` `left`
 - `DialogSize`: `sm` `md` `lg`
 
 ### Tooltip
