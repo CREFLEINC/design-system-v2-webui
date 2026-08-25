@@ -216,6 +216,13 @@
   .dp-cell.dp-today { box-shadow: inset 0 0 0 1px var(--primary); }
   .dp-cell.dp-inrange { background: var(--primary-container); color: var(--on-primary-container); border-radius: 0; }
   .dp-cell.dp-selected { background: var(--primary); color: var(--on-primary); }
+
+  /* ---- NumberPad — 3열 격자, 12키 고정 + 조건부 확인/소수점 행 ---- */
+  .np { display: inline-grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-2); width: calc(var(--control-height-xl) * 3 + var(--space-2) * 2); box-sizing: border-box; }
+  .np-key { position: relative; display: inline-flex; align-items: center; justify-content: center; height: var(--control-height-xl); border-radius: var(--radius-md); font: var(--type-title-lg); letter-spacing: var(--type-title-lg-tracking); box-sizing: border-box; }
+  .np-num { background: var(--surface); color: var(--on-surface); box-shadow: inset 0 0 0 1px var(--outline-variant); }
+  .np-util { background: var(--surface-container); color: var(--on-surface-variant); }
+  .np-confirm { grid-column: span 2; background: var(--primary); color: var(--on-primary); }
 </style>
 
 <div class="head">
@@ -534,6 +541,26 @@
       </div>
     </div>
 
+    <div class="spec">
+      <h3>NumberPad — 숫자 입력 패드</h3>
+      <div class="np" role="group" aria-label="숫자 입력 패드">
+        <span class="np-key np-num">1</span>
+        <span class="np-key np-num">2</span>
+        <span class="np-key np-num">3</span>
+        <span class="np-key np-num">4</span>
+        <span class="np-key np-num">5</span>
+        <span class="np-key np-num">6</span>
+        <span class="np-key np-num">7</span>
+        <span class="np-key np-num">8</span>
+        <span class="np-key np-num">9</span>
+        <span class="np-key np-util">C</span>
+        <span class="np-key np-num">0</span>
+        <span class="np-key np-util"><span class="material-symbols-rounded" aria-hidden="true">backspace</span></span>
+        <span class="np-key np-num">.</span>
+        <span class="np-key np-confirm">확인</span>
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -845,6 +872,26 @@
             </tr>
           </tbody>
         </table>
+      </div>
+    </div>
+
+    <div class="spec">
+      <h3>NumberPad — 숫자 입력 패드</h3>
+      <div class="np" role="group" aria-label="숫자 입력 패드">
+        <span class="np-key np-num">1</span>
+        <span class="np-key np-num">2</span>
+        <span class="np-key np-num">3</span>
+        <span class="np-key np-num">4</span>
+        <span class="np-key np-num">5</span>
+        <span class="np-key np-num">6</span>
+        <span class="np-key np-num">7</span>
+        <span class="np-key np-num">8</span>
+        <span class="np-key np-num">9</span>
+        <span class="np-key np-util">C</span>
+        <span class="np-key np-num">0</span>
+        <span class="np-key np-util"><span class="material-symbols-rounded" aria-hidden="true">backspace</span></span>
+        <span class="np-key np-num">.</span>
+        <span class="np-key np-confirm">확인</span>
       </div>
     </div>
 

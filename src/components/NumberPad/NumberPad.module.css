@@ -1,0 +1,108 @@
+/* -------- grid -------- */
+/* 3열 고정 격자. 12키(1~9·C·0·←)는 어떤 설정에서도 같은 자리에 놓인다 —
+   조건부 5행('.'·확인)은 격자 뒤에 이어 붙을 뿐 위 4행을 밀지 않는다. */
+.root {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-2);
+}
+
+/* 폭을 열 폭 계산에 맡기지 않고 토큰 calc로 못 박는다(DatePicker 그리드 선례).
+   키 높이 × 4 + gap × 2 → 키가 높이보다 약간 넓은 4:3 비율이 된다. */
+.md {
+  width: calc(var(--control-height-md) * 4 + var(--space-2) * 2);
+  grid-auto-rows: var(--control-height-md);
+}
+.lg {
+  width: calc(var(--control-height-lg) * 4 + var(--space-2) * 2);
+  grid-auto-rows: var(--control-height-lg);
+}
+/* xl(터치 전용 단말) — 60px 키는 터치 타겟 권고(WCAG 2.5.5, >=44px)를 크게 넘는다 */
+.xl {
+  width: calc(var(--control-height-xl) * 4 + var(--space-2) * 2);
+  grid-auto-rows: var(--control-height-xl);
+}
+
+.md .key,
+.lg .key {
+  font: var(--type-title-sm);
+  letter-spacing: var(--type-title-sm-tracking);
+}
+.xl .key {
+  font: var(--type-title-lg);
+  letter-spacing: var(--type-title-lg-tracking);
+}
+
+/* -------- key -------- */
+/* Button을 내부 합성하지 않는다 — 격자 셀은 pill 반경·텍스트 패딩 같은 Button의 형태
+   전제와 맞지 않는다(DatePicker 날짜 셀 선례). 대신 Button.module.css의 M3 관례
+   (::before 상태 레이어, focus-visible 링, reduced-motion)를 그대로 이식한다. */
+.key {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  box-shadow: inset 0 0 0 1px var(--outline-variant);
+  color: var(--on-surface);
+  cursor: pointer;
+  outline: none;
+  transition: box-shadow var(--motion-fast) var(--ease-standard);
+}
+
+/* 상태 레이어 — 배경을 건드리지 않고 오버레이만 얹는다 (M3 규칙) */
+.key::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: transparent;
+  transition: background var(--motion-fast) var(--ease-standard);
+  pointer-events: none;
+}
+
+.key:hover::before { background: var(--state-hover-neutral) }
+.key:active::before { background: var(--state-press-neutral) }
+.key:focus-visible { box-shadow: inset 0 0 0 1px var(--outline-variant), var(--focus-ring) }
+
+/* 유틸리티(C·←) — 숫자 키와 한눈에 구분되는 컨테이너 표면. 상태는 중립 토큰 그대로 */
+.utility {
+  background: var(--surface-container);
+  box-shadow: none;
+  color: var(--on-surface-variant);
+}
+.utility:focus-visible { box-shadow: var(--focus-ring) }
+
+/* 확인 — 주 액션. 색·상태 토큰은 Button.filled와 동일 */
+.confirm {
+  background: var(--primary);
+  box-shadow: none;
+  color: var(--on-primary);
+}
+.confirm:hover::before { background: var(--state-hover-on-primary) }
+.confirm:active::before { background: var(--state-press-on-primary) }
+.confirm:focus-visible { box-shadow: var(--focus-ring) }
+
+/* 5행 확인 키의 가로 span — '.' 키 유무에 따라 남은 칸을 채운다 */
+.span2 { grid-column: span 2 }
+.span3 { grid-column: span 3 }
+
+/* -------- disabled -------- */
+.key:disabled {
+  background: var(--state-disabled-fill);
+  box-shadow: none;
+  color: var(--state-disabled-text);
+  cursor: default;
+}
+.key:disabled::before { background: transparent }
+
+@media (prefers-reduced-motion: reduce) {
+  .key,
+  .key::before {
+    transition: none;
+  }
+}
