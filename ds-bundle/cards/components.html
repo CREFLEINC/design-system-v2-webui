@@ -51,6 +51,10 @@
   .tf-err { font: var(--type-body-sm); color: var(--semantic-error-text); display: flex; align-items: center; gap: var(--space-1); }
   .tf-err .material-symbols-rounded { font-size: 16px; }
 
+  /* ---- TextArea ---- */
+  .ta-input { display: block; width: 100%; min-height: calc(var(--control-height-md) * 2); box-sizing: border-box; padding: var(--space-3); border: 0; border-radius: var(--radius-md); background: transparent; box-shadow: inset 0 0 0 1px var(--outline); outline: none; color: var(--on-surface); font: var(--type-body-lg); resize: none; }
+  .ta-input.invalid { box-shadow: inset 0 0 0 1px var(--semantic-error); }
+
   /* ---- Checkbox / Radio / Switch ---- */
   .cb, .rb { display: inline-flex; align-items: center; gap: var(--space-2); font: var(--type-body-lg); color: var(--on-surface); }
   .rb { gap: var(--space-3); }
@@ -269,6 +273,18 @@
         <label class="tf"><span class="tf-label">비활성</span>
           <span class="tf-wrap disabled"><input class="tf-input dis" value="수정 불가" disabled></span>
           <span class="tf-help">외부 시스템 원본 값이라 수정할 수 없습니다</span></label>
+      </div>
+    </div>
+
+    <div class="spec">
+      <h3>TextArea</h3>
+      <div class="rwv">
+        <label class="tf"><span class="tf-label">점검 메모</span>
+          <textarea class="ta-input" readonly>정기 점검 중 이상 없음. 다음 점검은 다음 주 화요일 예정입니다.</textarea>
+          <span class="tf-help">84/200</span></label>
+        <label class="tf"><span class="tf-label">고장 신고 내용</span>
+          <textarea class="ta-input invalid" readonly>압축기 D에서 이상 진동과 소음이 지속적으로 발생하고 있으며, 온도 센서 값도 임계치를 넘어 즉시 점검이 필요한 상태입니다. 원인 분석과 조치 이력을 함께 기록해 두었습니다.</textarea>
+          <span class="tf-err"><span class="material-symbols-rounded">error</span>215/200 — 글자 수 상한을 초과했습니다</span></label>
       </div>
     </div>
 
@@ -603,6 +619,18 @@
         <label class="tf"><span class="tf-label">비활성</span>
           <span class="tf-wrap disabled"><input class="tf-input dis" value="수정 불가" disabled></span>
           <span class="tf-help">외부 시스템 원본 값이라 수정할 수 없습니다</span></label>
+      </div>
+    </div>
+
+    <div class="spec">
+      <h3>TextArea</h3>
+      <div class="rwv">
+        <label class="tf"><span class="tf-label">점검 메모</span>
+          <textarea class="ta-input" readonly>정기 점검 중 이상 없음. 다음 점검은 다음 주 화요일 예정입니다.</textarea>
+          <span class="tf-help">84/200</span></label>
+        <label class="tf"><span class="tf-label">고장 신고 내용</span>
+          <textarea class="ta-input invalid" readonly>압축기 D에서 이상 진동과 소음이 지속적으로 발생하고 있으며, 온도 센서 값도 임계치를 넘어 즉시 점검이 필요한 상태입니다. 원인 분석과 조치 이력을 함께 기록해 두었습니다.</textarea>
+          <span class="tf-err"><span class="material-symbols-rounded">error</span>215/200 — 글자 수 상한을 초과했습니다</span></label>
       </div>
     </div>
 
