@@ -664,3 +664,105 @@ test('unmount 시 observer와 예약된 rAF 콜백이 정리된다', () => {
     shSpy.mockRestore()
   }
 })
+
+test('style.lineHeight 변경 시 재측정된다 — 5차 리뷰 재현: lineHeight 20px→30px이면 60px→90px', () => {
+  // RO 스텁 없이 — jsdom 에 ResizeObserver 가 없으므로 컴포넌트의 typeof 가드가 걸린다.
+  // 즉 이 테스트는 deps 채널(styleLineHeight)만으로 재측정이 일어나는지를 본다.
+  let line = '20px'
+  const gcs = vi.spyOn(window, 'getComputedStyle').mockImplementation(() => ({
+    lineHeight: line,
+    paddingTop: '0px',
+    paddingBottom: '0px'
+  }) as unknown as CSSStyleDeclaration)
+  const shSpy = vi.spyOn(Element.prototype, 'scrollHeight', 'get').mockReturnValue(120)
+  try {
+    const { rerender } = render(<TextArea label="비고" rows={1} maxRows={3} style={{ lineHeight: '20px' }} />)
+    const textarea = screen.getByLabelText('비고')
+    expect(textarea.style.height).toBe('60px')
+    expect(textarea.style.overflowY).toBe('auto')
+
+    line = '30px'
+    rerender(<TextArea label="비고" rows={1} maxRows={3} style={{ lineHeight: '30px' }} />)
+
+    expect(textarea.style.height).toBe('90px')
+    expect(textarea.style.overflowY).toBe('auto')
+  } finally {
+    gcs.mockRestore()
+    shSpy.mockRestore()
+  }
+})
+
+test('fontSize·fontFamily·paddingTop/paddingBottom 값 변경 시 재측정된다', () => {
+  // RO 스텁 없이 — jsdom 에 ResizeObserver 가 없으므로 컴포넌트의 typeof 가드가 걸린다.
+  // 즉 이 테스트는 deps 채널(styleFontSize·styleFontFamily·stylePaddingTop·stylePaddingBottom)
+  // 만으로 재측정이 일어나는지를 본다. shorthand 혼용 금지 계약에 따라 longhand 키만 사용한다.
+  let sh = 40
+  const gcs = vi.spyOn(window, 'getComputedStyle').mockReturnValue({
+    lineHeight: '20px',
+    paddingTop: '0px',
+    paddingBottom: '0px'
+  } as unknown as CSSStyleDeclaration)
+  const shSpy = vi.spyOn(Element.prototype, 'scrollHeight', 'get').mockImplementation(() => sh)
+  try {
+    const { rerender } = render(<TextArea label="비고" maxRows={3} style={{ fontSize: '14px' }} />)
+    const textarea = screen.getByLabelText('비고')
+    expect(textarea.style.height).toBe('40px')
+    expect(textarea.style.overflowY).toBe('hidden')
+
+    sh = 120
+    rerender(<TextArea label="비고" maxRows={3} style={{ fontSize: '16px' }} />)
+    expect(textarea.style.height).toBe('60px')
+    expect(textarea.style.overflowY).toBe('auto')
+
+    sh = 40
+    rerender(<TextArea label="비고" maxRows={3} style={{ fontSize: '16px', fontFamily: 'serif' }} />)
+    expect(textarea.style.height).toBe('40px')
+    expect(textarea.style.overflowY).toBe('hidden')
+
+    sh = 120
+    rerender(
+      <TextArea label="비고" maxRows={3} style={{ fontSize: '16px', fontFamily: 'serif', paddingTop: '4px' }} />
+    )
+    expect(textarea.style.height).toBe('60px')
+
+    sh = 40
+    rerender(
+      <TextArea
+        label="비고"
+        maxRows={3}
+        style={{ fontSize: '16px', fontFamily: 'serif', paddingTop: '4px', paddingBottom: '4px' }}
+      />
+    )
+    expect(textarea.style.height).toBe('40px')
+  } finally {
+    gcs.mockRestore()
+    shSpy.mockRestore()
+  }
+})
+
+test('padding shorthand 값 변경 시 재측정된다', () => {
+  // RO 스텁 없이 — jsdom 에 ResizeObserver 가 없으므로 컴포넌트의 typeof 가드가 걸린다.
+  // 즉 이 테스트는 deps 채널(stylePadding)만으로 재측정이 일어나는지를 본다. padding 키 단독 —
+  // 다른 padding/font 키와 섞지 않는다(shorthand 혼용 금지 계약).
+  let sh = 40
+  const gcs = vi.spyOn(window, 'getComputedStyle').mockReturnValue({
+    lineHeight: '20px',
+    paddingTop: '0px',
+    paddingBottom: '0px'
+  } as unknown as CSSStyleDeclaration)
+  const shSpy = vi.spyOn(Element.prototype, 'scrollHeight', 'get').mockImplementation(() => sh)
+  try {
+    const { rerender } = render(<TextArea label="비고" maxRows={3} style={{ padding: '8px' }} />)
+    const textarea = screen.getByLabelText('비고')
+    expect(textarea.style.height).toBe('40px')
+    expect(textarea.style.overflowY).toBe('hidden')
+
+    sh = 120
+    rerender(<TextArea label="비고" maxRows={3} style={{ padding: '12px' }} />)
+    expect(textarea.style.height).toBe('60px')
+    expect(textarea.style.overflowY).toBe('auto')
+  } finally {
+    gcs.mockRestore()
+    shSpy.mockRestore()
+  }
+})

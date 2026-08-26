@@ -174,13 +174,33 @@ export const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>(function 
   // fullWidth·style.width — 의 값 변경도 재측정 트리거다: 폭이 실제로 바뀌면 아래 ResizeObserver
   // 도 잡지만 한 프레임 늦고, 폭이 안 바뀌는 타이포그래피 변화는 높이가 인라인으로 고정돼 박스
   // 크기가 불변이라 RO 가 침묵하므로 deps 가 유일한 트리거다.
+  // 높이 공식의 입력을 style prop 으로 직접 바꾸는 키들도 같은 이유로 추적한다: lineHeight(공식의
+  // 직접 입력), fontSize·fontFamily·font(상대 line-height — 'normal'·무단위 수·em·% — 와 폰트
+  // 메트릭의 입력), 수직 패딩의 모든 지정 경로(padding·paddingTop/Bottom·paddingBlock*, 가로쓰기
+  // 기준). scrollHeight 에만 간접 영향인 키(letterSpacing 등)는 추적하지 않는다 — 완전 열거는
+  // 불가능하고, 그 끝은 객체 identity 추적(매 렌더 reflow)이다. 반대로 prop·리렌더 없이 computed
+  // 타이포그래피만 바뀌는 경우 — media query·테마 전환·웹폰트 로드·조상 클래스 변경 — 는 의도적
+  // 범위 밖이다(감지 채널 없음, 다음 입력·prop·폭 변경에서 자기 교정된다).
   const styleHeight = style?.height
   const styleOverflowY = style?.overflowY
   const styleWidth = style?.width
+  const styleLineHeight = style?.lineHeight
+  const styleFontSize = style?.fontSize
+  const styleFontFamily = style?.fontFamily
+  const styleFont = style?.font
+  const stylePadding = style?.padding
+  const stylePaddingTop = style?.paddingTop
+  const stylePaddingBottom = style?.paddingBottom
+  const stylePaddingBlock = style?.paddingBlock
+  const stylePaddingBlockStart = style?.paddingBlockStart
+  const stylePaddingBlockEnd = style?.paddingBlockEnd
 
   useLayoutEffect(() => {
     syncHeight()
-  }, [syncHeight, currentValue, size, styleHeight, styleOverflowY, className, containerClassName, fullWidth, styleWidth])
+  }, [syncHeight, currentValue, size, styleHeight, styleOverflowY, className, containerClassName,
+    fullWidth, styleWidth, styleLineHeight, styleFontSize, styleFontFamily, styleFont,
+    stylePadding, stylePaddingTop, stylePaddingBottom, stylePaddingBlock, stylePaddingBlockStart,
+    stylePaddingBlockEnd])
 
   // 레이아웃만 바뀌는 변화 — 부모 컨테이너의 반응형 폭 변경처럼 어떤 prop 도 바뀌지 않는 경우 —
   // 는 위 deps 로 잡을 수 없다. ResizeObserver 로 textarea 의 content-box 를 관찰해 재측정한다.
