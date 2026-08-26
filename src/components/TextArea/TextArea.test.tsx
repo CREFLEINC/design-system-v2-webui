@@ -395,3 +395,56 @@ test('reset 직후 unmount되어도 예약된 microtask가 안전하다', async 
     errorSpy.mockRestore()
   }
 })
+
+test('maxRows 유지 중 style height 단독 변경에도 자동 높이가 유지되고 해제 시 최신 height가 복원된다', () => {
+  const spy = vi.spyOn(window, 'getComputedStyle').mockReturnValue({
+    lineHeight: '20px',
+    paddingTop: '8px',
+    paddingBottom: '8px'
+  } as unknown as CSSStyleDeclaration)
+  try {
+    const { rerender } = render(<TextArea label="비고" maxRows={6} defaultValue={'줄1\n줄2'} />)
+    const textarea = screen.getByLabelText('비고')
+    expect(textarea.style.height).toBe('0px')
+    expect(textarea.style.overflowY).toBe('hidden')
+
+    rerender(<TextArea label="비고" maxRows={6} defaultValue={'줄1\n줄2'} style={{ height: '150px' }} />)
+
+    expect(textarea.style.height).toBe('0px')
+    expect(textarea.style.overflowY).toBe('hidden')
+
+    rerender(<TextArea label="비고" defaultValue={'줄1\n줄2'} style={{ height: '150px' }} />)
+
+    expect(textarea.style.height).toBe('150px')
+    expect(textarea.style.overflowY).toBe('')
+    expect(textarea.className).toContain(styles.resizeVertical)
+  } finally {
+    spy.mockRestore()
+  }
+})
+
+test('maxRows 유지 중 style overflowY 단독 변경에도 자동 overflow가 유지되고 해제 시 최신 overflowY가 복원된다', () => {
+  const spy = vi.spyOn(window, 'getComputedStyle').mockReturnValue({
+    lineHeight: '20px',
+    paddingTop: '8px',
+    paddingBottom: '8px'
+  } as unknown as CSSStyleDeclaration)
+  try {
+    const { rerender } = render(<TextArea label="비고" maxRows={6} defaultValue={'줄1\n줄2'} />)
+    const textarea = screen.getByLabelText('비고')
+    expect(textarea.style.height).toBe('0px')
+    expect(textarea.style.overflowY).toBe('hidden')
+
+    rerender(<TextArea label="비고" maxRows={6} defaultValue={'줄1\n줄2'} style={{ overflowY: 'scroll' }} />)
+
+    expect(textarea.style.overflowY).toBe('hidden')
+    expect(textarea.style.height).toBe('0px')
+
+    rerender(<TextArea label="비고" defaultValue={'줄1\n줄2'} style={{ overflowY: 'scroll' }} />)
+
+    expect(textarea.style.overflowY).toBe('scroll')
+    expect(textarea.style.height).toBe('')
+  } finally {
+    spy.mockRestore()
+  }
+})

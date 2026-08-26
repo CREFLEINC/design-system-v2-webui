@@ -52,7 +52,7 @@ export const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>(function 
   { label, helperText, error, disabledReason, size = 'md', fullWidth = false,
     containerClassName, className, id: idProp, disabled, required,
     rows = 3, maxRows, resize = 'vertical', maxLength, showCount,
-    value, defaultValue, onChange, form: formProp,
+    value, defaultValue, onChange, form: formProp, style,
     'aria-describedby': describedByProp, ...rest },
   ref
 ) {
@@ -165,9 +165,17 @@ export const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>(function 
     }
   }, [maxRows, rows])
 
+  // 소비자 style 의 height/overflowY 는 React 가 값이 바뀔 때만 DOM 에 재기록한다(키별 비교).
+  // 그 조건과 정확히 일치하도록 객체가 아닌 값을 deps 로 추적해, maxRows 활성 중 style-only
+  // rerender 로 소비자 값이 우리 값을 덮으면 effect 를 재실행한다 — syncHeight 가 DOM ≠ written
+  // 으로 새 값을 saved 에 갱신하고 자동 높이를 paint 전에 복권한다. 객체를 deps 에 넣으면
+  // 매 렌더 재실행(불필요한 강제 reflow)이 되므로 금지.
+  const styleHeight = style?.height
+  const styleOverflowY = style?.overflowY
+
   useLayoutEffect(() => {
     syncHeight()
-  }, [syncHeight, currentValue, size])
+  }, [syncHeight, currentValue, size, styleHeight, styleOverflowY])
 
   // 네이티브 form.reset() 은 change 이벤트를 내지 않는다 — owner form 의 'reset' 을 구독해
   // 리셋 후 실제 DOM 값으로 글자 수 state 를 재동기화한다. controlled 는 value prop 이 정본이므로 불필요.
@@ -213,6 +221,7 @@ export const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>(function 
           value={value}
           defaultValue={defaultValue}
           form={formProp}
+          style={style}
           onChange={handleChange}
           {...rest}
         />
