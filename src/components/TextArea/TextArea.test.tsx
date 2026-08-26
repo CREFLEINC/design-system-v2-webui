@@ -667,7 +667,7 @@ test('unmount 시 observer와 예약된 rAF 콜백이 정리된다', () => {
 
 test('style.lineHeight 변경 시 재측정된다 — 5차 리뷰 재현: lineHeight 20px→30px이면 60px→90px', () => {
   // RO 스텁 없이 — jsdom 에 ResizeObserver 가 없으므로 컴포넌트의 typeof 가드가 걸린다.
-  // 즉 이 테스트는 deps 채널(styleLineHeight)만으로 재측정이 일어나는지를 본다.
+  // 즉 이 테스트는 deps 채널(styleSignature)만으로 재측정이 일어나는지를 본다.
   let line = '20px'
   const gcs = vi.spyOn(window, 'getComputedStyle').mockImplementation(() => ({
     lineHeight: line,
@@ -694,8 +694,8 @@ test('style.lineHeight 변경 시 재측정된다 — 5차 리뷰 재현: lineHe
 
 test('fontSize·fontFamily·paddingTop/paddingBottom 값 변경 시 재측정된다', () => {
   // RO 스텁 없이 — jsdom 에 ResizeObserver 가 없으므로 컴포넌트의 typeof 가드가 걸린다.
-  // 즉 이 테스트는 deps 채널(styleFontSize·styleFontFamily·stylePaddingTop·stylePaddingBottom)
-  // 만으로 재측정이 일어나는지를 본다. shorthand 혼용 금지 계약에 따라 longhand 키만 사용한다.
+  // 즉 이 테스트는 deps 채널(styleSignature)만으로 재측정이 일어나는지를 본다.
+  // shorthand 혼용 금지 계약에 따라 longhand 키만 사용한다.
   let sh = 40
   const gcs = vi.spyOn(window, 'getComputedStyle').mockReturnValue({
     lineHeight: '20px',
@@ -742,7 +742,7 @@ test('fontSize·fontFamily·paddingTop/paddingBottom 값 변경 시 재측정된
 
 test('padding shorthand 값 변경 시 재측정된다', () => {
   // RO 스텁 없이 — jsdom 에 ResizeObserver 가 없으므로 컴포넌트의 typeof 가드가 걸린다.
-  // 즉 이 테스트는 deps 채널(stylePadding)만으로 재측정이 일어나는지를 본다. padding 키 단독 —
+  // 즉 이 테스트는 deps 채널(styleSignature)만으로 재측정이 일어나는지를 본다. padding 키 단독 —
   // 다른 padding/font 키와 섞지 않는다(shorthand 혼용 금지 계약).
   let sh = 40
   const gcs = vi.spyOn(window, 'getComputedStyle').mockReturnValue({
@@ -759,6 +759,167 @@ test('padding shorthand 값 변경 시 재측정된다', () => {
 
     sh = 120
     rerender(<TextArea label="비고" maxRows={3} style={{ padding: '12px' }} />)
+    expect(textarea.style.height).toBe('60px')
+    expect(textarea.style.overflowY).toBe('auto')
+  } finally {
+    gcs.mockRestore()
+    shSpy.mockRestore()
+  }
+})
+
+test('style.letterSpacing 변경 시 재측정된다 — 6차 리뷰 재현: 내용 증가 방향', () => {
+  // RO 스텁 없이 — jsdom 에 ResizeObserver 가 없으므로 컴포넌트의 typeof 가드가 걸린다.
+  // 즉 이 테스트는 deps 채널(styleSignature)만으로 재측정이 일어나는지를 본다.
+  let sh = 40
+  const gcs = vi.spyOn(window, 'getComputedStyle').mockReturnValue({
+    lineHeight: '20px',
+    paddingTop: '0px',
+    paddingBottom: '0px'
+  } as unknown as CSSStyleDeclaration)
+  const shSpy = vi.spyOn(Element.prototype, 'scrollHeight', 'get').mockImplementation(() => sh)
+  try {
+    const { rerender } = render(<TextArea label="비고" maxRows={3} style={{ letterSpacing: '0px' }} />)
+    const textarea = screen.getByLabelText('비고')
+    expect(textarea.style.height).toBe('40px')
+    expect(textarea.style.overflowY).toBe('hidden')
+
+    sh = 120
+    rerender(<TextArea label="비고" maxRows={3} style={{ letterSpacing: '4px' }} />)
+    expect(textarea.style.height).toBe('60px')
+    expect(textarea.style.overflowY).toBe('auto')
+  } finally {
+    gcs.mockRestore()
+    shSpy.mockRestore()
+  }
+})
+
+test('style.whiteSpace 변경 시 재측정된다 — 6차 리뷰 재현: 내용 감소 방향(높이·스크롤 해제)', () => {
+  // RO 스텁 없이 — jsdom 에 ResizeObserver 가 없으므로 컴포넌트의 typeof 가드가 걸린다.
+  // 즉 이 테스트는 deps 채널(styleSignature)만으로 재측정이 일어나는지를 본다.
+  let sh = 120
+  const gcs = vi.spyOn(window, 'getComputedStyle').mockReturnValue({
+    lineHeight: '20px',
+    paddingTop: '0px',
+    paddingBottom: '0px'
+  } as unknown as CSSStyleDeclaration)
+  const shSpy = vi.spyOn(Element.prototype, 'scrollHeight', 'get').mockImplementation(() => sh)
+  try {
+    const { rerender } = render(<TextArea label="비고" maxRows={3} style={{ whiteSpace: 'normal' }} />)
+    const textarea = screen.getByLabelText('비고')
+    expect(textarea.style.height).toBe('60px')
+    expect(textarea.style.overflowY).toBe('auto')
+
+    sh = 20
+    rerender(<TextArea label="비고" maxRows={3} style={{ whiteSpace: 'nowrap' }} />)
+    expect(textarea.style.height).toBe('20px')
+    expect(textarea.style.overflowY).toBe('hidden')
+  } finally {
+    gcs.mockRestore()
+    shSpy.mockRestore()
+  }
+})
+
+test('fontWeight·wordBreak 변경 시 재측정된다 — 키 값 변경·추가·제거 전부 트리거', () => {
+  // RO 스텁 없이 — jsdom 에 ResizeObserver 가 없으므로 컴포넌트의 typeof 가드가 걸린다.
+  // 즉 이 테스트는 deps 채널(styleSignature)만으로 재측정이 일어나는지를 본다.
+  let sh = 40
+  const gcs = vi.spyOn(window, 'getComputedStyle').mockReturnValue({
+    lineHeight: '20px',
+    paddingTop: '0px',
+    paddingBottom: '0px'
+  } as unknown as CSSStyleDeclaration)
+  const shSpy = vi.spyOn(Element.prototype, 'scrollHeight', 'get').mockImplementation(() => sh)
+  try {
+    const { rerender } = render(<TextArea label="비고" maxRows={3} style={{ fontWeight: 400 }} />)
+    const textarea = screen.getByLabelText('비고')
+    expect(textarea.style.height).toBe('40px')
+    expect(textarea.style.overflowY).toBe('hidden')
+
+    sh = 120
+    rerender(<TextArea label="비고" maxRows={3} style={{ fontWeight: 700 }} />) // 값 변경 (number 값 경로)
+    expect(textarea.style.height).toBe('60px')
+    expect(textarea.style.overflowY).toBe('auto')
+
+    sh = 40
+    rerender(<TextArea label="비고" maxRows={3} style={{ fontWeight: 700, wordBreak: 'break-all' }} />) // 키 추가
+    expect(textarea.style.height).toBe('40px')
+    expect(textarea.style.overflowY).toBe('hidden')
+
+    sh = 120
+    rerender(<TextArea label="비고" maxRows={3} style={{ fontWeight: 700 }} />) // 키 제거
+    expect(textarea.style.height).toBe('60px')
+    expect(textarea.style.overflowY).toBe('auto')
+  } finally {
+    gcs.mockRestore()
+    shSpy.mockRestore()
+  }
+})
+
+test('지적되지 않은 키도 자동 커버된다 — wordSpacing·textTransform', () => {
+  // RO 스텁 없이 — jsdom 에 ResizeObserver 가 없으므로 컴포넌트의 typeof 가드가 걸린다.
+  // 즉 이 테스트는 deps 채널(styleSignature)만으로 재측정이 일어나는지를 본다. 두 키는 어떤
+  // 회차에서도 열거된 적이 없다 — 키 목록을 갖지 않는 설계가 클래스 전체를 덮는다는 증거다.
+  let sh = 40
+  const gcs = vi.spyOn(window, 'getComputedStyle').mockReturnValue({
+    lineHeight: '20px',
+    paddingTop: '0px',
+    paddingBottom: '0px'
+  } as unknown as CSSStyleDeclaration)
+  const shSpy = vi.spyOn(Element.prototype, 'scrollHeight', 'get').mockImplementation(() => sh)
+  try {
+    const { rerender } = render(<TextArea label="비고" maxRows={3} style={{ wordSpacing: 'normal' }} />)
+    const textarea = screen.getByLabelText('비고')
+    expect(textarea.style.height).toBe('40px')
+    expect(textarea.style.overflowY).toBe('hidden')
+
+    sh = 120
+    rerender(<TextArea label="비고" maxRows={3} style={{ wordSpacing: '8px' }} />)
+    expect(textarea.style.height).toBe('60px')
+    expect(textarea.style.overflowY).toBe('auto')
+
+    sh = 20
+    rerender(<TextArea label="비고" maxRows={3} style={{ wordSpacing: '8px', textTransform: 'uppercase' }} />)
+    expect(textarea.style.height).toBe('20px')
+    expect(textarea.style.overflowY).toBe('hidden')
+  } finally {
+    gcs.mockRestore()
+    shSpy.mockRestore()
+  }
+})
+
+test('signature 동일 시 조기 반환 — identity·키 순서만 다른 재전달은 재측정하지 않는다', () => {
+  // RO 스텁 없이 — jsdom 에 ResizeObserver 가 없으므로 컴포넌트의 typeof 가드가 걸린다.
+  // 즉 이 테스트는 deps 채널(styleSignature)만으로 재측정 여부가 갈리는지를 본다.
+  // 계측기는 gcs.mock.calls.length — syncHeight 1회당 getComputedStyle 정확히 1회다.
+  let sh = 40
+  const gcs = vi.spyOn(window, 'getComputedStyle').mockReturnValue({
+    lineHeight: '20px',
+    paddingTop: '0px',
+    paddingBottom: '0px'
+  } as unknown as CSSStyleDeclaration)
+  const shSpy = vi.spyOn(Element.prototype, 'scrollHeight', 'get').mockImplementation(() => sh)
+  try {
+    const { rerender } = render(
+      <TextArea label="비고" maxRows={3} style={{ letterSpacing: '2px', whiteSpace: 'normal' }} />
+    )
+    const textarea = screen.getByLabelText('비고')
+    expect(textarea.style.height).toBe('40px')
+
+    const base = gcs.mock.calls.length
+    // 같은 값의 새 객체 — 매 렌더 인라인 style 을 새로 만드는 일반적인 소비자 패턴
+    rerender(<TextArea label="비고" maxRows={3} style={{ letterSpacing: '2px', whiteSpace: 'normal' }} />)
+    expect(gcs.mock.calls.length).toBe(base) // 측정 0회
+    expect(textarea.style.height).toBe('40px')
+
+    // 키 순서만 교체 — 정렬 직렬화라 signature 동일
+    rerender(<TextArea label="비고" maxRows={3} style={{ whiteSpace: 'normal', letterSpacing: '2px' }} />)
+    expect(gcs.mock.calls.length).toBe(base)
+    expect(textarea.style.height).toBe('40px')
+
+    // 계측기 생존 증명 — 값이 실제로 바뀌면 같은 계측기가 1 증가한다
+    sh = 120
+    rerender(<TextArea label="비고" maxRows={3} style={{ whiteSpace: 'normal', letterSpacing: '9px' }} />)
+    expect(gcs.mock.calls.length).toBe(base + 1)
     expect(textarea.style.height).toBe('60px')
     expect(textarea.style.overflowY).toBe('auto')
   } finally {

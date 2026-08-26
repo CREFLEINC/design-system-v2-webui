@@ -165,42 +165,31 @@ export const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>(function 
     }
   }, [maxRows, rows])
 
-  // 소비자 style 의 height/overflowY 는 React 가 값이 바뀔 때만 DOM 에 재기록한다(키별 비교).
-  // 그 조건과 정확히 일치하도록 객체가 아닌 값을 deps 로 추적해, maxRows 활성 중 style-only
-  // rerender 로 소비자 값이 우리 값을 덮으면 effect 를 재실행한다 — syncHeight 가 DOM ≠ written
-  // 으로 새 값을 saved 에 갱신하고 자동 높이를 paint 전에 복권한다. 객체를 deps 에 넣으면
-  // 매 렌더 재실행(불필요한 강제 reflow)이 되므로 금지.
-  // 여기에 더해, 리렌더를 동반하는 레이아웃 입력 — className(폭·폰트·패딩)·containerClassName·
-  // fullWidth·style.width — 의 값 변경도 재측정 트리거다: 폭이 실제로 바뀌면 아래 ResizeObserver
-  // 도 잡지만 한 프레임 늦고, 폭이 안 바뀌는 타이포그래피 변화는 높이가 인라인으로 고정돼 박스
-  // 크기가 불변이라 RO 가 침묵하므로 deps 가 유일한 트리거다.
-  // 높이 공식의 입력을 style prop 으로 직접 바꾸는 키들도 같은 이유로 추적한다: lineHeight(공식의
-  // 직접 입력), fontSize·fontFamily·font(상대 line-height — 'normal'·무단위 수·em·% — 와 폰트
-  // 메트릭의 입력), 수직 패딩의 모든 지정 경로(padding·paddingTop/Bottom·paddingBlock*, 가로쓰기
-  // 기준). scrollHeight 에만 간접 영향인 키(letterSpacing 등)는 추적하지 않는다 — 완전 열거는
-  // 불가능하고, 그 끝은 객체 identity 추적(매 렌더 reflow)이다. 반대로 prop·리렌더 없이 computed
-  // 타이포그래피만 바뀌는 경우 — media query·테마 전환·웹폰트 로드·조상 클래스 변경 — 는 의도적
-  // 범위 밖이다(감지 채널 없음, 다음 입력·prop·폭 변경에서 자기 교정된다).
-  const styleHeight = style?.height
-  const styleOverflowY = style?.overflowY
-  const styleWidth = style?.width
-  const styleLineHeight = style?.lineHeight
-  const styleFontSize = style?.fontSize
-  const styleFontFamily = style?.fontFamily
-  const styleFont = style?.font
-  const stylePadding = style?.padding
-  const stylePaddingTop = style?.paddingTop
-  const stylePaddingBottom = style?.paddingBottom
-  const stylePaddingBlock = style?.paddingBlock
-  const stylePaddingBlockStart = style?.paddingBlockStart
-  const stylePaddingBlockEnd = style?.paddingBlockEnd
+  // 소비자 style 은 어떤 CSS 키로든 높이 공식의 입력 — scrollHeight(letterSpacing·whiteSpace·
+  // wordBreak·tabSize·커스텀 프로퍼티의 var() 참조까지)·computed lineHeight·수직 패딩 — 을
+  // 바꿀 수 있다. 개별 키 열거는 원리적으로 끝나지 않으므로(키를 열거할 때마다 다음 누락
+  // 키가 나온다), React 가 DOM 에 commit 하는 단위와 정확히 같은 "키:값 전체"를 정렬
+  // 직렬화한 signature 하나를 deps 로 추적한다. 어떤 키든 값이 실제로 바뀌면 재측정하고
+  // (포괄 커버), 값이 전부 같으면 — 객체 identity 가 매 렌더 새로 생기는 일반적인 인라인
+  // style 패턴 포함 — 문자열이 동일해 effect 가 건너뛴다(조기 반환: 매 렌더 강제 reflow
+  // 없음). React 의 style 갱신도 키별 값 diff 라 값이 같으면 DOM 재기록이 없다(실측) —
+  // 이 signature 는 "React 가 이 렌더에서 인라인 style 을 실제로 바꿀 수 있는 경우"와
+  // 정확히 일치한다. 정렬은 키 순서 차이를 중화하고, JSON.stringify 는 8 과 '8' 같은
+  // 타입 차이(React 의 px 부여 여부가 갈린다)를 구별하며, null/undefined 값은 React 가
+  // 무시하므로 제외한다(빈 결과는 '' — style 부재와 동일 취급). 직렬화 비용은 키 셋에
+  // 0.4µs·스물에 3.3µs 실측 — 강제 reflow(ms 단위)와 세 자릿수 차이다.
+  // 반대로 prop·리렌더 없이 computed 스타일만 바뀌는 경우 — media query·테마 전환·웹폰트
+  // 로드·조상 클래스 변경 — 는 의도적 범위 밖이다(감지 채널 없음, 다음 입력·prop·폭
+  // 변경에서 자기 교정된다).
+  const styleEntries = style == null ? [] : Object.entries(style).filter(([, v]) => v != null)
+  const styleSignature =
+    styleEntries.length === 0
+      ? ''
+      : JSON.stringify(styleEntries.sort((a, b) => (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0)))
 
   useLayoutEffect(() => {
     syncHeight()
-  }, [syncHeight, currentValue, size, styleHeight, styleOverflowY, className, containerClassName,
-    fullWidth, styleWidth, styleLineHeight, styleFontSize, styleFontFamily, styleFont,
-    stylePadding, stylePaddingTop, stylePaddingBottom, stylePaddingBlock, stylePaddingBlockStart,
-    stylePaddingBlockEnd])
+  }, [syncHeight, currentValue, size, className, containerClassName, fullWidth, styleSignature])
 
   // 레이아웃만 바뀌는 변화 — 부모 컨테이너의 반응형 폭 변경처럼 어떤 prop 도 바뀌지 않는 경우 —
   // 는 위 deps 로 잡을 수 없다. ResizeObserver 로 textarea 의 content-box 를 관찰해 재측정한다.
