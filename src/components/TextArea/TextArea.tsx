@@ -170,12 +170,58 @@ export const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>(function 
   // rerender 로 소비자 값이 우리 값을 덮으면 effect 를 재실행한다 — syncHeight 가 DOM ≠ written
   // 으로 새 값을 saved 에 갱신하고 자동 높이를 paint 전에 복권한다. 객체를 deps 에 넣으면
   // 매 렌더 재실행(불필요한 강제 reflow)이 되므로 금지.
+  // 여기에 더해, 리렌더를 동반하는 레이아웃 입력 — className(폭·폰트·패딩)·containerClassName·
+  // fullWidth·style.width — 의 값 변경도 재측정 트리거다: 폭이 실제로 바뀌면 아래 ResizeObserver
+  // 도 잡지만 한 프레임 늦고, 폭이 안 바뀌는 타이포그래피 변화는 높이가 인라인으로 고정돼 박스
+  // 크기가 불변이라 RO 가 침묵하므로 deps 가 유일한 트리거다.
   const styleHeight = style?.height
   const styleOverflowY = style?.overflowY
+  const styleWidth = style?.width
 
   useLayoutEffect(() => {
     syncHeight()
-  }, [syncHeight, currentValue, size, styleHeight, styleOverflowY])
+  }, [syncHeight, currentValue, size, styleHeight, styleOverflowY, className, containerClassName, fullWidth, styleWidth])
+
+  // 레이아웃만 바뀌는 변화 — 부모 컨테이너의 반응형 폭 변경처럼 어떤 prop 도 바뀌지 않는 경우 —
+  // 는 위 deps 로 잡을 수 없다. ResizeObserver 로 textarea 의 content-box 를 관찰해 재측정한다.
+  // 폭 필터: 우리가 쓰는 것은 height/overflow-y 뿐이라 폭을 바꾸지 않는다 — 폭이 그대로인 알림은
+  // 우리 높이 쓰기의 메아리이므로 재측정하지 않는다(관찰→쓰기→재관찰 순환 차단). 최초 알림은
+  // 기준선만 기록한다(마운트 동기화는 layout effect 몫).
+  // rAF 지연: RO delivery 루프 안에서 동기로 리사이즈하면 브라우저가 "loop completed with
+  // undelivered notifications" 오류 이벤트를 내므로(소비자 오류 추적 오염) 다음 프레임으로 미루고,
+  // 연속 알림은 하나로 합친다. 측정은 height:'auto' 리셋 상태(스크롤바 없는 폭)에서 이뤄져 결과가
+  // 폭에만 결정적으로 의존한다 — 같은 폭엔 같은 값을 다시 쓰므로 진동(무한 루프)이 없다.
+  const roWidthRef = useRef<number | null>(null)
+  const roRafRef = useRef(0)
+  useEffect(() => {
+    if (maxRows == null) return
+    if (typeof ResizeObserver === 'undefined') return // jsdom·미지원 브라우저 — deps 채널만으로 동작 (SSR 은 useEffect 라 애초에 미실행)
+    const el = innerRef.current
+    if (!el) return
+    const observer = new ResizeObserver((entries) => {
+      const width = entries[entries.length - 1].contentRect.width
+      if (roWidthRef.current === null) {
+        roWidthRef.current = width // 최초 알림 = 기준선
+        return
+      }
+      if (width === roWidthRef.current) return // 폭 불변 = 우리 쓰기의 메아리
+      roWidthRef.current = width
+      if (roRafRef.current) return // 이미 예약됨 — 합침
+      roRafRef.current = requestAnimationFrame(() => {
+        roRafRef.current = 0
+        syncHeight()
+      })
+    })
+    observer.observe(el)
+    return () => {
+      observer.disconnect()
+      if (roRafRef.current) {
+        cancelAnimationFrame(roRafRef.current)
+        roRafRef.current = 0
+      }
+      roWidthRef.current = null
+    }
+  }, [maxRows, syncHeight])
 
   // 네이티브 form.reset() 은 change 이벤트를 내지 않는다 — owner form 의 'reset' 을 구독해
   // 리셋 후 실제 DOM 값으로 글자 수 state 를 재동기화한다. controlled 는 value prop 이 정본이므로 불필요.

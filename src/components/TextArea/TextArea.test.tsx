@@ -448,3 +448,219 @@ test('maxRows 유지 중 style overflowY 단독 변경에도 자동 overflow가 
     spy.mockRestore()
   }
 })
+
+// 아래 레이아웃 재측정 테스트용 인프라 — jsdom 에는 ResizeObserver 가 없고(실측) rAF 는 ~16ms
+// 타이머 기반이라 비결정적이므로, 전역을 스텁으로 주입해 알림·프레임을 테스트가 직접 구동한다.
+class MockResizeObserver {
+  static instances: MockResizeObserver[] = []
+  callback: ResizeObserverCallback
+  observed: Element[] = []
+  disconnected = false
+  constructor(cb: ResizeObserverCallback) { this.callback = cb; MockResizeObserver.instances.push(this) }
+  observe(el: Element) { this.observed.push(el) }
+  unobserve(el: Element) { this.observed = this.observed.filter((e) => e !== el) }
+  disconnect() { this.disconnected = true; this.observed = [] }
+  trigger(width: number, height = 0) {
+    this.callback(
+      [{ contentRect: { width, height } } as unknown as ResizeObserverEntry],
+      this as unknown as ResizeObserver
+    )
+  }
+}
+const createRafStub = () => {
+  const queue = new Map<number, FrameRequestCallback>()
+  let nextId = 1
+  const raf = (cb: FrameRequestCallback) => { const id = nextId++; queue.set(id, cb); return id }
+  const caf = (id: number) => { queue.delete(id) }
+  const flush = () => { const cbs = [...queue.values()]; queue.clear(); cbs.forEach((cb) => cb(0)) }
+  return { raf, caf, flush, queue }
+}
+
+test('같은 value에서 className·fullWidth·containerClassName·style.width 변경 시 재측정된다', () => {
+  // RO 스텁 없이 — jsdom 에 ResizeObserver 가 없으므로 컴포넌트의 typeof 가드가 걸린다.
+  // 즉 이 테스트는 deps 채널만으로 재측정이 일어나는지를 본다.
+  let sh = 40
+  const gcs = vi.spyOn(window, 'getComputedStyle').mockReturnValue({
+    lineHeight: '20px',
+    paddingTop: '0px',
+    paddingBottom: '0px'
+  } as unknown as CSSStyleDeclaration)
+  const shSpy = vi.spyOn(Element.prototype, 'scrollHeight', 'get').mockImplementation(() => sh)
+  try {
+    const { rerender } = render(<TextArea label="비고" maxRows={3} />)
+    const textarea = screen.getByLabelText('비고')
+    expect(textarea.style.height).toBe('40px')
+    expect(textarea.style.overflowY).toBe('hidden')
+
+    sh = 120
+    rerender(<TextArea label="비고" maxRows={3} className="narrow" />)
+    expect(textarea.style.height).toBe('60px')
+    expect(textarea.style.overflowY).toBe('auto')
+
+    sh = 40
+    rerender(<TextArea label="비고" maxRows={3} className="narrow" fullWidth />)
+    expect(textarea.style.height).toBe('40px')
+    expect(textarea.style.overflowY).toBe('hidden')
+
+    sh = 120
+    rerender(<TextArea label="비고" maxRows={3} className="narrow" fullWidth containerClassName="wide" />)
+    expect(textarea.style.height).toBe('60px')
+
+    sh = 40
+    rerender(
+      <TextArea label="비고" maxRows={3} className="narrow" fullWidth containerClassName="wide" style={{ width: '50%' }} />
+    )
+    expect(textarea.style.height).toBe('40px')
+  } finally {
+    gcs.mockRestore()
+    shSpy.mockRestore()
+  }
+})
+
+test('prop 변화 없이 부모 폭이 바뀌면 rAF 후 재측정된다', () => {
+  MockResizeObserver.instances = []
+  const rafStub = createRafStub()
+  vi.stubGlobal('ResizeObserver', MockResizeObserver)
+  vi.stubGlobal('requestAnimationFrame', rafStub.raf)
+  vi.stubGlobal('cancelAnimationFrame', rafStub.caf)
+  let sh = 40
+  const gcs = vi.spyOn(window, 'getComputedStyle').mockReturnValue({
+    lineHeight: '20px',
+    paddingTop: '0px',
+    paddingBottom: '0px'
+  } as unknown as CSSStyleDeclaration)
+  const shSpy = vi.spyOn(Element.prototype, 'scrollHeight', 'get').mockImplementation(() => sh)
+  try {
+    render(<TextArea label="비고" maxRows={3} />)
+    const textarea = screen.getByLabelText('비고')
+    expect(textarea.style.height).toBe('40px')
+
+    const ro = MockResizeObserver.instances.at(-1)!
+    expect(ro.observed).toContain(textarea)
+
+    ro.trigger(500) // 최초 알림 = 기준선만 기록
+    expect(rafStub.queue.size).toBe(0)
+
+    sh = 120
+    ro.trigger(300) // 부모 폭 변경 — prop 변화도 리렌더도 없다
+    expect(rafStub.queue.size).toBe(1)
+
+    rafStub.flush()
+    expect(textarea.style.height).toBe('60px')
+    expect(textarea.style.overflowY).toBe('auto')
+  } finally {
+    vi.unstubAllGlobals()
+    gcs.mockRestore()
+    shSpy.mockRestore()
+  }
+})
+
+test('폭이 그대로인 알림(자기 높이 쓰기의 메아리)은 재측정하지 않고, 연속 폭 변경은 하나로 합쳐진다', () => {
+  MockResizeObserver.instances = []
+  const rafStub = createRafStub()
+  vi.stubGlobal('ResizeObserver', MockResizeObserver)
+  vi.stubGlobal('requestAnimationFrame', rafStub.raf)
+  vi.stubGlobal('cancelAnimationFrame', rafStub.caf)
+  let sh = 40
+  const gcs = vi.spyOn(window, 'getComputedStyle').mockReturnValue({
+    lineHeight: '20px',
+    paddingTop: '0px',
+    paddingBottom: '0px'
+  } as unknown as CSSStyleDeclaration)
+  const shSpy = vi.spyOn(Element.prototype, 'scrollHeight', 'get').mockImplementation(() => sh)
+  try {
+    render(<TextArea label="비고" maxRows={3} />)
+    const textarea = screen.getByLabelText('비고')
+    expect(textarea.style.height).toBe('40px')
+
+    const ro = MockResizeObserver.instances.at(-1)!
+    ro.trigger(500) // 기준선
+    ro.trigger(500, 999) // 높이만 변경 = 우리 쓰기의 메아리
+    expect(rafStub.queue.size).toBe(0)
+
+    const measuredBefore = gcs.mock.calls.length
+    sh = 120
+    ro.trigger(300)
+    ro.trigger(320)
+    expect(rafStub.queue.size).toBe(1) // 연속 알림은 하나로 합쳐진다
+
+    rafStub.flush()
+    const measuredAfter = gcs.mock.calls.length
+    expect(textarea.style.height).toBe('60px')
+    expect(measuredAfter - measuredBefore).toBe(1) // 측정은 정확히 1회
+  } finally {
+    vi.unstubAllGlobals()
+    gcs.mockRestore()
+    shSpy.mockRestore()
+  }
+})
+
+test('maxRows 해제 시 observer가 disconnect되고 재관찰하지 않는다', () => {
+  MockResizeObserver.instances = []
+  const rafStub = createRafStub()
+  vi.stubGlobal('ResizeObserver', MockResizeObserver)
+  vi.stubGlobal('requestAnimationFrame', rafStub.raf)
+  vi.stubGlobal('cancelAnimationFrame', rafStub.caf)
+  const sh = 40
+  const gcs = vi.spyOn(window, 'getComputedStyle').mockReturnValue({
+    lineHeight: '20px',
+    paddingTop: '0px',
+    paddingBottom: '0px'
+  } as unknown as CSSStyleDeclaration)
+  const shSpy = vi.spyOn(Element.prototype, 'scrollHeight', 'get').mockImplementation(() => sh)
+  try {
+    const { rerender } = render(<TextArea label="비고" maxRows={3} />)
+    const textarea = screen.getByLabelText('비고')
+    expect(textarea.style.height).toBe('40px')
+    expect(textarea.style.overflowY).toBe('hidden')
+
+    rerender(<TextArea label="비고" />)
+
+    expect(MockResizeObserver.instances.length).toBe(1) // 새 인스턴스 없음
+    expect(MockResizeObserver.instances[0].disconnected).toBe(true)
+    // 회차 2 의 소유권 정리 계약은 RO 도입 후에도 그대로 동작한다
+    expect(textarea.style.height).toBe('')
+    expect(textarea.style.overflowY).toBe('')
+    expect(textarea.className).toContain(styles.resizeVertical)
+  } finally {
+    vi.unstubAllGlobals()
+    gcs.mockRestore()
+    shSpy.mockRestore()
+  }
+})
+
+test('unmount 시 observer와 예약된 rAF 콜백이 정리된다', () => {
+  MockResizeObserver.instances = []
+  const rafStub = createRafStub()
+  vi.stubGlobal('ResizeObserver', MockResizeObserver)
+  vi.stubGlobal('requestAnimationFrame', rafStub.raf)
+  vi.stubGlobal('cancelAnimationFrame', rafStub.caf)
+  let sh = 40
+  const gcs = vi.spyOn(window, 'getComputedStyle').mockReturnValue({
+    lineHeight: '20px',
+    paddingTop: '0px',
+    paddingBottom: '0px'
+  } as unknown as CSSStyleDeclaration)
+  const shSpy = vi.spyOn(Element.prototype, 'scrollHeight', 'get').mockImplementation(() => sh)
+  try {
+    const { unmount } = render(<TextArea label="비고" maxRows={3} />)
+    const textarea = screen.getByLabelText('비고')
+    expect(textarea.style.height).toBe('40px')
+
+    const ro = MockResizeObserver.instances.at(-1)!
+    ro.trigger(500) // 기준선
+    sh = 120
+    ro.trigger(300)
+    expect(rafStub.queue.size).toBe(1) // 예약됨
+
+    unmount()
+
+    expect(MockResizeObserver.instances[0].disconnected).toBe(true)
+    expect(rafStub.queue.size).toBe(0) // pending rAF 취소됨
+    expect(() => rafStub.flush()).not.toThrow() // 남은 콜백 없음 — no-op
+  } finally {
+    vi.unstubAllGlobals()
+    gcs.mockRestore()
+    shSpy.mockRestore()
+  }
+})
