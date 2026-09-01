@@ -10,6 +10,8 @@ export type { ButtonProps, ButtonVariant, ButtonSize } from './components/Button
 // Phase 2 — Tier 1 components
 export { IconButton } from './components/IconButton/IconButton'
 export type { IconButtonProps, IconButtonVariant, IconButtonSize } from './components/IconButton/IconButton'
+export { Field } from './components/Field/Field'
+export type { FieldProps, FieldSize, FieldIds } from './components/Field/Field'
 export { TextField } from './components/TextField/TextField'
 export type { TextFieldProps, TextFieldSize } from './components/TextField/TextField'
 export { TextArea } from './components/TextArea/TextArea'
