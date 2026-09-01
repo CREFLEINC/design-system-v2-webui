@@ -3,7 +3,7 @@
 <!-- 이 파일은 scripts/gen-components.mjs 가 생성합니다. 직접 수정하지 마세요. -->
 <!-- 갱신: npm run docs:components -->
 
-`@crefle/web-ui` v0.2.0 — 모듈 39개에서 컴포넌트 46개 · 훅 3 · 유틸 1
+`@crefle/web-ui` v0.2.0 — 모듈 40개에서 컴포넌트 47개 · 훅 3 · 유틸 1
 
 와이어프레임을 이 목록과 대조하는 방법, 없는 것을 어디에 어떻게 요청하는지는
 [컴포넌트 요청 가이드](./component-requests.md)를 보세요.
@@ -58,6 +58,16 @@
 
 - `IconButtonVariant`: `standard` `filled` `tonal`
 - `IconButtonSize`: `sm` `md` `lg` `xl` `2xl`
+
+### Field
+
+`src/components/Field/Field.tsx` · 스토리 ✓
+
+**Field**
+- props `FieldProps`: label, reserveLabel, required, helperText, error, disabledReason, size, fullWidth, labelAs, children _(+ 네이티브 HTML 속성)_
+
+- `FieldSize`: `sm` `md` `lg` `xl`
+- 기타 타입: `FieldIds`
 
 ### TextField
 

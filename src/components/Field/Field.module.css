@@ -1,0 +1,76 @@
+.field {
+  display: inline-flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  align-self: start;
+}
+
+.fullWidth {
+  display: flex;
+  width: 100%;
+}
+
+.labelRow {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--space-1);
+}
+
+.label,
+.spacer {
+  font: var(--type-label-sm);
+  letter-spacing: var(--type-label-sm-tracking);
+  color: var(--on-surface-variant);
+}
+
+.spacer {
+  display: block;
+}
+
+.requiredMark {
+  font: var(--type-label-sm);
+  letter-spacing: var(--type-label-sm-tracking);
+  color: var(--semantic-error-text);
+}
+
+.control {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.sm {
+  min-height: var(--control-height-sm);
+}
+
+.md {
+  min-height: var(--control-height-md);
+}
+
+.lg {
+  min-height: var(--control-height-lg);
+}
+
+.xl {
+  min-height: var(--control-height-xl);
+}
+
+.fullWidth .control {
+  align-items: stretch;
+}
+
+.message {
+  margin: 0;
+  font: var(--type-body-sm);
+  letter-spacing: var(--type-body-sm-tracking);
+}
+
+.helper,
+.reason {
+  color: var(--on-surface-variant);
+}
+
+.error {
+  color: var(--semantic-error-text);
+}
