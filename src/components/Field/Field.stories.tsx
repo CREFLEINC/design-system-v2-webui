@@ -176,7 +176,13 @@ export const Matrix: Story = {
             </Field>
 
             <Field reserveLabel size="2xl">
-              <Button size="2xl">적용</Button>
+              <Button size="2xl">적용하기</Button>
+            </Field>
+
+            {/* 슬롯 하한이 실제로 하는 일 — 컨트롤(체크박스 ~24px)이 등급보다 짧아도
+                슬롯이 72px을 지켜 옆 컨트롤과 같은 행 높이에 중앙 정렬된다. */}
+            <Field label="2xl 짧은 컨트롤" size="2xl" helperText="컨트롤이 짧아도 슬롯이 72px을 지킵니다">
+              <Checkbox>자동 반복</Checkbox>
             </Field>
           </div>
         </section>
