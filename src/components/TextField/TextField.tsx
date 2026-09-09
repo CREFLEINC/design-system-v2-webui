@@ -2,7 +2,16 @@ import { forwardRef, useId, type InputHTMLAttributes, type ReactNode } from 'rea
 import { cx } from '../../utils/cx'
 import styles from './TextField.module.css'
 
-export type TextFieldSize = 'sm' | 'md' | 'lg' | 'xl'
+export type TextFieldSize = 'sm' | 'md' | 'lg' | 'xl' | '2xl'
+
+/* '2xl'은 CSS 식별자로 쓸 수 없어(숫자 시작) 클래스명은 xxl로 둔다 */
+const SIZE_CLASS: Record<TextFieldSize, string> = {
+  sm: styles.sm,
+  md: styles.md,
+  lg: styles.lg,
+  xl: styles.xl,
+  '2xl': styles.xxl
+}
 
 // Omit 'size' — native input.size is a number and collides with our design size.
 export interface TextFieldProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'size'> {
@@ -54,7 +63,7 @@ export const TextField = forwardRef<HTMLInputElement, TextFieldProps>(function T
           )}
         </span>
       )}
-      <div className={cx(styles.inputWrap, styles[size], invalid && styles.invalid, disabled && styles.disabled)}>
+      <div className={cx(styles.inputWrap, SIZE_CLASS[size], invalid && styles.invalid, disabled && styles.disabled)}>
         {leadingIcon && <span className={styles.leading} aria-hidden="true">{leadingIcon}</span>}
         <input
           ref={ref}

@@ -51,6 +51,7 @@
 .md { height: var(--control-height-md); padding: 0 var(--space-3) }
 .lg { height: var(--control-height-lg); padding: 0 var(--space-4) }
 .xl { height: var(--control-height-xl); padding: 0 var(--space-5) }
+.xxl { height: var(--control-height-2xl); padding: 0 var(--space-6) }
 
 .sm .input {
   font: var(--type-body-sm);

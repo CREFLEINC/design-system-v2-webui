@@ -191,20 +191,46 @@ test('size="xl"이면 트리거 className에 xl 클래스가 포함된다', () =
   expect(trigger.className).toContain(styles.xl)
 })
 
+test('size="2xl"이면 트리거 className에 xxl 클래스가 포함된다', () => {
+  render(<Select options={OPTS} size="2xl" aria-label="도시" />)
+  const trigger = screen.getByRole('combobox')
+  expect(trigger.className).toContain(styles.xxl)
+})
+
 test('size="xl"로 열면 listbox className에 listboxXl 클래스가 포함된다', async () => {
   const user = userEvent.setup()
   render(<Select options={OPTS} size="xl" aria-label="도시" />)
   await user.click(screen.getByRole('combobox'))
   const listbox = screen.getByRole('listbox')
   expect(listbox.className).toContain(styles.listboxXl)
+  expect(listbox.className).not.toContain(styles.listboxXxl)
 })
 
-test('size 미지정(md)으로 열면 listbox className에 listboxXl 클래스가 없다', async () => {
+test('size="2xl"로 열면 listbox className에 listboxXxl 클래스가 포함되고 listboxXl은 없다', async () => {
+  const user = userEvent.setup()
+  render(<Select options={OPTS} size="2xl" aria-label="도시" />)
+  await user.click(screen.getByRole('combobox'))
+  const listbox = screen.getByRole('listbox')
+  expect(listbox.className).toContain(styles.listboxXxl)
+  expect(listbox.className).not.toContain(styles.listboxXl)
+})
+
+test('size 미지정(md)으로 열면 listbox className에 listboxXl·listboxXxl 클래스가 없다', async () => {
   const user = userEvent.setup()
   render(<Select options={OPTS} aria-label="도시" />)
   await user.click(screen.getByRole('combobox'))
   const listbox = screen.getByRole('listbox')
   expect(listbox.className).not.toContain(styles.listboxXl)
+  expect(listbox.className).not.toContain(styles.listboxXxl)
+})
+
+test('size="2xl" aria-label="도시": 접근 이름·옵션 수가 불변이다', async () => {
+  const user = userEvent.setup()
+  render(<Select options={OPTS} size="2xl" aria-label="도시" />)
+  const trigger = screen.getByRole('combobox')
+  expect(trigger).toHaveAccessibleName('도시')
+  await user.click(trigger)
+  expect(screen.getAllByRole('option')).toHaveLength(4)
 })
 
 test('일반 문서에서는 listbox를 body 직계 자식으로 포털하고 scoped theme를 전달한다', async () => {

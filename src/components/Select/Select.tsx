@@ -15,7 +15,16 @@ import { useFlipPlacement } from '../../utils/useFlipPlacement'
 import { Icon } from '../Icon/Icon'
 import styles from './Select.module.css'
 
-export type SelectSize = 'sm' | 'md' | 'lg' | 'xl'
+export type SelectSize = 'sm' | 'md' | 'lg' | 'xl' | '2xl'
+
+/* '2xl'은 CSS 식별자로 쓸 수 없어(숫자 시작) 클래스명은 xxl로 둔다 (#85 패턴) */
+const SIZE_CLASS: Record<SelectSize, string> = {
+  sm: styles.sm,
+  md: styles.md,
+  lg: styles.lg,
+  xl: styles.xl,
+  '2xl': styles.xxl,
+}
 
 export interface SelectOption {
   value: string
@@ -305,7 +314,7 @@ export const Select = forwardRef<HTMLButtonElement, SelectProps>(function Select
         role="combobox"
         className={cx(
           styles.trigger,
-          styles[size],
+          SIZE_CLASS[size],
           open && styles.open,
           invalid && styles.invalid
         )}
@@ -342,7 +351,11 @@ export const Select = forwardRef<HTMLButtonElement, SelectProps>(function Select
             ref={listboxRef}
             role="listbox"
             id={listboxId}
-            className={cx(styles.listbox, size === 'xl' && styles.listboxXl)}
+            className={cx(
+              styles.listbox,
+              size === 'xl' && styles.listboxXl,
+              size === '2xl' && styles.listboxXxl
+            )}
             style={placement.style}
             data-placement-v={placement.vertical}
             data-placement-h={placement.horizontal}
