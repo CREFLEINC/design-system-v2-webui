@@ -22,13 +22,19 @@
   width: calc(var(--control-height-xl) * 4 + var(--space-2) * 2);
   grid-auto-rows: var(--control-height-xl);
 }
+/* 2xl(장갑 조작 단말) — 72px 키. 같은 4:3 공식, 폭 304px */
+.xxl {
+  width: calc(var(--control-height-2xl) * 4 + var(--space-2) * 2);
+  grid-auto-rows: var(--control-height-2xl);
+}
 
 .md .key,
 .lg .key {
   font: var(--type-title-sm);
   letter-spacing: var(--type-title-sm-tracking);
 }
-.xl .key {
+.xl .key,
+.xxl .key {
   font: var(--type-title-lg);
   letter-spacing: var(--type-title-lg-tracking);
 }
