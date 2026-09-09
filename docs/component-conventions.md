@@ -38,12 +38,13 @@ const { onClick, ...rest } = props
 - tonal/컨테이너 위 텍스트 → 대응 `--on-*-container` 토큰.
 - 지난 값/중립 텍스트(예: 변경 이력의 이전 값) → `var(--semantic-idle-text)`. **이전 값에 `--semantic-error`·취소선(`line-through`)을 쓰지 않는다** — 잘못된 값이 아니라 지난 값이다.
 - `.module.css`는 토큰만: raw 색상 금지, px는 0/1/2만. `npm run lint:tokens`가 강제(미정의 토큰 참조도 검출).
+- **기계가 읽는 그림은 토큰을 따르지 않는다** — `QrCode`처럼 스캐너가 판독하는 그림은 테마 무관 고정 흑백(`#000000`/`#ffffff`)을 **TSX의 SVG `fill` 속성**으로 지정한다. 토큰을 따르면 다크 테마에서 대비가 무너져 스캔이 실패한다(이슈 #88). `.module.css`에는 색 선언을 두지 않으므로 `lint:tokens`(raw 색상 검사는 `.module.css` 전용)와 충돌하지 않는다. 기준 구현은 `QrCode`.
 
 ## reduced-motion
 모든 애니메이션/트랜지션은 `@media (prefers-reduced-motion: reduce)`로 끈다 — **`::before`/`::after` 유사요소도 별도 셀렉터로 명시**(부모 셀렉터로 커버되지 않음). 의미 있는 애니메이션(스피너)은 끄지 말고 감속. 자세히는 `docs/reduced-motion.md`.
 
 ## 접근성
-완전한 키보드 조작, 올바른 ARIA 롤/상태, WCAG AA 대비, 폼 컨트롤 라벨 연결(htmlFor/id 또는 aria-label). 네이티브 요소를 우선 사용(예: Radio는 네이티브 라디오 그룹).
+완전한 키보드 조작, 올바른 ARIA 롤/상태, WCAG AA 대비, 폼 컨트롤 라벨 연결(htmlFor/id 또는 aria-label). 네이티브 요소를 우선 사용(예: Radio는 네이티브 라디오 그룹). 정보를 담은 그림(예: `QrCode`)은 `role="img"`와 **필수** 대체 텍스트 prop(`alt`)으로 이름을 준다 — `title` 속성은 쓰지 않는다(설명(description)으로 파생되어 이름과 중복된다, 이슈 #62 실측).
 
 **disabled 컨트롤의 부가 정보**: disabled 인풋은 포커스를 받지 못하므로, 잠금 사유 같은 부가 정보를 `Tooltip` 단독으로 전달하면 키보드·스크린리더 사용자가 도달할 수 없다. 항상 보이는 DOM 텍스트로 렌더하고 `aria-describedby`로 인풋에 연결한다. 기준 구현은 `TextField`의 `disabledReason`. 포커스 가능한 `readOnly`는 해당 없음 — `helperText`로 충분하다.
 
@@ -60,6 +61,6 @@ const { onClick, ...rest } = props
 
 ## 기타
 - forwardRef를 실제 포커스 대상(input·인터랙티브 루트)에 전달.
-- 런타임 의존성 0 — 위치 계산·포커스 트랩 등은 네이티브 API 또는 자체 구현.
+- 런타임 의존성 0 — 위치 계산·포커스 트랩 등은 네이티브 API 또는 자체 구현. 허용 라이선스(MIT 등)의 참조 구현을 **소스로 이식**하는 것은 의존성 추가가 아니다 — 알고리즘은 원본 그대로 두고, 파일 헤더에 원 저작권·라이선스 고지 전문·출처 URL·커밋·변경 목록을 남기며, 루트 `LICENSE`의 THIRD-PARTY 섹션에 등재한다(빌드가 주석을 제거하므로 소비자에게는 `LICENSE`가 고지를 전달한다). 기준: `src/components/QrCode/qrcodegen.ts`.
 - 스토리 카피는 한국어, 이름은 영어. `components-<name>--matrix` 스토리로 라이트/다크 전수 배열.
 - `width: 100%`와 padding 을 같은 규칙에 쓰면 `box-sizing: border-box` 를 함께 명시한다 — 전역 리셋이 없어 기본 content-box 는 컨테이너를 padding 만큼 넘친다. `npm run lint:box-sizing` 이 강제한다.
