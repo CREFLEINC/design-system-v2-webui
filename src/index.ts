@@ -42,6 +42,8 @@ export { DatePicker } from './components/DatePicker/DatePicker'
 export type { DatePickerProps, DatePickerSingleProps, DatePickerSingleClearableProps, DatePickerRangeProps, DatePickerRangeClearableProps, DatePickerSize, DateRangeValue } from './components/DatePicker/DatePicker'
 export { NumberPad } from './components/NumberPad/NumberPad'
 export type { NumberPadProps, NumberPadSize } from './components/NumberPad/NumberPad'
+export { QrCode } from './components/QrCode/QrCode'
+export type { QrCodeProps } from './components/QrCode/QrCode'
 
 // Phase 3 — Tier 2 components
 export { Table } from './components/Table/Table'
