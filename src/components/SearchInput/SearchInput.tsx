@@ -19,10 +19,29 @@ import {
 } from 'react'
 import { cx } from '../../utils/cx'
 import { Icon } from '../Icon/Icon'
-import { IconButton } from '../IconButton/IconButton'
+import { IconButton, type IconButtonSize } from '../IconButton/IconButton'
 import styles from './SearchInput.module.css'
 
-export type SearchInputSize = 'sm' | 'md' | 'lg' | 'xl'
+export type SearchInputSize = 'sm' | 'md' | 'lg' | 'xl' | '2xl'
+
+/* '2xl'은 CSS 식별자로 쓸 수 없어(숫자 시작) 클래스명은 xxl로 둔다 (#85 패턴) */
+const SIZE_CLASS: Record<SearchInputSize, string> = {
+  sm: styles.sm,
+  md: styles.md,
+  lg: styles.lg,
+  xl: styles.xl,
+  '2xl': styles.xxl
+}
+
+/* clear는 실제 터치 타겟 — 컨테이너만 키우면 닿는 타겟이 작게 남는다(#50).
+   xl→md(40), 2xl→lg(48). sm/md/lg는 기존 유지 */
+const CLEAR_SIZE: Record<SearchInputSize, IconButtonSize> = {
+  sm: 'sm',
+  md: 'sm',
+  lg: 'sm',
+  xl: 'md',
+  '2xl': 'lg'
+}
 
 // Omit native 'size' (number, collides with design size) and 'type' (we force type="search").
 export interface SearchInputProps
@@ -137,7 +156,7 @@ export const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(functi
       <div
         className={cx(
           styles.inputWrap,
-          styles[size],
+          SIZE_CLASS[size],
           invalid && styles.invalid,
           disabled && styles.disabled
         )}
@@ -164,8 +183,7 @@ export const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(functi
           <IconButton
             className={styles.clear}
             icon="close"
-            /* xl은 터치 전용 — clear도 실제 터치 타겟이므로 40px로 확대. sm/md/lg는 기존 유지 */
-            size={size === 'xl' ? 'md' : 'sm'}
+            size={CLEAR_SIZE[size]}
             variant="standard"
             aria-label={clearLabel}
             onClick={handleClear}

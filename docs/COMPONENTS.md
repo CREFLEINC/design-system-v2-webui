@@ -76,7 +76,7 @@
 **TextField**
 - props `TextFieldProps`: label, helperText, error, disabledReason, size, leadingIcon, trailingIcon, fullWidth, containerClassName _(+ 네이티브 HTML 속성)_
 
-- `TextFieldSize`: `sm` `md` `lg` `xl`
+- `TextFieldSize`: `sm` `md` `lg` `xl` `2xl`
 
 ### TextArea
 
@@ -95,7 +95,7 @@
 **Select**
 - props `SelectProps`: options, value, defaultValue, onChange, placeholder, size, disabled, invalid, name, id, leadingIcon, 'aria-label', 'aria-labelledby' _(+ 네이티브 HTML 속성)_
 
-- `SelectSize`: `sm` `md` `lg` `xl`
+- `SelectSize`: `sm` `md` `lg` `xl` `2xl`
 - 기타 타입: `SelectOption`, `SelectOptionGroup`, `SelectItems`
 
 ### Checkbox
@@ -217,7 +217,7 @@
 **NumberPad**
 - props `NumberPadProps`: value, onChange, maxLength, max, allowDecimal, onConfirm, size, disabled _(+ 네이티브 HTML 속성)_
 
-- `NumberPadSize`: `md` `lg` `xl`
+- `NumberPadSize`: `md` `lg` `xl` `2xl`
 
 ### QrCode
 
@@ -346,7 +346,7 @@
 **SearchInput**
 - props `SearchInputProps`: label, helperText, error, size, fullWidth, loading, value, defaultValue, onSearch, onClear, clearLabel, containerClassName _(+ 네이티브 HTML 속성)_
 
-- `SearchInputSize`: `sm` `md` `lg` `xl`
+- `SearchInputSize`: `sm` `md` `lg` `xl` `2xl`
 
 ### Stepper
 

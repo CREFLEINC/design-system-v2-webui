@@ -57,6 +57,7 @@
 .md { height: var(--control-height-md); padding: 0 var(--space-4) }
 .lg { height: var(--control-height-lg); padding: 0 var(--space-4) }
 .xl { height: var(--control-height-xl); padding: 0 var(--space-5) }
+.xxl { height: var(--control-height-2xl); padding: 0 var(--space-6) }
 
 /* -------- value / placeholder / chevron -------- */
 .value {
@@ -94,6 +95,9 @@
 
 .listboxXl { max-height: calc(var(--control-height-xl) * 6) }
 .listboxXl .option { min-height: var(--control-height-xl) }
+
+.listboxXxl { max-height: calc(var(--control-height-2xl) * 6) }
+.listboxXxl .option { min-height: var(--control-height-2xl) }
 
 /* -------- option -------- */
 .option {

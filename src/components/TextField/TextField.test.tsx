@@ -58,6 +58,15 @@ test('size 클래스가 적용된다 (기본 md, lg 지정)', () => {
   expect(screen.getByLabelText('이름').parentElement?.className).toContain(styles.lg)
   rerender(<TextField label="이름" size="xl" />)
   expect(screen.getByLabelText('이름').parentElement?.className).toContain(styles.xl)
+  rerender(<TextField label="이름" size="2xl" />)
+  expect(screen.getByLabelText('이름').parentElement?.className).toContain(styles.xxl)
+})
+
+test('size 2xl에서도 라벨 연결과 접근 설명 부재는 유지된다', () => {
+  render(<TextField label="이름" size="2xl" />)
+  const input = screen.getByLabelText('이름')
+  expect(input).toHaveAccessibleName('이름')
+  expect(input).not.toHaveAccessibleDescription()
 })
 
 test('trailingIcon이 렌더되고 장식용으로 aria-hidden 처리된다', () => {

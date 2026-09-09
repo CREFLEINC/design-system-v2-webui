@@ -3,7 +3,7 @@ import { cx } from '../../utils/cx'
 import { Icon } from '../Icon/Icon'
 import styles from './NumberPad.module.css'
 
-export type NumberPadSize = 'md' | 'lg' | 'xl'
+export type NumberPadSize = 'md' | 'lg' | 'xl' | '2xl'
 
 export interface NumberPadProps extends Omit<HTMLAttributes<HTMLDivElement>, 'onChange'> {
   /** 현재 입력 버퍼 (controlled). 빈 문자열 = 미입력 */
@@ -18,7 +18,7 @@ export interface NumberPadProps extends Omit<HTMLAttributes<HTMLDivElement>, 'on
   allowDecimal?: boolean
   /** 지정 시에만 확인 키가 렌더된다. 현재 버퍼 문자열로 호출 */
   onConfirm?: (value: string) => void
-  /** 키 높이 — 컨트롤 공통 토큰. 기본 'xl'(터치 우선 컴포넌트) */
+  /** 키 높이 — 컨트롤 공통 토큰. 기본 'xl'(터치 우선). '2xl'은 장갑 조작 단말용 */
   size?: NumberPadSize
   /** 전체 키 비활성 */
   disabled?: boolean
@@ -76,7 +76,15 @@ function withinConstraints(candidate: string, maxLength?: number, max?: number):
 const DIGITS = ['1', '2', '3', '4', '5', '6', '7', '8', '9']
 
 /** ← 아이콘 크기 — 키 높이에 맞춰 한 단계 키운다 */
-const BACKSPACE_ICON_SIZE: Record<NumberPadSize, number> = { md: 20, lg: 20, xl: 24 }
+const BACKSPACE_ICON_SIZE: Record<NumberPadSize, number> = { md: 20, lg: 20, xl: 24, '2xl': 28 }
+
+/* '2xl'은 CSS 식별자로 쓸 수 없어(숫자 시작) 클래스명은 xxl로 둔다 (#85 패턴) */
+const SIZE_CLASS: Record<NumberPadSize, string> = {
+  md: styles.md,
+  lg: styles.lg,
+  xl: styles.xl,
+  '2xl': styles.xxl
+}
 
 export const NumberPad = forwardRef<HTMLDivElement, NumberPadProps>(function NumberPad(
   {
@@ -125,7 +133,7 @@ export const NumberPad = forwardRef<HTMLDivElement, NumberPadProps>(function Num
     <div
       {...rest}
       ref={ref}
-      className={cx(styles.root, styles[size], className)}
+      className={cx(styles.root, SIZE_CLASS[size], className)}
       role="group"
       aria-label={ariaLabel}
     >
