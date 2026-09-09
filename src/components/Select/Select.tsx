@@ -23,7 +23,7 @@ const SIZE_CLASS: Record<SelectSize, string> = {
   md: styles.md,
   lg: styles.lg,
   xl: styles.xl,
-  '2xl': styles.xxl,
+  '2xl': styles.xxl
 }
 
 export interface SelectOption {

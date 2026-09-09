@@ -2,7 +2,18 @@ import { forwardRef, useId, type HTMLAttributes, type ReactNode } from 'react'
 import { cx } from '../../utils/cx'
 import styles from './Field.module.css'
 
-export type FieldSize = 'sm' | 'md' | 'lg' | 'xl'
+export type FieldSize = 'sm' | 'md' | 'lg' | 'xl' | '2xl'
+
+/* '2xl'은 CSS 식별자로 쓸 수 없어(숫자 시작) 클래스명은 xxl로 둔다 (#85·#93 패턴).
+   styles[size] 동적 조회를 쓰지 않는 이유이기도 하다 — 매핑이 빠지면 undefined가
+   조용히 흘러 슬롯 하한이 사라진다. */
+const SIZE_CLASS: Record<FieldSize, string> = {
+  sm: styles.sm,
+  md: styles.md,
+  lg: styles.lg,
+  xl: styles.xl,
+  '2xl': styles.xxl
+}
 
 export interface FieldIds {
   controlId: string
@@ -86,7 +97,7 @@ export const Field = forwardRef<HTMLDivElement, FieldProps>(function Field(
         <span className={styles.spacer} aria-hidden="true">{'\u00a0'}</span>
       ) : null}
 
-      <div className={cx(styles.control, styles[size])}>
+      <div className={cx(styles.control, SIZE_CLASS[size])}>
         {typeof children === 'function' ? children(ids) : children}
       </div>
 

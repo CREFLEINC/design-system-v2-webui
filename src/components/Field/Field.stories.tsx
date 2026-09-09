@@ -109,7 +109,9 @@ export const MessagePriority: Story = {
 
 export const Matrix: Story = {
   render: () => {
-    const sizes: FieldSize[] = ['sm', 'md', 'lg', 'xl']
+    // 2xl 은 이 루프에서 제외한다 — DatePicker·TextArea 에는 아직 2xl 등급이 없어(#93 범위)
+    // size 를 그대로 흘려보낼 수 없다. 2xl 은 아래 전용 행에서 Select·Button 으로 보인다.
+    const sizes = ['sm', 'md', 'lg', 'xl'] as const satisfies readonly FieldSize[]
 
     return (
       <div style={pageStyle}>
@@ -156,6 +158,27 @@ export const Matrix: Story = {
               </Field>
             </div>
           ))}
+
+          {/* 2xl — 장갑 조작 단말(#93). DatePicker·TextArea는 아직 2xl 등급이 없어
+              이 행에서는 2xl을 가진 Select·Button만 세운다. */}
+          <div style={{ display: 'flex', gap: 20, alignItems: 'flex-start' }}>
+            <Field label="2xl 주기 단위" size="2xl" helperText="장갑을 낀 손으로 조작하는 단말용 높이입니다">
+              {({ controlId, describedById, invalid }) => (
+                <Select
+                  id={controlId}
+                  options={CYCLES}
+                  size="2xl"
+                  defaultValue="day"
+                  aria-describedby={describedById}
+                  invalid={invalid}
+                />
+              )}
+            </Field>
+
+            <Field reserveLabel size="2xl">
+              <Button size="2xl">적용</Button>
+            </Field>
+          </div>
         </section>
 
         <section style={{ display: 'grid', gap: 16 }}>
