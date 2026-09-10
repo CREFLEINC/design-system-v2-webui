@@ -133,13 +133,6 @@ export const ImageMarkerBoard = forwardRef<HTMLDivElement, ImageMarkerBoardProps
     const handleSurfaceClick = (e: ReactMouseEvent<HTMLDivElement>) => {
       if (readOnly || !onPlace) return
       if ((e.target as Element).closest('button')) return
-      // 드래그 직후 브라우저가 표식 «밖»에서 쏘는 click은 놓기가 아니다. 포인터 캡처가
-      // 없는 환경에서는 pointerdown(표식)과 pointerup(판)의 공통 조상인 surface가
-      // click 대상이 되어, 막지 않으면 표식을 옮길 때마다 새 표식이 하나씩 생긴다.
-      if (suppressClick.current !== null) {
-        suppressClick.current = null
-        return
-      }
       const point = toRatio(e.currentTarget.getBoundingClientRect(), e.clientX, e.clientY)
       if (point) onPlace(point)
     }

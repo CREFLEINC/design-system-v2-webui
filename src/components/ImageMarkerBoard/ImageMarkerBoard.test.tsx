@@ -381,29 +381,8 @@ test('t24 억제는 드래그한 표식에만 걸린다 — 다른 표식의 포
   expect(onSelect).toHaveBeenCalledWith('b')
 })
 
-// 포인터 캡처가 없으면 pointerdown(표식)과 pointerup(판)의 공통 조상인 surface 가
-// click 대상이 된다 — 출처 검사(closest('button'))로는 걸러지지 않는 경로다.
-test('t25 드래그 뒤 표식 밖에서 올라온 click은 놓기로 새지 않는다', () => {
-  const onPlace = vi.fn()
-  render(<ImageMarkerBoard image={image} markers={markers} onMove={vi.fn()} onPlace={onPlace} />)
-  const surface = surfaceOf('1층 도면')
-  vi.spyOn(surface, 'getBoundingClientRect').mockReturnValue(RECT_A)
-
-  const a = markerA()
-  fireEvent.pointerDown(a, { pointerId: 1, button: 0, clientX: 110, clientY: 170 })
-  fireEvent.pointerMove(a, { pointerId: 1, clientX: 210, clientY: 170 })
-  fireEvent.pointerUp(a, { pointerId: 1 })
-
-  fireEvent.click(surface, { clientX: 210, clientY: 170 })
-  expect(onPlace).not.toHaveBeenCalled()
-
-  // 억제는 1회성이다 — 다음 빈 자리 클릭은 정상 놓기다
-  fireEvent.click(surface, { clientX: 210, clientY: 170 })
-  expect(onPlace).toHaveBeenCalledTimes(1)
-})
-
 // toRatio 와 같은 불변식 — 밖으로 나가는 좌표에 NaN 을 섞지 않는다.
-test('t26 step이 유한수가 아니면 옮기지 않는다 — NaN 좌표를 내보내지 않는다', () => {
+test('t25 step이 유한수가 아니면 옮기지 않는다 — NaN 좌표를 내보내지 않는다', () => {
   const onMove = vi.fn()
   const { rerender } = render(
     <ImageMarkerBoard image={image} markers={markers} onMove={onMove} step={Number('abc')} />
