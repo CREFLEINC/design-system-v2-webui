@@ -66,7 +66,7 @@
 **Field**
 - props `FieldProps`: label, reserveLabel, required, helperText, error, disabledReason, size, fullWidth, labelAs, children _(+ 네이티브 HTML 속성)_
 
-- `FieldSize`: `sm` `md` `lg` `xl`
+- `FieldSize`: `sm` `md` `lg` `xl` `2xl`
 - 기타 타입: `FieldIds`
 
 ### TextField

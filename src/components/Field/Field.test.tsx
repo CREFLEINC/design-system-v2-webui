@@ -122,9 +122,26 @@ test('reserveLabel은 label이 없을 때만 aria-hidden spacer를 렌더한다'
   expect(container.querySelector(`.${styles.spacer}`)).not.toBeInTheDocument()
 })
 
-test.each(['sm', 'md', 'lg', 'xl'] as const)('size=%s 클래스를 control 슬롯에 적용한다', (size) => {
+// 공개 size 값과 CSS 클래스명은 1:1이 아니다 — '2xl'은 CSS 식별자가 될 수 없어 .xxl이다.
+// vitest 의 CSS 모듈은 어떤 키에도 이름을 합성하는 프록시라(styles['2xl'] → '_2xl_<hash>',
+// 대응 규칙이 CSS에 없어도 값이 나온다) styles[size] 로 조회하면 존재하지 않는 클래스를
+// 단언하게 된다. 그래서 size 값과 클래스를 짝으로 명시한다.
+test.each([
+  ['sm', styles.sm],
+  ['md', styles.md],
+  ['lg', styles.lg],
+  ['xl', styles.xl],
+  ['2xl', styles.xxl]
+] as const)('size=%s 클래스를 control 슬롯에 적용한다', (size, expected) => {
   const { container } = render(<Field size={size}><span>값</span></Field>)
-  expect(container.querySelector(`.${styles.control}`)).toHaveClass(styles[size])
+  expect(container.querySelector(`.${styles.control}`)).toHaveClass(expected)
+})
+
+test('size="2xl"이면 xl 클래스는 붙지 않는다 — 슬롯 하한이 72px로 올라간다', () => {
+  const { container } = render(<Field size="2xl"><span>값</span></Field>)
+  const control = container.querySelector(`.${styles.control}`)
+  expect(control).toHaveClass(styles.xxl)
+  expect(control).not.toHaveClass(styles.xl)
 })
 
 test('size 기본값은 md이고 fullWidth 클래스를 루트에 적용한다', () => {
