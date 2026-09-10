@@ -25,9 +25,14 @@
 - `tokens/foundation.css` — 브랜드·색상·표면·시맨틱·상태 (Stage 1 공통 파운데이션)
 - `tokens/web-tokens.css` — 웹 형태 토큰 (type·space·radius·elevation·motion·chart·layout·z)
 - `tokens/themes.css` — `[data-theme='dark']` 다크 오버라이드
-- `guidelines/colors.md` · `type.md` · `tokens.md` — 색/타이포/전체 토큰 카탈로그
-- `guidelines/component-conventions.md` · `reduced-motion.md` — 컴포넌트 작성 관례
-- `guidelines/patterns.md` — 조합 패턴 규범(검색·필터 바, 읽기 전용 구획, 목록 페이지 이동)
+- `guidelines/colors.md` · `type.md` · `tokens.md` — 색/타이포/전체 토큰 카탈로그 (번들 고유 문서)
+- `guidelines/component-conventions.md` · `reduced-motion.md` — 컴포넌트 작성 관례 (`docs/` 사본)
+- `guidelines/patterns.md` — 조합 패턴 규범(검색·필터 바, 읽기 전용 구획, 목록 페이지 이동) (`docs/` 사본)
+
+**`docs/` 사본으로 표시된 세 문서는 직접 수정하지 말 것.** 저장소의 `docs/` 가 원본이고
+이쪽은 발행용 파생물이다(번들은 저장소 밖으로 나가므로 `docs/` 를 상대 경로로 참조할 수 없어
+동봉한다). `docs/` 에서 고친 뒤 `npm run sync:bundle-guidelines` 하나로 이쪽을 갱신한다.
+두 쪽이 어긋나면 `npm run check:bundle-guidelines`(게이트 `npm run check` 에 포함)가 막는다.
 
 핵심 규칙: 레드 **단일 액센트**(강조는 오직 `--primary`), 위계는 색이 아니라 **표면 사다리 + 차콜 명도**로.
 시맨틱은 개념 동등=색 동등(고정). 상태는 darken/lighten이 아니라 **M3 상태 레이어 오버레이**로.

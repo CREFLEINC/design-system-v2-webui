@@ -35,11 +35,13 @@
     "check:foundation:upstream": "node scripts/check-foundation.mjs --upstream",
     "check:foundation:upstream:strict": "node scripts/check-foundation.mjs --upstream --strict",
     "check:foundation:verify": "node scripts/check-foundation.mjs --verify-upstream",
+    "check:bundle-guidelines": "node scripts/sync-bundle-guidelines.mjs --check",
+    "sync:bundle-guidelines": "node scripts/sync-bundle-guidelines.mjs",
     "sync-foundation": "node scripts/sync-foundation.mjs",
     "shoot": "bash scripts/shoot.sh",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
-    "check": "npm run check:foundation && npm run typecheck && npm test && npm run lint:tokens && npm run lint:box-sizing && npm run check:components && npm run build && npm run build-storybook"
+    "check": "npm run check:foundation && npm run check:bundle-guidelines && npm run typecheck && npm test && npm run lint:tokens && npm run lint:box-sizing && npm run check:components && npm run build && npm run build-storybook"
   },
   "engines": {
     "node": ">=20.19"
