@@ -120,7 +120,10 @@ export const ImageMarkerBoard = forwardRef<HTMLDivElement, ImageMarkerBoardProps
     const surfaceRef = useRef<HTMLDivElement>(null)
     const drag = useRef<DragState | null>(null)
     // 드래그가 끝난 뒤 브라우저가 쏘는 click을 1회 삼킨다 — 드래그가 곧 선택은 아니다.
-    const suppressClick = useRef(false)
+    // 담는 값은 boolean이 아니라 «드래그한 표식의 id»다: 전역 플래그로 두면 억제가
+    // 다른 표식의 클릭까지 삼킨다. 터치 드래그 뒤에는 브라우저가 click을 쏘지 않아
+    // 플래그가 잔류하므로, 다음 입력이 키보드면 그 선택이 사라진다(실측).
+    const suppressClick = useRef<string | null>(null)
     const [announcement, setAnnouncement] = useState('')
 
     const placeable = !readOnly && Boolean(onPlace)
@@ -130,6 +133,13 @@ export const ImageMarkerBoard = forwardRef<HTMLDivElement, ImageMarkerBoardProps
     const handleSurfaceClick = (e: ReactMouseEvent<HTMLDivElement>) => {
       if (readOnly || !onPlace) return
       if ((e.target as Element).closest('button')) return
+      // 드래그 직후 브라우저가 표식 «밖»에서 쏘는 click은 놓기가 아니다. 포인터 캡처가
+      // 없는 환경에서는 pointerdown(표식)과 pointerup(판)의 공통 조상인 surface가
+      // click 대상이 되어, 막지 않으면 표식을 옮길 때마다 새 표식이 하나씩 생긴다.
+      if (suppressClick.current !== null) {
+        suppressClick.current = null
+        return
+      }
       const point = toRatio(e.currentTarget.getBoundingClientRect(), e.clientX, e.clientY)
       if (point) onPlace(point)
     }
@@ -137,10 +147,11 @@ export const ImageMarkerBoard = forwardRef<HTMLDivElement, ImageMarkerBoardProps
     // 고르기 — readOnly에서도 살아 있다("보기만 하는 화면"에서도 어느 표식인지는 확인해야 한다).
     // Enter/Space는 네이티브 button의 click으로 들어와 같은 경로를 탄다.
     const handleMarkerClick = (marker: ImageMarker) => {
-      if (suppressClick.current) {
-        suppressClick.current = false
-        return
-      }
+      // 억제 대상은 «드래그한 그 표식» 1회뿐이다. 다른 표식의 클릭은 통과시키고,
+      // 어느 쪽이든 이 클릭으로 억제를 소진한다.
+      const suppressed = suppressClick.current === marker.id
+      suppressClick.current = null
+      if (suppressed) return
       onSelect?.(marker.id)
     }
 
@@ -148,7 +159,7 @@ export const ImageMarkerBoard = forwardRef<HTMLDivElement, ImageMarkerBoardProps
       marker: ImageMarker,
       e: ReactPointerEvent<HTMLButtonElement>
     ) => {
-      suppressClick.current = false // 이전 드래그의 잔여 억제 해제
+      suppressClick.current = null // 이전 드래그의 잔여 억제 해제
       if (readOnly) return
       if (e.pointerType === 'mouse' && e.button !== 0) return
       drag.current = {
@@ -185,7 +196,7 @@ export const ImageMarkerBoard = forwardRef<HTMLDivElement, ImageMarkerBoardProps
       if (!d || d.pointerId !== e.pointerId) return
       const el = e.currentTarget
       if (typeof el.releasePointerCapture === 'function') el.releasePointerCapture(e.pointerId)
-      if (d.moved) suppressClick.current = true
+      if (d.moved) suppressClick.current = d.id
       drag.current = null
     }
 
@@ -199,6 +210,12 @@ export const ImageMarkerBoard = forwardRef<HTMLDivElement, ImageMarkerBoardProps
     }
 
     const handleMarkerKeyDown = (marker: ImageMarker, e: ReactKeyboardEvent<HTMLButtonElement>) => {
+      // 키보드 입력이 들어온 순간 포인터 드래그의 잔여 억제는 무효다. 네이티브 button은
+      // Enter/Space 활성화 전에 반드시 keydown을 내므로, 여기서 지우면 그 click이
+      // 삼켜지지 않는다 — 터치 드래그 뒤 브라우저가 click을 쏘지 않아 억제가 남는 경로를
+      // 이것으로 닫는다. MouseEvent.detail로 구분하지 않는 이유는 그 값이 환경마다
+      // 다르기 때문이다(fireEvent.click 은 기본 0).
+      suppressClick.current = null
       const delta = ARROWS[e.key]
       if (!delta) return
       // readOnly에서는 preventDefault도 하지 않는다 — 기본 스크롤을 남긴다.
@@ -208,6 +225,10 @@ export const ImageMarkerBoard = forwardRef<HTMLDivElement, ImageMarkerBoardProps
         x: clamp01(marker.x + delta.dx * step),
         y: clamp01(marker.y + delta.dy * step)
       }
+      // toRatio와 같은 불변식 — NaN을 밖으로 내보내지 않는다. step이나 표식 좌표가
+      // 유한수가 아니면 clamp01이 NaN을 통과시키고, 누르지 않은 축까지 0 * NaN = NaN 으로
+      // 오염된다. 소비자가 이 값을 상태에 반영하면 left: NaN% 이 되어 표식이 사라진다.
+      if (!Number.isFinite(next.x) || !Number.isFinite(next.y)) return
       // 가장자리에서 값이 그대로면 호출·안내를 생략한다(NumberPad no-op 선례).
       if (next.x === marker.x && next.y === marker.y) return
       onMove?.(marker.id, next)
