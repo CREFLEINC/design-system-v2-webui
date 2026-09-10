@@ -73,7 +73,7 @@ export const MaxConstraints: Story = {
 
 export const Matrix: Story = {
   render: () => {
-    const sizes = ['md', 'lg', 'xl'] as const
+    const sizes = ['md', 'lg', 'xl', '2xl'] as const
     return (
       <div style={{ display: 'grid', gap: 24 }}>
         {sizes.map((s) => (

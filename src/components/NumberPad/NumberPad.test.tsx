@@ -4,6 +4,7 @@ import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { renderToString } from 'react-dom/server'
 import { NumberPad, type NumberPadProps } from './NumberPad'
+import styles from './NumberPad.module.css'
 
 // 컨트롤드 하네스 — value/onChange가 필수인 controlled 전용 컴포넌트를 여러 번
 // 연속으로 누르는 시나리오(예: 숫자 이어붙이기)에서 버퍼 진행을 재현한다.
@@ -274,6 +275,44 @@ test('키보드: 포커스된 숫자 키를 Enter/Space로 활성화할 수 있�
   two.focus()
   await user.keyboard(' ')
   expect(onChange).toHaveBeenCalledWith('2')
+})
+
+// ── 크기 ────────────────────────────────────────────────────
+
+test('size="2xl"이면 루트에 .xxl 클래스가 적용된다', () => {
+  render(<NumberPad value="" onChange={vi.fn()} size="2xl" />)
+  expect(screen.getByRole('group').className).toContain(styles.xxl)
+})
+
+test('size 미지정이면 기본값 xl 클래스가 적용되고 xxl은 포함되지 않는다', () => {
+  render(<NumberPad value="" onChange={vi.fn()} />)
+  const root = screen.getByRole('group')
+  expect(root.className).toContain(styles.xl)
+  expect(root.className).not.toContain(styles.xxl)
+})
+
+test('size="2xl"이면 ← 아이콘이 28px, 기본값(xl)에서는 24px이다', () => {
+  const { rerender } = render(<NumberPad value="" onChange={vi.fn()} size="2xl" />)
+  const backspaceIcon2xl = screen
+    .getByRole('button', { name: '한 글자 지우기' })
+    .querySelector('[aria-hidden="true"]')
+  expect(backspaceIcon2xl).toHaveStyle({ fontSize: '28px' })
+
+  rerender(<NumberPad value="" onChange={vi.fn()} />)
+  const backspaceIconDefault = screen
+    .getByRole('button', { name: '한 글자 지우기' })
+    .querySelector('[aria-hidden="true"]')
+  expect(backspaceIconDefault).toHaveStyle({ fontSize: '24px' })
+})
+
+test('size="2xl"에서도 ←·C 키의 접근 이름·설명은 변하지 않는다', () => {
+  render(<NumberPad value="" onChange={vi.fn()} size="2xl" />)
+  const backspaceKey = screen.getByRole('button', { name: '한 글자 지우기' })
+  expect(backspaceKey).toHaveAccessibleName('한 글자 지우기')
+  expect(backspaceKey).not.toHaveAccessibleDescription()
+
+  const clearKey = screen.getByRole('button', { name: 'C — 전체 지우기' })
+  expect(clearKey).toHaveAccessibleName('C — 전체 지우기')
 })
 
 // ── SSR ─────────────────────────────────────────────────────
